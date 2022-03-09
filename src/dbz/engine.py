@@ -28,18 +28,27 @@ class Engine():
         Returns:
             query result as data frame
         """
+        print(f'Plan: {plan}')
         return self.library + self._plan_code(plan)
     
-    def _agg_code(self, agg):
+    def _agg_code(self, agg, groups):
         """ Generates code for processing aggregates.
         
         Args:
             agg: produce code for this aggregate
+            groups: column indices for grouping
         
         Returns:
             code processing given aggregate
         """
-        pass
+        kind = agg['agg']['kind']
+        operands = agg['operands']
+        params = [f'last_result.get_column({op})' for op in operands]
+        if groups:
+            params += [f'last_result.get_column({g})' for g in groups]
+            return f'Grouped{kind}({",".join(params)})'
+        else:
+            return f'{kind}({",".join(params)})'
     
     def _assignment(self, step, op_code):
         """ Returns code for assigning operation result to variable.
@@ -68,7 +77,23 @@ class Engine():
         operands = operation['operands']
         left_op = self._operation_code(operands[0])
         right_op = self._operation_code(operands[1])
-        return f'{left_op} {op_kind} {right_op}'
+        return f'{op_kind}({left_op},{right_op})'
+    
+    def _cast_code(self, operation):
+        """ Generate code for a casting operation.
+        
+        Args:
+            operation: describes casting operation
+        
+        Returns:
+            code for executing a type cast
+        """
+        operands = operation['operands']
+        assert len(operands) == 1
+        operand_code = self._operation_code(operands[0])
+        param = f'last_result.get_column({operand_code})'
+        new_type = operation['type']['type']
+        return f'CAST({param}, {new_type})'
     
     def _column_code(self, column_ref):
         """ Generate code retrieving column of last result. 
@@ -109,7 +134,9 @@ class Engine():
         aggs = step['aggs']
         groups = step['group']
         for agg in aggs:
-            agg_code = self._agg_code(agg)
+            agg_code = self._agg_code(agg, groups)
+            add_code = f'{result}.add_column({agg_code})'
+            parts += [add_code]
         return '\n'.join(parts)
     
     def _LogicalFilter(self, step):
@@ -163,6 +190,29 @@ class Engine():
         parts += [f'last_result = {result}']
         return '\n'.join(parts)
     
+    def _LogicalSort(self, step):
+        """ Produces code for a logical sort operation. 
+        
+        Args:
+            step: plan step to translate into code
+        
+        Returns:
+            code for executing plan step
+        """
+        if 'collation' in step:
+            collation = step['collation']
+            fields = [d['field'] for d in collation]
+            flags = [d['direction'] == 'ASCENDING' for d in collation]
+            code = f'last_result = LogicalSort(' +\
+                f'last_result, {fields}, {flags})'
+            
+        if 'fetch' in step:
+            nr_rows = step['fetch']['literal']
+            limit_code = f'last_result.first_n_rows({nr_rows})'
+            code += limit_code
+        
+        return self._assignment(step, code)
+    
     def _LogicalTableScan(self, step):
         """ Produces code for table scan.
         
@@ -172,9 +222,11 @@ class Engine():
         Returns:
             code realizing scan
         """
-        db = step['table'][0]
-        table = step['table'][1]
-        file_path = f'{self.data_dir}/{db}/{table}'
+        # db = step['table'][0]
+        # table = step['table'][1]
+        # file_path = f'{self.data_dir}/{db}/{table}'
+        table = step['table'][0]
+        file_path = f'{self.data_dir}/{table}'
         op_code = f'LogicalTableScan({file_path})'
         return self._assignment(step, op_code)
     
@@ -193,8 +245,11 @@ class Engine():
             return self._column_code(operation)
         elif 'op' in operation:
             syntax = operation['op']['syntax']
-            if syntax == 'BINARY':
+            name = operation['op']['name']
+            if syntax == 'BINARY' or name in ['+', '-']:
                 return self._binary_code(operation)
+            if name == 'CAST':
+                return self._cast_code(operation)
         
         raise ValueError(f'Unhandled operation: {operation}')
     
