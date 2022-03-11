@@ -5,6 +5,7 @@ Created on Mar 9, 2022
 '''
 import argparse
 import dbz.engine
+import dbz.query
 import dbz.synthesize
 import dbz.util
 import openai
@@ -25,7 +26,7 @@ if __name__ == '__main__':
     
     openai.api_key = args.ai_key
     paths = dbz.util.DbzPaths(args.data_dir, args.python)
-    queries = dbz.util.load_queries(args.workload)
+    queries = dbz.query.load_queries(args.workload)
     # synthesizer = dbz.synthesize.Synthesizer(
         # paths.config, args.data_nl, args.operator_nl)
     # library = synthesizer.synthesize()

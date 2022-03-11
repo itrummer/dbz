@@ -226,8 +226,8 @@ class Coder():
         # file_path = f'{self.data_dir}/{db}/{table}'
         table = step['table'][0]
         file_path = f'{self.paths.data_dir}/{table}'
-        op_code = f'LogicalTableScan({file_path})'
-        return self._assignment(step, op_code)
+        scan_code = f'new_table = Table()\nnew_table.from_csv("{file_path}")'
+        return scan_code + '\n' + self._assignment(step, 'new_table')
     
     def _operation_code(self, operation):
         """ Generate code realizing given operation. 

@@ -5,6 +5,7 @@ Created on Mar 6, 2022
 '''
 import abc
 import dbz.code
+import dbz.query
 import dbz.plan
 import pandas as pd
 import psycopg2
@@ -47,6 +48,7 @@ class DbzEngine(Engine):
             sql: an SQL query to answer
             out: name of file for query result
         """
+        sql = dbz.query.simplify(sql)
         plan = self.planner.plan(sql)
         print(f'Plan: {plan}')
         code_parts = []
