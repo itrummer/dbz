@@ -6,8 +6,13 @@ Created on Mar 10, 2022
 class Coder():
     """ Translates query plans into code. """
     
-    def __init__(self):
-        """ Initialize variables. """
+    def __init__(self, paths):
+        """ Initialize variables and paths. 
+        
+        Args:
+            paths: relevant paths
+        """
+        self.paths = paths
         self.id_to_plan = {}
     
     def plan_code(self, plan):
@@ -220,7 +225,7 @@ class Coder():
         # table = step['table'][1]
         # file_path = f'{self.data_dir}/{db}/{table}'
         table = step['table'][0]
-        file_path = f'{self.data_dir}/{table}'
+        file_path = f'{self.paths.data_dir}/{table}'
         op_code = f'LogicalTableScan({file_path})'
         return self._assignment(step, op_code)
     

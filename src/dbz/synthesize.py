@@ -3,6 +3,7 @@ Created on Mar 6, 2022
 
 @author: immanueltrummer
 '''
+import json
 import openai
 import time
 
@@ -10,15 +11,16 @@ import time
 class Synthesizer():
     """ Synthesizes code for a DBMS engine. """
     
-    def __init__(self, config, data_nl, operator_nl):
+    def __init__(self, config_path, data_nl, operator_nl):
         """ Initialize for given natural language instructions.
         
         Args:
-            config: dictionary configuring the synthesis process
+            config_path: path to configuration file
             data_nl: natural language description of data format
             operator_nl: natural language description of operators
         """
-        self.config = config
+        with open(config_path) as file:
+            self.config = json.load(file)
         self.data_nl = data_nl
         self.operator_nl = operator_nl
         self.imports = None
@@ -54,7 +56,9 @@ class Synthesizer():
             try:
                 response = openai.Completion.create(
                     prompt=prompt, stop=stop,
-                    temperature=temperature)
+                    temperature=temperature,
+                    engine='davinci-codex',
+                    max_tokens=600)
                 return response['choices'][0]['text']
             except openai.error.InvalidRequestError as e:
                 print(f'Invalid OpenAI request: {e}')
@@ -71,9 +75,9 @@ class Synthesizer():
             code importing relevant libraries
         """
         prompt = self._load_prompt('imports.py')
-        prompt = self._substitute(prompt, [])
-        completion = self._complete(prompt, 0, 'print(')
-        return prompt + '\n' + completion
+        prompt = self._substitute(prompt, {})
+        completion = self._complete(prompt, 0, '\n\n')
+        return prompt + completion
     
     def _load_prompt(self, file_name):
         """ Load prompt (potentially with placeholders) from given file. """
@@ -121,6 +125,6 @@ class Synthesizer():
             code defining class representing tables
         """
         prompt = self._load_prompt('table.py')
-        prompt = self._substitute(prompt, [])
-        completion = self._complete(prompt, 0, '"""')
-        return prompt + '\n' + completion
+        prompt = self._substitute(prompt, {})
+        completion = self._complete(prompt, 0, '\n\n')
+        return prompt + completion

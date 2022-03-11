@@ -1,28 +1,24 @@
-'''
-Created on Mar 10, 2022
+from abc import ABC, abstractmethod
 
-@author: immanueltrummer
-'''
-from abc import ABC, abstractclassmethod
 
 class AbstractTable(ABC):
     """ Represents a relational table with data. """
     
-    @abstractclassmethod
+    @abstractmethod
     def from_csv(self, csv_path):
         """ Loads table data from csv file. """
         raise NotImplementedError()
     
-    @abstractclassmethod
+    @abstractmethod
     def to_csv(self, csv_path):
         """ Writes table data to csv file. """
         raise NotImplementedError()
     
-    @abstractclassmethod
+    @abstractmethod
     def add_column(self, column):
         """ Adds given column to table. """
     
-    @abstractclassmethod
+    @abstractmethod
     def get_column(self, column_idx):
         """ Returns column with given index. """
         raise NotImplementedError()
@@ -30,3 +26,5 @@ class AbstractTable(ABC):
 
 class Table(AbstractTable):
     """ <DataInstructions> """
+    
+    def __init__(self):
