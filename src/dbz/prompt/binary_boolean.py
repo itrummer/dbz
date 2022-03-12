@@ -1,5 +1,5 @@
 def binary_op(operand_1, operand_2):
-    """ Performs binary_op between two operands.
+    """ Returns true iff operand_1 <short_op> operand_2.
     
     <OperatorInstructions>
     
@@ -8,5 +8,5 @@ def binary_op(operand_1, operand_2):
         operand_2: a column or a constant
     
     Returns:
-        result of binary_op
+        true iff operand_1 <short_op> operand_2
     """
