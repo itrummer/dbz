@@ -27,11 +27,14 @@ if __name__ == '__main__':
     openai.api_key = args.ai_key
     paths = dbz.util.DbzPaths(args.data_dir, args.python)
     queries = dbz.query.load_queries(args.workload)
-    # synthesizer = dbz.synthesize.Synthesizer(
-        # paths.config, args.data_nl, args.operator_nl)
-    # library = synthesizer.synthesize()
-    # print(library)
+    synthesizer = dbz.synthesize.Synthesizer(
+        paths.config, args.data_nl, args.operator_nl)
+    library = synthesizer.synthesize()
+    print(library)
+    
+    with open('library.py', 'w') as file:
+        file.write(library)
+    
     # engine = dbz.engine.DbzEngine(paths, library)
-    engine = dbz.engine.DbzEngine(paths, '')
-    for idx, query in enumerate(queries, 1):
-        engine.execute(query, f'result_{idx}')
+    # for idx, query in enumerate(queries, 1):
+        # engine.execute(query, f'result_{idx}')

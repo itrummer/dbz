@@ -1,6 +1,14 @@
 from abc import ABC, abstractmethod
 
 
+class Column():
+    """ Represents a table column. """
+    
+    def __init__(self, name, data):
+        self.name = name
+        self.data = data
+
+
 class AbstractTable(ABC):
     """ Represents a relational table with data. """
     
@@ -17,6 +25,7 @@ class AbstractTable(ABC):
     @abstractmethod
     def add_column(self, column):
         """ Adds given column to table. """
+        raise NotImplementedError()
     
     @abstractmethod
     def get_column(self, column_idx):

@@ -1,5 +1,19 @@
 {
 	"operators":{
-		"dbz/prompt/project":[]
+		"aggregate.py":[
+		{"AGG": "Sum"}, {"AGG":"Min"}, {"AGG":"Max"}, {"AGG":"Count"}, {"AGG":"Avg"}],
+		"binary_boolean.py":[
+		{"binary_op":"less_than", "<short_op>":"<"},
+		{"binary_op":"less_than_or_equal", "<short_op>":"<="},
+		{"binary_op":"equal", "<short_op>":"="},
+		{"binary_op":"greater_than_or_equal", "<short_op>":">="},
+		{"binary_op":"greater_than", "<short_op>":">"}],
+		"binary_expression.py":[
+		{"binary_op":"addition"}, 
+		{"binary_op":"subtraction"},
+		{"binary_op":"multiplication"},
+		{"binary_op":"division"}],
+		"filter.py":[{}],
+		"sort.py":[{}]
 	}
 }

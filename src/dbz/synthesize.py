@@ -50,6 +50,7 @@ class Synthesizer():
         Returns:
             completed code
         """
+        print(f'--- PROMPT ---\n{prompt}')
         delay_s = 1
         for i in range(5):
             print(f'Querying Codex - retry nr. {i} ...')
@@ -59,7 +60,9 @@ class Synthesizer():
                     temperature=temperature,
                     engine='davinci-codex',
                     max_tokens=600)
-                return response['choices'][0]['text']
+                completion = response['choices'][0]['text']
+                print(f'--- COMPLETION ---\n{completion}')
+                return completion
             except openai.error.InvalidRequestError as e:
                 print(f'Invalid OpenAI request: {e}')
                 return None
@@ -95,10 +98,11 @@ class Synthesizer():
         op_configs = self.config['operators']
         for op_file, op_instances in op_configs.items():
             for substitutions in op_instances:
+                context = self.imports + '\n' + self.table + ('\n'*3)
                 prompt = self._load_prompt(op_file)
                 prompt = self._substitute(prompt, substitutions)
-                completion = self._complete(prompt, 0, '"""')
-                operators += [prompt + '\n' + completion]
+                completion = self._complete(context+prompt, 0, '\n'*2)
+                operators += [prompt + '\n' + completion + ('\n'*2)]
         return operators
     
     def _substitute(self, raw_text, substitutions):

@@ -41,13 +41,14 @@ class Coder():
             code processing given aggregate
         """
         kind = agg['agg']['kind']
+        name = {'SUM':'Sum', 'AVG':'Avg', 'MIN':'Min', 
+                'MAX':'Max', 'COUNT':'Count'}[kind]
         operands = agg['operands']
-        params = [f'last_result.get_column({op})' for op in operands]
-        if groups:
-            params += [f'last_result.get_column({g})' for g in groups]
-            return f'Grouped{kind}({",".join(params)})'
-        else:
-            return f'{kind}({",".join(params)})'
+        params = []
+        params += ['table=last_result']
+        params += [f'agg_cols={operands}']
+        params += [f'group_by_cols={groups}']
+        return f'Grouped{name}({",".join(params)})'
     
     def _assignment(self, step, op_code):
         """ Returns code for assigning operation result to variable.
@@ -73,10 +74,17 @@ class Coder():
             code realizing the operation
         """
         op_kind = operation['op']['kind']
+        op_name = {'PLUS':'addition', 'MINUS':'subtraction', 
+                   'TIMES':'multiplication', 'DIVISION':'division',
+                   'LESS_THAN_OR_EQUAL':'less_than_or_equal',
+                   'LESS_THAN':'less_than',
+                   'GREATER_THAN_OR_EQUAL':'greater_than_or_equal',
+                   'GREATER_THAN':'greater_than',
+                   'EQUAL_TO':'equal'}[op_kind]
         operands = operation['operands']
         left_op = self._operation_code(operands[0])
         right_op = self._operation_code(operands[1])
-        return f'{op_kind}({left_op},{right_op})'
+        return f'{op_name}({left_op},{right_op})'
     
     def _cast_code(self, operation):
         """ Generate code for a casting operation.
@@ -149,7 +157,7 @@ class Coder():
         """
         condition = step['condition']
         pred_code = self._operation_code(condition)
-        op_code = f'LogicalFilter(last_result, {pred_code})'
+        op_code = f'pick_rows(last_result, {pred_code})'
         return self._assignment(step, op_code)
     
     def _LogicalJoin(self, step):
@@ -198,18 +206,20 @@ class Coder():
         Returns:
             code for executing plan step
         """
+        if 'fetch' in step:
+            nr_rows = step['fetch']['literal']
+        else:
+            nr_rows = -1
+
         if 'collation' in step:
             collation = step['collation']
             fields = [d['field'] for d in collation]
             flags = [d['direction'] == 'ASCENDING' for d in collation]
-            code = f'last_result = LogicalSort(' +\
-                f'last_result, {fields}, {flags})'
-            
-        if 'fetch' in step:
-            nr_rows = step['fetch']['literal']
-            limit_code = f'last_result.first_n_rows({nr_rows})'
-            code += limit_code
+        else:
+            fields = []
+            flags = []
         
+        code = f'top_k(last_result, {fields}, {flags}, {nr_rows})'
         return self._assignment(step, code)
     
     def _LogicalTableScan(self, step):
