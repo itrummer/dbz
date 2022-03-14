@@ -99,7 +99,7 @@ class PgEngine(Engine):
             out: write output to this file
         """
         with psycopg2.connect(
-            db=self.db, user=self.user, 
+            database=self.db, user=self.user, 
             password=self.pwd) as connection:
             result = pd.read_sql_query(sql, connection)
             result.to_csv(out)
