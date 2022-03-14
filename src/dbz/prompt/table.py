@@ -14,12 +14,12 @@ class AbstractTable(ABC):
     
     @abstractmethod
     def from_csv(self, csv_path):
-        """ Loads table data from csv file. """
+        """ Loads table data from csv file (no header). """
         raise NotImplementedError()
     
     @abstractmethod
     def to_csv(self, csv_path):
-        """ Writes table data to csv file. """
+        """ Writes table data to csv file (no header). """
         raise NotImplementedError()
     
     @abstractmethod
