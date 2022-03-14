@@ -104,4 +104,4 @@ class PgEngine(Engine):
             database=self.db, user=self.user, 
             password=self.pwd, host=self.host) as connection:
             result = pd.read_sql_query(sql, connection)
-            result.to_csv(out)
+            result.to_csv(out, index=False, header=None)
