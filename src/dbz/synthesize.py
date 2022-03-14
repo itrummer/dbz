@@ -62,10 +62,11 @@ class Synthesizer():
                     temperature = min(temperature, 1)
                     task_idx = last_passed+1
                     self.solved_tasks = []
-                    for t in tasks[:last_passed]:
-                        if t['type'] == 'generate':
-                            task_id = t['task_id']
-                            self.solved_tasks += [task_id]
+                    if last_passed >= 0:
+                        for t in tasks[:last_passed]:
+                            if t['type'] == 'generate':
+                                task_id = t['task_id']
+                                self.solved_tasks += [task_id]
             else:
                 raise ValueError(f'Unknown task type: {task_type}')
         
