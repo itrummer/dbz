@@ -153,7 +153,7 @@ class Synthesizer():
         parts += [prompt_end]
         
         prompt = '\n'.join(parts)
-        stop = '\n'*2
+        stop = '\n\n'
         if 'stop' in task:
             stop = task['stop']
         completion = self._complete(prompt, temperature, stop)
