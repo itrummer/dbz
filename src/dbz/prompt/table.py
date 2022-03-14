@@ -18,6 +18,11 @@ class AbstractTable(ABC):
         raise NotImplementedError()
     
     @abstractmethod
+    def from_data(self, data):
+        """ Creates table from in-memory data. """
+        raise NotImplementedError()
+    
+    @abstractmethod
     def to_csv(self, csv_path):
         """ Writes table data to csv file (no header). """
         raise NotImplementedError()
