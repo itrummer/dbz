@@ -32,16 +32,21 @@ class Validator():
             True if validation succeeds
         """
         print('Validation in progress ...')
-        for idx, query in enumerate(self.queries, 1):
-            print(f'Treating query {idx}/{self.nr_queries} ...')
-            out = f'{self.paths.tmp_dir}/check_{idx}'
-            engine.execute(query, out)
-            ref = f'{self.paths.tmp_dir}/ref_{idx}'
-            if not filecmp.cmp(out, ref):
-                print(f'Validation failed for query {query}!')
-                return False
-            else:
-                print(f'Validation successful.')
+        try:
+            for idx, query in enumerate(self.queries, 1):
+                print(f'Treating query {idx}/{self.nr_queries} ...')
+                out = f'{self.paths.tmp_dir}/check_{idx}'
+                engine.execute(query, out)
+                ref = f'{self.paths.tmp_dir}/ref_{idx}'
+                if filecmp.cmp(out, ref):
+                    print(f'Validation successful.')
+                else:
+                    print(f'Validation failed for query {query}!')
+                    return False
+        except Exception as e:
+            print(f'Validation failed with exception: {e}')
+            return False
+        return True
 
     def _generate_ref(self):
         """ Generates reference results for all queries. """
