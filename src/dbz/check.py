@@ -4,6 +4,7 @@ Created on Mar 9, 2022
 @author: immanueltrummer
 '''
 import filecmp
+import os
 
 class Validator():
     """ Validates an engine implementation by comparing to reference. """
@@ -41,7 +42,11 @@ class Validator():
                 if filecmp.cmp(out, ref):
                     print(f'Validation successful.')
                 else:
-                    print(f'Validation failed for query {query}!')
+                    print(f'Result comparison failed for query {query}!')
+                    print('Start of reference result:')
+                    print(os.system(f'head {ref}'))
+                    print('Start of test result:')
+                    print(os.system(f'head {out}'))
                     return False
         except Exception as e:
             print(f'Validation failed with exception: {e}')
