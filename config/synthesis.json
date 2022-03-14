@@ -13,72 +13,72 @@
 	
 
 	
-	{"type":"generate", "task_id":"filter", "context":["imports", "table"],
+	{"type":"generate", "task_id":"filter", "context":["table"],
 		"template":"filter.py", "substitutions":{}},
-	{"type":"generate", "task_id":"less_than", "context":["imports", "table"],
+	{"type":"generate", "task_id":"less_than", "context":["table"],
 		"template":"binary_boolean.py", 
 		"substitutions":{"binary_op":"less_than", "<short_op>":"<"}},
 	{"type":"check", "queries":["select * from lineitem where l_extendedprice < 13309.60"]},
 	
-	{"type":"generate", "task_id":"greater_than", "context":["imports", "table"],
+	{"type":"generate", "task_id":"greater_than", "context":["table"],
 		"template":"binary_boolean.py", 
 		"substitutions":{"binary_op":"greater_than", "<short_op>":">"}},
 	{"type":"check", "queries":["select * from lineitem where l_extendedprice > 13309.60"]},
 	
-	{"type":"generate", "task_id":"equal_to", "context":["imports", "table"],
+	{"type":"generate", "task_id":"equal_to", "context":["table"],
 		"template":"binary_boolean.py", 
 		"substitutions":{"binary_op":"equal", "<short_op>":"="}},
 	{"type":"check", "queries":["select * from lineitem where l_extendedprice = 13309.60"]},
 
-	{"type":"generate", "task_id":"less_than_or_equal", "context":["imports", "table"],
+	{"type":"generate", "task_id":"less_than_or_equal", "context":["table"],
 		"template":"binary_boolean.py", 
 		"substitutions":{"binary_op":"less_than_or_equal", "<short_op>":"<="}},
 	{"type":"check", "queries":["select * from lineitem where l_extendedprice <= 13309.60"]},
 	
-	{"type":"generate", "task_id":"greater_than_or_equal", "context":["imports", "table"],
+	{"type":"generate", "task_id":"greater_than_or_equal", "context":["table"],
 		"template":"binary_boolean.py", 
 		"substitutions":{"binary_op":"greater_than_or_equal", "<short_op>":">="}},
 	{"type":"check", "queries":["select * from lineitem where l_extendedprice >= 13309.60"]},
 	
 	
 	
-	{"type":"generate", "task_id":"sum", "context":["imports", "table"], 
+	{"type":"generate", "task_id":"sum", "context":["table"], 
 		"template":"aggregate.py", "substitutions":{"AGG":"Sum"}},
 	{"type":"check", "queries":["select sum(l_extendedprice) from lineitem"]},
 	
-	{"type":"generate", "task_id":"min", "context":["imports", "table"], 
+	{"type":"generate", "task_id":"min", "context":["table"], 
 		"template":"aggregate.py", "substitutions":{"AGG":"Min"}},
 	{"type":"check", "queries":["select min(l_extendedprice) from lineitem"]},
 	
-	{"type":"generate", "task_id":"max", "context":["imports", "table"], 
+	{"type":"generate", "task_id":"max", "context":["table"], 
 		"template":"aggregate.py", "substitutions":{"AGG":"Max"}},
 	{"type":"check", "queries":["select max(l_extendedprice) from lineitem"]},
 	
-	{"type":"generate", "task_id":"avg", "context":["imports", "table"], 
+	{"type":"generate", "task_id":"avg", "context":["table"], 
 		"template":"aggregate.py", "substitutions":{"AGG":"Avg"}},
 	{"type":"check", "queries":["select avg(l_extendedprice) from lineitem"]},
 	
-	{"type":"generate", "task_id":"count", "context":["imports", "table"], 
+	{"type":"generate", "task_id":"count", "context":["table"], 
 		"template":"aggregate.py", "substitutions":{"AGG":"Count"}},
 	{"type":"check", "queries":["select count(*) from lineitem"]},
 	
-	{"type":"generate", "task_id":"addition", "context":["imports", "table"],
+	{"type":"generate", "task_id":"addition", "context":["table"],
 		"template":"binary_expression.py", "substitutions":{"binary_op":"addition"}},
 	{"type":"check", "queries":["select l_extendedprice + 0.1 from lineitem"]},
 	
-	{"type":"generate", "task_id":"subtraction", "context":["imports", "table"],
+	{"type":"generate", "task_id":"subtraction", "context":["table"],
 		"template":"binary_expression.py", "substitutions":{"binary_op":"subtraction"}},
 	{"type":"check", "queries":["select l_extendedprice - 0.1 from lineitem"]},
 
-	{"type":"generate", "task_id":"multiplication", "context":["imports", "table"],
+	{"type":"generate", "task_id":"multiplication", "context":["table"],
 		"template":"binary_expression.py", "substitutions":{"binary_op":"multiplication"}},
 	{"type":"check", "queries":["select l_extendedprice * 0.1 from lineitem"]},
 	
-	{"type":"generate", "task_id":"division", "context":["imports", "table"],
+	{"type":"generate", "task_id":"division", "context":["table"],
 		"template":"binary_expression.py", "substitutions":{"binary_op":"division"}},
 	{"type":"check", "queries":["select l_extendedprice / 0.1 from lineitem"]},
 	
-	{"type":"generate", "task_id":"sort", "context":["imports", "table"],
+	{"type":"generate", "task_id":"sort", "context":["table"],
 		"template":"sort", "substitutions":[]},
 	{"type":"check", 
 		"queries":["select * from lineitem order by l_extendedprice DESC limit 5"]}
