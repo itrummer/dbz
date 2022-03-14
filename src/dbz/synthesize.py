@@ -58,7 +58,7 @@ class Synthesizer():
                     temperature = 0
                     last_passed = task_idx
                 else:
-                    temperature += 0.1
+                    temperature += 0.05
                     temperature = min(temperature, 1)
                     task_idx = last_passed+1
                     self.solved_tasks = []
