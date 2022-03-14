@@ -82,10 +82,11 @@ class Synthesizer():
             completed code
         """
         print(f'--- PROMPT ---\n{prompt}')
-        delay_s = 1
+        delay_s = 3
         for i in range(5):
             print(f'Querying Codex - retry nr. {i} ...')
             try:
+                time.sleep(delay_s)
                 response = openai.Completion.create(
                     prompt=prompt, stop=stop,
                     temperature=temperature,
@@ -99,7 +100,6 @@ class Synthesizer():
                 return None
             except Exception as e:
                 print(f'Exception: {e}')
-                time.sleep(delay_s)
                 delay_s *= 2
     
     def _check(self, task):
@@ -142,7 +142,7 @@ class Synthesizer():
         parts = []
         context = task['context']
         for c in context:
-            parts += [self.solutions[c] + ('\n'*2)]
+            parts += [self.solutions[c]]
         
         file = task['template']
         prompt_end = self._load_prompt(file)
