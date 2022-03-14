@@ -3,8 +3,8 @@ Created on Mar 9, 2022
 
 @author: immanueltrummer
 '''
-import filecmp
 import os
+import pandas as pd
 
 class Validator():
     """ Validates an engine implementation by comparing to reference. """
@@ -36,18 +36,32 @@ class Validator():
         try:
             for idx, query in enumerate(self.queries, 1):
                 print(f'Treating query {idx}/{self.nr_queries} ...')
-                out = f'{self.paths.tmp_dir}/check_{idx}'
-                engine.execute(query, out)
-                ref = f'{self.paths.tmp_dir}/ref_{idx}'
-                if filecmp.cmp(out, ref):
-                    print(f'Validation successful.')
-                else:
+                check_path = f'{self.paths.tmp_dir}/check_{idx}'
+                engine.execute(query, check_path)
+                ref_path = f'{self.paths.tmp_dir}/ref_{idx}'
+                print('Start of test result:')
+                print(os.system(f'head {check_path}'))
+                print('Start of reference result:')
+                print(os.system(f'head {ref_path}'))
+                
+                check_df = pd.read_csv(check_path, header=None)
+                ref_df = pd.read_csv(ref_path, header=None)
+                check_df.reindex()
+                ref_df.reindex()
+                
+                try:
+                    diffs = ref_df.compare(check_df, align_axis=0)
+                    print(f'--- Differences ---\n{diffs}\n---')
+                    nr_diffs = diffs.shape[0]
+                except:
+                    nr_diffs = 777
+
+                if nr_diffs:
                     print(f'Result comparison failed for query {query}!')
-                    print('Start of reference result:')
-                    print(os.system(f'head {ref}'))
-                    print('Start of test result:')
-                    print(os.system(f'head {out}'))
                     return False
+                else:
+                    print(f'Validation successful!')
+        
         except Exception as e:
             print(f'Validation failed with exception: {e}')
             return False
