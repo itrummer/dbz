@@ -235,7 +235,7 @@ class Coder():
         # table = step['table'][1]
         # file_path = f'{self.data_dir}/{db}/{table}'
         table = step['table'][0]
-        file_path = f'{self.paths.data_dir}/{table}'
+        file_path = f'{self.paths.data_dir}/{table.lower()}.csv'
         scan_code = f'new_table = Table()\nnew_table.from_csv("{file_path}")'
         return scan_code + '\n' + self._assignment(step, 'new_table')
     
