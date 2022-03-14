@@ -1,6 +1,6 @@
 {
 	"test_access":{
-		"data_dir":"data", "python":"python"},
+		"data_dir":"tpch_sf0001", "python":"python"},
 	"ref_access":{
 		"pg_db":"tpch_sf0001", "pg_user":"ubuntu", "pg_pwd":"", 
 		"host":"/var/run/postgresql"},
