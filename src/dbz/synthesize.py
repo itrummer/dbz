@@ -40,13 +40,14 @@ class Synthesizer():
         nr_tasks = len(tasks)
         task_idx = 0
         last_passed = -1
+        temperature = 0
         
         while task_idx < nr_tasks:
             cur_task = tasks[task_idx]
             task_type = cur_task['type']
             print(f'Treating task {cur_task} ...')
             if task_type == 'generate':
-                solution = self._generate(cur_task)
+                solution = self._generate(cur_task, temperature)
                 task_id = cur_task['task_id']
                 self.solutions[task_id] = solution
                 task_idx += 1
@@ -54,6 +55,7 @@ class Synthesizer():
                 success = self._check(cur_task)
                 if success:
                     last_passed = task_idx
+                    temperature = 0
                     self.solved_tasks = []
                     for t in tasks[:last_passed]:
                         if t['type'] == 'generate':
@@ -61,6 +63,8 @@ class Synthesizer():
                             self.solved_tasks += [task_id]
                 else:
                     task_idx = last_passed+1
+                    temperature += 0.1
+                    temperature = min(temperature, 1)
             else:
                 raise ValueError(f'Unknown task type: {task_type}')
         
@@ -125,11 +129,12 @@ class Synthesizer():
         validator = dbz.check.Validator(paths, queries, ref_engine)
         return validator.validate(test_engine)
     
-    def _generate(self, task):
+    def _generate(self, task, temperature):
         """ Synthesize code piece as described in task.
         
         Args:
             task: dictionary describing generation task
+            temperature: degree of randomness in generation
         
         Returns:
             prompt with generated code piece
@@ -149,7 +154,7 @@ class Synthesizer():
         stop = '\n'*2
         if 'stop' in task:
             stop = task['stop']
-        completion = self._complete(prompt, 0, stop)
+        completion = self._complete(prompt, temperature, stop)
                 
         return prompt + completion + ('\n'*2)
     
