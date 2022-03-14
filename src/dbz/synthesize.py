@@ -111,7 +111,8 @@ class Synthesizer():
         pg_db = ref_access['pg_db']
         pg_user = ref_access['pg_user']
         pg_pwd = ref_access['pg_pwd']
-        ref_engine = dbz.engine.PgEngine(pg_db, pg_user, pg_pwd)
+        pg_host = ref_access['host']
+        ref_engine = dbz.engine.PgEngine(pg_db, pg_user, pg_pwd, pg_host)
         
         test_access = self.config['test_access']
         data_dir = test_access['data_dir']

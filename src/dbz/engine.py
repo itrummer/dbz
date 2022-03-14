@@ -79,17 +79,19 @@ class DbzEngine(Engine):
 class PgEngine(Engine):
     """ Executes queries using Postgres. """
     
-    def __init__(self, db, user, pwd):
+    def __init__(self, db, user, pwd, host):
         """ Initializes Postgres database access. 
         
         Args:
             db: name of Postgres database
             user: name of Postgres user
             pwd: password for Postgres database
+            host: Postgres host path
         """
         self.db = db
         self.user = user
         self.pwd = pwd
+        self.host = host
     
     def execute(self, sql, out):
         """ Executes query using Postgres.
@@ -100,6 +102,6 @@ class PgEngine(Engine):
         """
         with psycopg2.connect(
             database=self.db, user=self.user, 
-            password=self.pwd) as connection:
+            password=self.pwd, host=self.host) as connection:
             result = pd.read_sql_query(sql, connection)
             result.to_csv(out)
