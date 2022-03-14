@@ -48,7 +48,7 @@ class Coder():
         params += ['table=last_result']
         params += [f'agg_cols={operands}']
         params += [f'group_by_cols={groups}']
-        return f'Grouped{name}({",".join(params)})'
+        return f'{name}_by_group({",".join(params)})'
     
     def _assignment(self, step, op_code):
         """ Returns code for assigning operation result to variable.
