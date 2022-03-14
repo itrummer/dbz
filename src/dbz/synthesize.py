@@ -113,7 +113,7 @@ class Synthesizer():
         pg_pwd = ref_access['pg_pwd']
         ref_engine = dbz.engine.PgEngine(pg_db, pg_user, pg_pwd)
         
-        test_access = self.config['test_db']
+        test_access = self.config['test_access']
         data_dir = test_access['data_dir']
         python = test_access['python']
         paths = dbz.util.DbzPaths(data_dir, python)

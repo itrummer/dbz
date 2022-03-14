@@ -2,7 +2,7 @@
 	"test_access":{
 		"data_dir":"data", "python":"python"},
 	"ref_access":{
-		"pg_db":"tpch", "pg_user":"immanueltrummer", "pg_pwd":""},
+		"pg_db":"tpch", "pg_user":"ubuntu", "pg_pwd":""},
 	"tasks":[
 	{"type":"generate", "task_id":"imports", "context":[], 
 		"template":"imports.py", "substitutions":{}},
