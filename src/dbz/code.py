@@ -157,7 +157,7 @@ class Coder():
         """
         condition = step['condition']
         pred_code = self._operation_code(condition)
-        op_code = f'pick_rows(last_result, {pred_code})'
+        op_code = f'get_rows(last_result, {pred_code})'
         return self._assignment(step, op_code)
     
     def _LogicalJoin(self, step):
