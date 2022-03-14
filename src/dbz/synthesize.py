@@ -151,7 +151,7 @@ class Synthesizer():
             stop = task['stop']
         completion = self._complete(prompt, 0, stop)
                 
-        return prompt + '\n' + completion + ('\n'*2)
+        return prompt + completion + ('\n'*2)
     
     def _library(self):
         """ Assemble generated code for execution engine library. 
