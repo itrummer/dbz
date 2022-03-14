@@ -38,9 +38,9 @@ class Synthesizer():
         print('Starting DBMS code synthesis ...')
         tasks = self.config['tasks']
         nr_tasks = len(tasks)
+        temperature = 0
         task_idx = 0
         last_passed = -1
-        temperature = 0
         
         while task_idx < nr_tasks:
             cur_task = tasks[task_idx]
@@ -50,21 +50,22 @@ class Synthesizer():
                 solution = self._generate(cur_task, temperature)
                 task_id = cur_task['task_id']
                 self.solutions[task_id] = solution
+                self.solved_tasks += [task_id]
                 task_idx += 1
             elif task_type == 'check':
                 success = self._check(cur_task)
                 if success:
-                    last_passed = task_idx
                     temperature = 0
+                    last_passed = task_idx
+                else:
+                    temperature += 0.1
+                    temperature = min(temperature, 1)
+                    task_idx = last_passed+1
                     self.solved_tasks = []
                     for t in tasks[:last_passed]:
                         if t['type'] == 'generate':
                             task_id = t['task_id']
                             self.solved_tasks += [task_id]
-                else:
-                    task_idx = last_passed+1
-                    temperature += 0.1
-                    temperature = min(temperature, 1)
             else:
                 raise ValueError(f'Unknown task type: {task_type}')
         
