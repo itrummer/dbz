@@ -48,7 +48,7 @@ class Synthesizer():
             if task_type == 'generate':
                 solution = self._generate(cur_task)
                 task_id = cur_task['task_id']
-                self.solved_tasks[task_id] = solution
+                self.solutions[task_id] = solution
                 task_idx += 1
             elif task_type == 'check':
                 success = self._check(cur_task)
@@ -135,7 +135,7 @@ class Synthesizer():
         parts = []
         context = task['context']
         for c in context:
-            parts += [self.solved_tasks[c] + ('\n'*2)]
+            parts += [self.solutions[c] + ('\n'*2)]
         
         file = task['template']
         prompt_end = self._load_prompt(file)
