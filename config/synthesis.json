@@ -11,30 +11,10 @@
 		"template":"table.py", "substitutions":{}},
 	{"type":"check", "queries":["select * from lineitem"]},
 	
-	{"type":"generate", "task_id":"sum", "context":["imports", "table"], 
-		"template":"aggregate.py", "substitutions":{"AGG":"Sum"}},
-	{"type":"check", "queries":["select sum(l_extendedprice) from lineitem"]},
-	
-	{"type":"generate", "task_id":"min", "context":["imports", "table"], 
-		"template":"aggregate.py", "substitutions":{"AGG":"Min"}},
-	{"type":"check", "queries":["select min(l_extendedprice) from lineitem"]},
-	
-	{"type":"generate", "task_id":"max", "context":["imports", "table"], 
-		"template":"aggregate.py", "substitutions":{"AGG":"Max"}},
-	{"type":"check", "queries":["select max(l_extendedprice) from lineitem"]},
-	
-	{"type":"generate", "task_id":"avg", "context":["imports", "table"], 
-		"template":"aggregate.py", "substitutions":{"AGG":"Avg"}},
-	{"type":"check", "queries":["select avg(l_extendedprice) from lineitem"]},
-	
-	{"type":"generate", "task_id":"count", "context":["imports", "table"], 
-		"template":"aggregate.py", "substitutions":{"AGG":"Count"}},
-	{"type":"check", "queries":["select count(*) from lineitem"]},
+
 	
 	{"type":"generate", "task_id":"filter", "context":["imports", "table"],
 		"template":"filter.py", "substitutions":{}},
-	{"type":"check", "queries":["select * from lineitem where true"]},
-	
 	{"type":"generate", "task_id":"less_than", "context":["imports", "table"],
 		"template":"binary_boolean.py", 
 		"substitutions":{"binary_op":"less_than", "<short_op>":"<"}},
@@ -59,6 +39,28 @@
 		"template":"binary_boolean.py", 
 		"substitutions":{"binary_op":"greater_than_or_equal", "<short_op>":">="}},
 	{"type":"check", "queries":["select * from lineitem where l_extendedprice >= 13309.60"]},
+	
+	
+	
+	{"type":"generate", "task_id":"sum", "context":["imports", "table"], 
+		"template":"aggregate.py", "substitutions":{"AGG":"Sum"}},
+	{"type":"check", "queries":["select sum(l_extendedprice) from lineitem"]},
+	
+	{"type":"generate", "task_id":"min", "context":["imports", "table"], 
+		"template":"aggregate.py", "substitutions":{"AGG":"Min"}},
+	{"type":"check", "queries":["select min(l_extendedprice) from lineitem"]},
+	
+	{"type":"generate", "task_id":"max", "context":["imports", "table"], 
+		"template":"aggregate.py", "substitutions":{"AGG":"Max"}},
+	{"type":"check", "queries":["select max(l_extendedprice) from lineitem"]},
+	
+	{"type":"generate", "task_id":"avg", "context":["imports", "table"], 
+		"template":"aggregate.py", "substitutions":{"AGG":"Avg"}},
+	{"type":"check", "queries":["select avg(l_extendedprice) from lineitem"]},
+	
+	{"type":"generate", "task_id":"count", "context":["imports", "table"], 
+		"template":"aggregate.py", "substitutions":{"AGG":"Count"}},
+	{"type":"check", "queries":["select count(*) from lineitem"]},
 	
 	{"type":"generate", "task_id":"addition", "context":["imports", "table"],
 		"template":"binary_expression.py", "substitutions":{"binary_op":"addition"}},
