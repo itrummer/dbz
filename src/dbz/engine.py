@@ -29,15 +29,17 @@ class Engine(abc.ABC):
 class DbzEngine(Engine):
     """ Executes given query plans. """
     
-    def __init__(self, paths, library):
+    def __init__(self, paths, library, python_path):
         """ Initializes with given paths.
         
         Args:
             paths: relevant paths for DB-zero
             library: library with operator code
+            python_path: path to Python executable
         """
         self.paths = paths
         self.library = library
+        self.python_path = python_path
         self.planner = dbz.plan.Planner(paths.tmp_dir, paths.planner)
         self.coder = dbz.code.Coder(paths)
     
@@ -68,7 +70,7 @@ class DbzEngine(Engine):
         with open(self.paths.code, 'w') as file:
             file.write(code)
         completed = subprocess.run([
-            self.paths.python, self.paths.code],
+            self.python_path, self.paths.code],
             capture_output=True)
         if completed.returncode > 0:
             print(f'Error: {completed.stderr}')

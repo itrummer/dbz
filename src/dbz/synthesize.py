@@ -116,10 +116,11 @@ class Synthesizer():
         test_access = self.config['test_access']
         data_dir = test_access['data_dir']
         python = test_access['python']
-        paths = dbz.util.DbzPaths(data_dir, python)
+        paths = dbz.util.DbzPaths(data_dir)
+        self.python_path = python
         queries = task['queries']
         
-        test_engine = dbz.engine.DbzEngine(paths, self._library())
+        test_engine = dbz.engine.DbzEngine(paths, self._library(), python)
         validator = dbz.check.Validator(paths, queries, ref_engine)
         return validator.validate(test_engine)
     
