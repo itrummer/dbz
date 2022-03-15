@@ -3,6 +3,7 @@ Created on Mar 9, 2022
 
 @author: immanueltrummer
 '''
+import filecmp
 import os
 import pandas as pd
 
@@ -43,6 +44,10 @@ class Validator():
                 print(os.system(f'head {check_path}'))
                 print('Start of reference result:')
                 print(os.system(f'head {ref_path}'))
+                
+                # Handle special case of empty files
+                if filecmp.cmp(check_path, ref_path):
+                    return True
                 
                 check_df = pd.read_csv(check_path, header=None)
                 ref_df = pd.read_csv(ref_path, header=None)
