@@ -1,24 +1,23 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractclassmethod
 
 
 class Column():
     """ Represents a table column. """
     
-    def __init__(self, name, data):
-        self.name = name
+    def __init__(self, data):
         self.data = data
 
 
 class AbstractTable(ABC):
     """ Represents a relational table with data. """
     
-    @abstractmethod
-    def from_csv(self, csv_path):
+    @abstractclassmethod
+    def from_csv(cls, csv_path):
         """ Loads table data from csv file (no header). """
         raise NotImplementedError()
     
-    @abstractmethod
-    def from_data(self, data):
+    @abstractclassmethod
+    def from_data(cls, data):
         """ Creates table from in-memory data. """
         raise NotImplementedError()
     
