@@ -1,13 +1,12 @@
-def AGG_by_group(table, agg_cols, group_by_cols):
-    """ Calculate aggregate value for each group.
+def AGG(table, agg_col_idx):
+    """ Calculate aggregate value.
     
     <OperatorInstructions>
     
     Args:
         table: calculate aggregate on this table
-        agg_cols: column indexes for aggregation
-        group_by_cols: group by those columns
+        agg_col_idx: index of column to aggregate
     
     Returns:
-        new column containing aggregate for each group
+        new column containing aggregate value
     """

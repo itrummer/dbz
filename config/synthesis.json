@@ -58,10 +58,30 @@
 		"template":"aggregate.py", "substitutions":{"AGG":"Avg"}},
 	{"type":"check", "queries":["select avg(l_extendedprice) from lineitem"]},
 	
-	{"type":"generate", "task_id":"count", "context":["imports", "table"], 
-		"template":"aggregate.py", "substitutions":{"AGG":"Count"}},
-	{"type":"check", "queries":["select count(*) from lineitem"]},
 	
+
+	{"type":"generate", "task_id":"sum", "context":["imports", "table"], 
+		"template":"grouped_aggregate.py", "substitutions":{"AGG":"Sum"}},
+	{"type":"check", 
+	"queries":["select sum(l_extendedprice) from lineitem group by l_shipmode"]},
+	
+	{"type":"generate", "task_id":"min", "context":["imports", "table"], 
+		"template":"grouped_aggregate.py", "substitutions":{"AGG":"Min"}},
+	{"type":"check", 
+	"queries":["select min(l_extendedprice) from lineitem group by l_shipmode"]},
+	
+	{"type":"generate", "task_id":"max", "context":["imports", "table"], 
+		"template":"grouped_aggregate.py", "substitutions":{"AGG":"Max"}},
+	{"type":"check", 
+	"queries":["select max(l_extendedprice) from lineitem group by l_shipmode"]},
+	
+	{"type":"generate", "task_id":"avg", "context":["imports", "table"], 
+		"template":"grouped_aggregate.py", "substitutions":{"AGG":"Avg"}},
+	{"type":"check", 
+	"queries":["select avg(l_extendedprice) from lineitem group by l_shipmode"]},
+
+
+
 	{"type":"generate", "task_id":"addition", "context":["imports", "table"],
 		"template":"binary_expression.py", "substitutions":{"binary_op":"addition"}},
 	{"type":"check", "queries":["select l_extendedprice + 0.1 from lineitem"]},

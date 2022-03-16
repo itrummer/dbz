@@ -41,14 +41,23 @@ class Coder():
             code processing given aggregate
         """
         kind = agg['agg']['kind']
-        name = {'SUM':'Sum', 'AVG':'Avg', 'MIN':'Min', 
-                'MAX':'Max', 'COUNT':'Count'}[kind]
+        name = {
+            'SUM':'Sum', 'AVG':'Avg', 'MIN':'Min', 
+            'MAX':'Max', 'COUNT':'Count'}[kind]
+        if groups:
+            name += '_by_group'
+        
+        params = ['last_result']
         operands = agg['operands']
-        params = []
-        params += ['table=last_result']
-        params += [f'agg_cols={operands}']
-        params += [f'group_by_cols={groups}']
-        return f'{name}_by_group({",".join(params)})'
+        nr_operands = len(operands)
+        if nr_operands == 1:
+            params += [str(operands[0])]
+        elif nr_operands > 1:
+            params += [str(operands)]
+        if groups:
+            params += [str(groups)]
+        
+        return f'{name}({",".join(params)})'
     
     def _assignment(self, step, op_code):
         """ Returns code for assigning operation result to variable.
