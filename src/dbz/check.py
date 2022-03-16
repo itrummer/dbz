@@ -38,7 +38,11 @@ class Validator():
             for idx, query in enumerate(self.queries, 1):
                 print(f'Treating query {idx}/{self.nr_queries} ...')
                 check_path = f'{self.paths.tmp_dir}/check_{idx}'
-                engine.execute(query, check_path)
+                success = engine.execute(query, check_path)
+                print(f'Execution successful: {success}')
+                if not success:
+                    return False
+                
                 ref_path = f'{self.paths.tmp_dir}/ref_{idx}'
                 print('Start of test result:')
                 print(os.system(f'head {check_path}'))
@@ -47,7 +51,7 @@ class Validator():
                 
                 # Handle special case of empty files
                 if filecmp.cmp(check_path, ref_path):
-                    return True
+                    continue
                 
                 check_df = pd.read_csv(check_path, header=None)
                 ref_df = pd.read_csv(ref_path, header=None)

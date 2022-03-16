@@ -22,6 +22,9 @@ class Engine(abc.ABC):
         Args:
             sql: SQL query
             out: name of output file
+        
+        Returns:
+            True iff execution succeeds
         """
         raise NotImplementedError()
 
@@ -49,6 +52,9 @@ class DbzEngine(Engine):
         Args:
             sql: an SQL query to answer
             out: name of file for query result
+        
+        Returns:
+            true iff execution succeeds
         """
         sql = dbz.query.simplify(sql)
         plan = self.planner.plan(sql)
@@ -59,13 +65,16 @@ class DbzEngine(Engine):
         code_parts += [f'last_result.to_csv("{out}")']
         code = '\n'.join(code_parts)
         print(f'Code: {code}')
-        self._run(code)
+        return self._run(code)
     
     def _run(self, code):
         """ Execute given Python code.
         
         Args:
             code: Python code to execute
+        
+        Returns:
+            True iff execution succeeds
         """
         with open(self.paths.code, 'w') as file:
             file.write(code)
@@ -74,6 +83,9 @@ class DbzEngine(Engine):
             capture_output=True)
         if completed.returncode > 0:
             print(f'Error: {completed.stderr}')
+            return False
+        else:
+            return True
 
 
 class PgEngine(Engine):
@@ -100,8 +112,13 @@ class PgEngine(Engine):
             sql: SQL query to execute
             out: write output to this file
         """
-        with psycopg2.connect(
-            database=self.db, user=self.user, 
-            password=self.pwd, host=self.host) as connection:
-            result = pd.read_sql_query(sql, connection)
-            result.to_csv(out, index=False, header=None)
+        try:
+            with psycopg2.connect(
+                database=self.db, user=self.user, 
+                password=self.pwd, host=self.host) as connection:
+                result = pd.read_sql_query(sql, connection)
+                result.to_csv(out, index=False, header=None)
+                return True
+        except Exception as e:
+            print(f'Exception while processing SQL query: {e}')
+            return False
