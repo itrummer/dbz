@@ -9,7 +9,7 @@
 		"template":"imports.py", "substitutions":{}},
 	{"type":"generate", "task_id":"table", "context":["imports"], 
 		"template":"table.py", "substitutions":{}},
-	{"type":"check", "queries":["select * from lineitem"]},
+	{"type":"check", "queries":["select * from lineitem", "select 1.0"]},
 	
 
 	
