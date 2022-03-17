@@ -165,6 +165,8 @@ class Coder():
             agg_code = self._agg_code(agg, groups)
             add_code = f'{result} += [{agg_code}]'
             parts += [add_code]
+        
+        parts += [f'last_result = {result}']
         return '\n'.join(parts)
     
     def _LogicalFilter(self, step):
