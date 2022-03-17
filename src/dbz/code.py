@@ -42,10 +42,10 @@ class Coder():
         """
         kind = agg['agg']['kind']
         name = {
-            'SUM':'Sum', 'AVG':'Avg', 'MIN':'Min', 
-            'MAX':'Max', 'COUNT':'Count'}[kind]
+            'SUM':'sum', 'AVG':'avg', 'MIN':'min', 
+            'MAX':'max', 'COUNT':'count'}[kind]
         if groups:
-            name += '_by_group'
+            name = 'per_group_' + name
         
         params = ['last_result']
         operands = agg['operands']
@@ -121,7 +121,7 @@ class Coder():
             code retrieving specified column
         """
         column_nr = column_ref['input']
-        return f'last_result.get_column({column_nr})'
+        return f'last_result[{column_nr}]'
     
     def _literal_code(self, literal):
         """ Produces a code snippet producing given literal.
@@ -146,12 +146,12 @@ class Coder():
         step_id = step['id']
         result = self._result_name(step_id)
         parts = []
-        parts += [f'{result} = Table()']
+        parts += [f'{result} = []']
         aggs = step['aggs']
         groups = step['group']
         for agg in aggs:
             agg_code = self._agg_code(agg, groups)
-            add_code = f'{result}.add_column({agg_code})'
+            add_code = f'{result} += [{agg_code}]'
             parts += [add_code]
         return '\n'.join(parts)
     
@@ -166,7 +166,7 @@ class Coder():
         """
         condition = step['condition']
         pred_code = self._operation_code(condition)
-        op_code = f'get_rows(last_result, {pred_code})'
+        op_code = f'[filter_column(c, {pred_code}) for c in last_result]'
         return self._assignment(step, op_code)
     
     def _LogicalJoin(self, step):
@@ -195,12 +195,12 @@ class Coder():
         step_id = step['id']
         result = self._result_name(step_id)
         parts = []
-        parts += [f'{result} = Table()']
+        parts += [f'{result} = []']
         exprs = step['exprs']
         for expr in exprs:
             expr_code = self._operation_code(expr)
             col_code = f'column = {expr_code}'
-            add_code = f'{result}.add_column(column)'
+            add_code = f'{result} += [column]'
             parts += [col_code]
             parts += [add_code]
         parts += [f'last_result = {result}']
@@ -245,7 +245,7 @@ class Coder():
         # file_path = f'{self.data_dir}/{db}/{table}'
         table = step['table'][0]
         file_path = f'{self.paths.data_dir}/{table.lower()}.csv'
-        scan_code = f'new_table = Table.from_csv("{file_path}")'
+        scan_code = f'new_table = load_from_csv("{file_path}")'
         return scan_code + '\n' + self._assignment(step, 'new_table')
     
     def _operation_code(self, operation):
