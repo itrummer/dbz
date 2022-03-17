@@ -1,13 +1,14 @@
-def AGG_by_group(table, agg_col_idx, group_by_cols):
-    """ Calculate aggregate value for each group.
+def per_group_<aggregate>(agg_column, group_id_column):
+    """ Calculate <aggregate> for each group.
     
-    <OperatorInstructions>
+    1. Collect values for each group.
+    2. Calculate <aggregate> for each group.
+    3. Return one column (each column <DataInstructions>) with <aggregate>s.
     
     Args:
-        table: calculate aggregate on this table
-        agg_col_idx: index of column to aggregate
-        group_by_cols: group by those columns
+        agg_column: the column <DataInstructions>. It contains values to <aggregate>.
+        group_id_column: the column <DataInstructions>. It contains for each row the associated group.
     
     Returns:
-        new column containing aggregate for each group
+        a column (each column <DataInstructions>) with the <aggregate> of each group
     """

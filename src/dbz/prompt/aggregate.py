@@ -1,12 +1,9 @@
-def AGG(table, agg_col_idx):
-    """ Calculate aggregate value.
-    
-    <OperatorInstructions>
+def <aggregate>(column):
+    """ Calculate <aggregate> of values in column.
     
     Args:
-        table: calculate aggregate on this table
-        agg_col_idx: index of column to aggregate
+        column: the column <DataInstructions>.
     
     Returns:
-        new column containing aggregate value
+        <aggregate> of column values
     """

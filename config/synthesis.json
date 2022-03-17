@@ -5,11 +5,14 @@
 		"pg_db":"tpch_sf0001", "pg_user":"ubuntu", "pg_pwd":"", 
 		"host":"/var/run/postgresql"},
 	"tasks":[
+	
 	{"type":"generate", "task_id":"imports", "context":[], 
 		"template":"imports.py", "substitutions":{}},
-	{"type":"generate", "task_id":"table", "context":["imports"], 
-		"template":"table.py", "substitutions":{}},
-	{"type":"check", "queries":["select * from lineitem", "select 1.0"]},
+	{"type":"generate", "task_id":"load", "context":[],
+		"template":"load_data.py", "substitutions":{}},
+	{"type":"generate", "task_id":"store", "context":[],
+		"template":"store_data.py", "substitutions":[]},
+	{"type":"check", "queries":["select * from lineitem"]},
 	
 
 	

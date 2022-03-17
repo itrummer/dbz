@@ -1,2 +1,10 @@
-def get_rows(table, row_index):
-    """ Returns row where row_index (a Column) is True, wrapped into a Table. """
+def filter_column(column, row_idx):
+    """ Filter rows in column.
+    
+    Args:
+        column: the column <DataInstructions>.
+        row_idx: the column <DataInstructions>, it contains Booleans.
+    
+    Returns:
+        values at positions where row_idx is True.
+    """
