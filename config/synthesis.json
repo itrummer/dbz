@@ -49,7 +49,8 @@
 		"queries":["select * from lineitem where l_extendedprice >= 13309.60"]},
 	
 	
-	
+	{"type":"generate", "task_id":"normalize", "context":[],
+		"template":"normalize.py", "substitutions":{}},
 	{"type":"generate", "task_id":"sum", "context":[], 
 		"template":"aggregate.py", "substitutions":{"<aggregate>":"sum"}},
 	{"type":"check", "queries":["select sum(l_extendedprice) from lineitem"]},

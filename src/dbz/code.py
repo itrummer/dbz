@@ -308,4 +308,6 @@ class Coder():
         """
         rel_op = step['relOp']
         handler = f'_{rel_op}'
-        return getattr(self, handler)(step)
+        code = getattr(self, handler)(step)
+        code += '\nlast_result = [normalize(c) for c in last_result]'
+        return code
