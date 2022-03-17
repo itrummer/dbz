@@ -47,15 +47,19 @@ class Coder():
         if groups:
             name = 'per_group_' + name
         
-        params = ['last_result']
         operands = agg['operands']
+        if not operands:
+            operands += [0]
+        operands = [f'last_result[{o}]' for o in operands]
+        
+        params = []
         nr_operands = len(operands)
         if nr_operands == 1:
-            params += [str(operands[0])]
+            params += operands
         elif nr_operands > 1:
             params += [str(operands)]
         if groups:
-            params += [str(groups)]
+            params += ['group_id_column']
         
         return f'{name}({",".join(params)})'
     
@@ -144,11 +148,17 @@ class Coder():
             code realizing aggregates
         """
         step_id = step['id']
-        result = self._result_name(step_id)
-        parts = []
-        parts += [f'{result} = []']
         aggs = step['aggs']
         groups = step['group']
+        result = self._result_name(step_id)
+        parts = []
+        
+        if groups:
+            group_by_cols = [f'last_result[{g}]' for g in groups]
+            group_by_list = ','.join(group_by_cols)
+            parts += [f'group_ids=assign_ids([{group_by_list}])']
+        
+        parts += [f'{result} = []']
         for agg in aggs:
             agg_code = self._agg_code(agg, groups)
             add_code = f'{result} += [{agg_code}]'
