@@ -167,6 +167,7 @@ class Coder():
             parts += [add_code]
         
         parts += [f'last_result = {result}']
+        parts += ['last_result = [normalize(c) for c in last_result]']
         return '\n'.join(parts)
     
     def _LogicalFilter(self, step):
@@ -308,6 +309,4 @@ class Coder():
         """
         rel_op = step['relOp']
         handler = f'_{rel_op}'
-        code = getattr(self, handler)(step)
-        code += '\nlast_result = [normalize(c) for c in last_result]'
-        return code
+        return getattr(self, handler)(step)
