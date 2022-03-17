@@ -1,10 +1,19 @@
-import csv
+import pandas as pd
 
 
-def write_to_csv(columns, path_to_csv):
-    """ Write data to .csv file (without header).
+def write_to_csv(rows, path_to_csv):
+    """ Writes rows to a .csv file.
     
     Args:
-        columns: list of columns where each column <DataInstructions>.
-        path_to_csv: path to .csv file to write.
+        rows: write these rows into a .csv file
+        path_to_csv: path to .csv file
+    """
+    pd.DataFrame(rows).to_csv(path_to_csv, header=None, index=False)
+
+
+def to_row_format(columns):
+    """ Transforms columnar layout to row-based representation.
+    
+    Args:
+        columns: a list of columns where each column <DataInstructions>.
     """

@@ -1,4 +1,4 @@
-import csv
+import pandas as pd
 
 
 def load_from_csv(path_to_csv):
@@ -10,10 +10,7 @@ def load_from_csv(path_to_csv):
     Returns:
         data loaded from .csv file
     """
-    with open(path_to_csv, 'r') as csv_file:
-        reader = csv.reader(csv_file, delimiter=',')
-        data = [row for row in reader]
-    return data
+    return pd.read_csv(path_to_csv, header=None)
 
 
 def to_columnar_format(csv_data):
@@ -23,5 +20,5 @@ def to_columnar_format(csv_data):
         csv_data: data loaded using load_from_csv
     
     Returns:
-        a list of columns where each column <DataInstructions>.
+        a list of columns where each column is a list.
     """

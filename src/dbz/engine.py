@@ -62,6 +62,7 @@ class DbzEngine(Engine):
         code_parts = []
         code_parts += [self.library]
         code_parts += [self.coder.plan_code(plan)]
+        code_parts += [f'last_result = to_row_format(last_result)']
         code_parts += [f'write_to_csv(last_result, "{out}")']
         code = '\n'.join(code_parts)
         print(f'Code: {code}')
