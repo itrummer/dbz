@@ -11,7 +11,7 @@
 	{"type":"generate", "task_id":"load", "context":[],
 		"template":"load_data.py", "substitutions":{}},
 	{"type":"generate", "task_id":"store", "context":[],
-		"template":"store_data.py", "substitutions":[]},
+		"template":"store_data.py", "substitutions":{}},
 	{"type":"check", "queries":["select * from lineitem"]},
 	
 	
