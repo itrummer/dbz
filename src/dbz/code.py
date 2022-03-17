@@ -46,6 +46,8 @@ class Coder():
             'MAX':'max', 'COUNT':'count'}[kind]
         if groups:
             name = 'per_group_' + name
+        else:
+            name = 'calculate_' + name
         
         operands = agg['operands']
         if not operands:

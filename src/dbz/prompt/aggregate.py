@@ -1,4 +1,4 @@
-def <aggregate>(column):
+def calculate_<aggregate>(column):
     """ Calculate <aggregate> of values in column.
     
     Args:
