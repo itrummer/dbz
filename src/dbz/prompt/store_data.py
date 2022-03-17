@@ -2,7 +2,7 @@ import pandas as pd
 
 
 def write_to_csv(columns, path_to_csv):
-    """ Write data to .csv file.
+    """ Write data to .csv file (without header).
     
     Args:
         columns: list of columns where each column <DataInstructions>.
