@@ -1,4 +1,5 @@
 import csv
+import pandas as pd
 
 
 def write_to_csv(columns, path_to_csv):

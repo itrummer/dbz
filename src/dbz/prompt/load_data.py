@@ -1,4 +1,5 @@
 import csv
+import pandas as pd
 
 
 def load_from_csv(path_to_csv):
