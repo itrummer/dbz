@@ -1,4 +1,4 @@
 # Import libraries for the following scenario:
-# - <DataInstructions>
-# - <OperatorInstructions>
+# - Each column <DataInstructions>.
+# - Each operator <OperatorInstructions>.
 import
