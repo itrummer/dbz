@@ -158,7 +158,8 @@ class Coder():
         if groups:
             group_by_cols = [f'last_result[{g}]' for g in groups]
             group_by_list = ','.join(group_by_cols)
-            parts += [f'group_id_column=assign_ids([{group_by_list}])']
+            parts += [f'group_id_rows=to_row_format([{group_by_list}])']
+            parts += [f'group_id_column=to_tuple_column(group_id_rows)']
         
         parts += [f'{result} = []']
         for agg in aggs:
