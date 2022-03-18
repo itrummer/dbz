@@ -8,7 +8,7 @@ def write_to_csv(rows, path_to_csv):
         rows: write these rows into a .csv file
         path_to_csv: path to .csv file
     """
-    pd.DataFrame(rows).to_csv(path_to_csv, header=None, index=False, float_format='%.2f')
+    pd.DataFrame(rows).to_csv(path_to_csv, header=None, index=False)
 
 
 def to_row_format(columns):

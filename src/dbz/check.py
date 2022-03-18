@@ -49,6 +49,26 @@ class Validator():
                 print('Start of reference result:')
                 print(os.system(f'head {ref_path}'))
                 
+                def write_rounded(in_path, precision):
+                    """ Write rounded version of .csv file to disk.
+                    
+                    Args:
+                        in_path: path to input .csv file
+                        precision: round to this precision (nr. digits)
+                    
+                    Returns:
+                        path to file with rounded values
+                    """
+                    df = pd.read_csv(in_path, header=None)
+                    out_path = in_path + '_rounded'
+                    df.to_csv(
+                        out_path, header=None, index=False, 
+                        float_format=f'%.{precision}f')
+                    return out_path
+                
+                check_path = write_rounded(check_path, 2)
+                ref_path = write_rounded(ref_path, 2)
+                
                 # Handle special case of empty files
                 if filecmp.cmp(check_path, ref_path):
                     continue
