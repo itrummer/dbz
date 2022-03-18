@@ -61,7 +61,7 @@ class Coder():
         elif nr_operands > 1:
             params += [str(operands)]
         if groups:
-            params += ['group_id_column']
+            params += ['row_id_column']
         
         return f'{name}({",".join(params)})'
     
@@ -158,15 +158,30 @@ class Coder():
         if groups:
             group_by_cols = [f'last_result[{g}]' for g in groups]
             group_by_list = ', '.join(group_by_cols)
-            parts += [f'{result} += [{group_by_list}]']
-            parts += [f'group_id_rows=to_row_format([{group_by_list}])']
-            parts += [f'group_id_column=to_tuple_column(group_id_rows)']
+            parts += [f'row_id_rows=to_row_format([{group_by_list}])']
+            parts += ['row_id_column=to_tuple_column(row_id_rows)']
+            
+            parts += ['id_tuples=list(set([tuple(g) for g in row_id_rows]))']
+            parts += ['id_columns=separate_columns(id_tuples)']
+            parts += [f'{result} += id_columns']
+            
+            parts += ['agg_dicts = []']
+            for agg in aggs:
+                agg_code = self._agg_code(agg, groups)
+                parts += [f'agg_dicts += [{agg_code}]']
+            parts += ['agg_tuples = []']
+            parts += ['for id_tuple in id_tuples:']
+            parts += [
+                '\tagg_tuples += [tuple([agg_dict(id_tuple) ' +\
+                'for agg_dict in agg_dicts])]']
+            parts += [f'{result} += separate_columns(agg_tuples)']
+
+        else:
         
-        
-        for agg in aggs:
-            agg_code = self._agg_code(agg, groups)
-            add_code = f'{result} += [{agg_code}]'
-            parts += [add_code]
+            for agg in aggs:
+                agg_code = self._agg_code(agg, groups)
+                add_code = f'{result} += [{agg_code}]'
+                parts += [add_code]
         
         parts += [f'last_result = {result}']
         parts += ['last_result = [normalize(c) for c in last_result]']

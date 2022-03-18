@@ -68,8 +68,10 @@
 	{"type":"check", "queries":["select avg(l_extendedprice) from lineitem"]},
 	
 	
-	{"type":"generate", "task_id":"tuples", "context":[], 
-		"template":"tuples.py", "substitutions":{}},
+	{"type":"generate", "task_id":"tuples_to", "context":[], 
+		"template":"tuples_to.py", "substitutions":{}},
+	{"type":"generate", "task_id":"tuples_from", "context":["tuples_to"], 
+		"template":"tuples_from.py", "substitutions":{}},
 		
 	{"type":"generate", "task_id":"sum", "context":[], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"sum"}},

@@ -1,3 +1,6 @@
+import os
+
+
 def to_tuple_column(rows):
     """ Transform each row into a tuple.
     
