@@ -49,6 +49,10 @@ class Validator():
                 print('Start of reference result:')
                 print(os.system(f'head {ref_path}'))
                 
+                # Handle special case of empty files
+                if filecmp.cmp(check_path, ref_path):
+                    continue
+                
                 def write_rounded(in_path, precision):
                     """ Write rounded version of .csv file to disk.
                     
@@ -68,11 +72,7 @@ class Validator():
                 
                 check_path = write_rounded(check_path, 2)
                 ref_path = write_rounded(ref_path, 2)
-                
-                # Handle special case of empty files
-                if filecmp.cmp(check_path, ref_path):
-                    continue
-                
+                                
                 check_df = pd.read_csv(check_path, header=None)
                 ref_df = pd.read_csv(ref_path, header=None)
                 check_df.reindex()
