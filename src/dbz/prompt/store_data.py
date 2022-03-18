@@ -8,13 +8,15 @@ def write_to_csv(rows, path_to_csv):
         rows: write these rows into a .csv file
         path_to_csv: path to .csv file
     """
-    pd.set_option('display.precision', 2)
-    pd.DataFrame(rows).to_csv(path_to_csv, header=None, index=False)
+    pd.DataFrame(rows).to_csv(path_to_csv, header=None, index=False, float_format='%.2f')
 
 
 def to_row_format(columns):
     """ Transforms columnar layout to row-based representation.
     
     Args:
-        columns: a list of columns where each column <DataInstructions>.
+        columns: a list of columns where each column is a list.
+    
+    Returns:
+        a list of rows where each row is a list
     """
