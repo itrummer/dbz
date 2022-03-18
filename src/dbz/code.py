@@ -172,7 +172,7 @@ class Coder():
             parts += ['agg_tuples = []']
             parts += ['for id_tuple in id_tuples:']
             parts += [
-                '\tagg_tuples += [tuple([agg_dict(id_tuple) ' +\
+                '\tagg_tuples += [tuple([agg_dict[id_tuple] ' +\
                 'for agg_dict in agg_dicts])]']
             parts += [f'{result} += separate_columns(agg_tuples)']
 
