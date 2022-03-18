@@ -69,23 +69,23 @@
 	
 	
 
-	{"type":"generate", "task_id":"sum", "context":["imports", "table"], 
-		"template":"grouped_aggregate.py", "substitutions":{"AGG":"Sum"}},
+	{"type":"generate", "task_id":"sum", "context":[], 
+		"template":"grouped_aggregate.py", "substitutions":{"AGG":"sum"}},
 	{"type":"check", 
 	"queries":["select sum(l_extendedprice) from lineitem group by l_shipmode"]},
 	
-	{"type":"generate", "task_id":"min", "context":["imports", "table"], 
-		"template":"grouped_aggregate.py", "substitutions":{"AGG":"Min"}},
+	{"type":"generate", "task_id":"min", "context":[], 
+		"template":"grouped_aggregate.py", "substitutions":{"AGG":"min"}},
 	{"type":"check", 
 	"queries":["select min(l_extendedprice) from lineitem group by l_shipmode"]},
 	
-	{"type":"generate", "task_id":"max", "context":["imports", "table"], 
-		"template":"grouped_aggregate.py", "substitutions":{"AGG":"Max"}},
+	{"type":"generate", "task_id":"max", "context":[], 
+		"template":"grouped_aggregate.py", "substitutions":{"AGG":"max"}},
 	{"type":"check", 
 	"queries":["select max(l_extendedprice) from lineitem group by l_shipmode"]},
 	
-	{"type":"generate", "task_id":"avg", "context":["imports", "table"], 
-		"template":"grouped_aggregate.py", "substitutions":{"AGG":"Avg"}},
+	{"type":"generate", "task_id":"avg", "context":[], 
+		"template":"grouped_aggregate.py", "substitutions":{"AGG":"avg"}},
 	{"type":"check", 
 	"queries":["select avg(l_extendedprice) from lineitem group by l_shipmode"]},
 
@@ -106,6 +106,9 @@
 	{"type":"generate", "task_id":"division", "context":["imports", "table"],
 		"template":"binary_expression.py", "substitutions":{"binary_op":"division"}},
 	{"type":"check", "queries":["select l_extendedprice / 0.1 from lineitem"]},
+	
+	
+	
 	
 	{"type":"generate", "task_id":"sort", "context":["imports", "table"],
 		"template":"sort", "substitutions":[]},
