@@ -68,7 +68,9 @@
 	{"type":"check", "queries":["select avg(l_extendedprice) from lineitem"]},
 	
 	
-
+	{"type":"generate", "task_id":"group", "context":[], 
+		"template":"group.py", "substitutions":{}},
+		
 	{"type":"generate", "task_id":"sum", "context":[], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"sum"}},
 	{"type":"check", 
