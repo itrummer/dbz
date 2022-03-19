@@ -253,7 +253,7 @@ class Coder():
         parts = [f'{result} = to_row_format(last_result)']
         
         if 'collation' in step:
-            parts += 'def comparator(row_1, row_2):'
+            parts += ['def comparator(row_1, row_2):']
             collation = step['collation']
             for d in collation:
                 field_idx = int(d['field'])
