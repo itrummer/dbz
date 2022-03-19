@@ -78,6 +78,13 @@
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"avg"}},
 	{"type":"check", 
 	"queries":["select avg(l_extendedprice) from lineitem group by l_shipmode"]},
+	
+	
+	
+	{"type":"generate", "task_id":"sort", "context":[], 
+		"template":"sort.py", "substitutions":[]},
+	{"type":"check", 
+		"queries":["select * from lineitem order by l_extendedprice DESC limit 5"]},
 
 
 
@@ -111,12 +118,6 @@
 		"template":"binary_boolean.py", 
 		"substitutions":{"binary_op":"greater_than_or_equal", "<short_op>":">="}},
 	{"type":"check", 
-		"queries":["select * from lineitem where l_extendedprice >= 13309.60"]},	
-	
-	
-	{"type":"generate", "task_id":"sort", "context":[], 
-		"template":"sort", "substitutions":[]},
-	{"type":"check", 
-		"queries":["select * from lineitem order by l_extendedprice DESC limit 5"]}
+		"queries":["select * from lineitem where l_extendedprice >= 13309.60"]}	
 	]
 }
