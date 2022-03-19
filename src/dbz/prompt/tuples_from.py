@@ -1,5 +1,3 @@
-
-
 def separate_columns(tuple_column):
     """ Separate one column containing tuples into multiple columns.
     
