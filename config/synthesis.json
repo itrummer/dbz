@@ -16,6 +16,24 @@
 	
 	
 	
+	{"type":"generate", "task_id":"addition", "context":[],
+		"template":"binary_expression.py", "substitutions":{"<binary_op>":"addition"}},
+	{"type":"check", "queries":["select l_extendedprice + 0.1 from lineitem"]},
+	
+	{"type":"generate", "task_id":"subtraction", "context":[],
+		"template":"binary_expression.py", "substitutions":{"<binary_op>":"subtraction"}},
+	{"type":"check", "queries":["select l_extendedprice - 0.1 from lineitem"]},
+
+	{"type":"generate", "task_id":"multiplication", "context":[],
+		"template":"binary_expression.py", "substitutions":{"<binary_op>":"multiplication"}},
+	{"type":"check", "queries":["select l_extendedprice * 0.1 from lineitem"]},
+	
+	{"type":"generate", "task_id":"division", "context":[],
+		"template":"binary_expression.py", "substitutions":{"<binary_op>":"division"}},
+	{"type":"check", "queries":["select l_extendedprice / 0.1 from lineitem"]},
+	
+	
+	
 	{"type":"generate", "task_id":"normalize", "context":[],
 		"template":"normalize.py", "substitutions":{}},
 	{"type":"generate", "task_id":"sum", "context":[], 
@@ -93,27 +111,7 @@
 		"template":"binary_boolean.py", 
 		"substitutions":{"binary_op":"greater_than_or_equal", "<short_op>":">="}},
 	{"type":"check", 
-		"queries":["select * from lineitem where l_extendedprice >= 13309.60"]},
-	
-	
-	
-	{"type":"generate", "task_id":"addition", "context":["imports", "table"],
-		"template":"binary_expression.py", "substitutions":{"binary_op":"addition"}},
-	{"type":"check", "queries":["select l_extendedprice + 0.1 from lineitem"]},
-	
-	{"type":"generate", "task_id":"subtraction", "context":["imports", "table"],
-		"template":"binary_expression.py", "substitutions":{"binary_op":"subtraction"}},
-	{"type":"check", "queries":["select l_extendedprice - 0.1 from lineitem"]},
-
-	{"type":"generate", "task_id":"multiplication", "context":["imports", "table"],
-		"template":"binary_expression.py", "substitutions":{"binary_op":"multiplication"}},
-	{"type":"check", "queries":["select l_extendedprice * 0.1 from lineitem"]},
-	
-	{"type":"generate", "task_id":"division", "context":["imports", "table"],
-		"template":"binary_expression.py", "substitutions":{"binary_op":"division"}},
-	{"type":"check", "queries":["select l_extendedprice / 0.1 from lineitem"]},
-	
-	
+		"queries":["select * from lineitem where l_extendedprice >= 13309.60"]},	
 	
 	
 	{"type":"generate", "task_id":"sort", "context":["imports", "table"],
