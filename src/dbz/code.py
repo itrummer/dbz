@@ -162,19 +162,20 @@ class Coder():
             parts += ['row_id_column=to_tuple_column(row_id_rows)']
             
             parts += ['id_tuples=list(set([tuple(g) for g in row_id_rows]))']
-            parts += ['id_columns=separate_columns(id_tuples)']
+            parts += ['id_rows=[list(t) for t in id_tuples]']
+            parts += ['id_columns=rows_to_columns(id_rows)']
             parts += [f'{result} += id_columns']
             
             parts += ['agg_dicts = []']
             for agg in aggs:
                 agg_code = self._agg_code(agg, groups)
                 parts += [f'agg_dicts += [{agg_code}]']
-            parts += ['agg_tuples = []']
+            parts += ['agg_rows = []']
             parts += ['for id_tuple in id_tuples:']
             parts += [
-                '\tagg_tuples += [tuple([agg_dict[id_tuple] ' +\
-                'for agg_dict in agg_dicts])]']
-            parts += [f'{result} += separate_columns(agg_tuples)']
+                '\tagg_rows += [[[agg_dict[id_tuple] ' +\
+                'for agg_dict in agg_dicts]]]']
+            parts += [f'{result} += rows_to_columns(agg_rows)']
 
         else:
         

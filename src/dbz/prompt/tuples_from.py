@@ -1,8 +1,11 @@
-def separate_columns(tuple_column):
-    """ Separate one column containing tuples into multiple columns.
+import os
+
+
+def rows_to_columns(rows):
+    """ Change from row-based to columnar layout.
     
     Args:
-        tuple_column: a column containing tuples (the column <DataInstructions>).
+        rows: list of rows where each row is a list
     
     Returns:
         a list of columns where each column <DataInstructions>
