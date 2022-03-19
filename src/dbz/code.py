@@ -173,8 +173,8 @@ class Coder():
             parts += ['agg_rows = []']
             parts += ['for id_tuple in id_tuples:']
             parts += [
-                '\tagg_rows += [[[agg_dict[id_tuple] ' +\
-                'for agg_dict in agg_dicts]]]']
+                '\tagg_rows += [[agg_dict[id_tuple] ' +\
+                'for agg_dict in agg_dicts]]']
             parts += [f'{result} += rows_to_columns(agg_rows)']
 
         else:
