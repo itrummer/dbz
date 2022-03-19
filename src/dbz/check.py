@@ -79,8 +79,8 @@ class Validator():
                 ref_df.reindex()
                 
                 if not 'order by' in query.lower():
-                    check_df.sort_values(list(check_df.columns))
-                    ref_df.sort_values(list(ref_df.columns))
+                    check_df.sort_values(list(check_df.columns), inplace=True)
+                    ref_df.sort_values(list(ref_df.columns), inplace=True)
                 
                 try:
                     diffs = ref_df.compare(check_df, align_axis=0)
