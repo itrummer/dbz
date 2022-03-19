@@ -90,7 +90,7 @@ class Coder():
         """
         op_kind = operation['op']['kind']
         op_name = {'PLUS':'addition', 'MINUS':'subtraction', 
-                   'TIMES':'multiplication', 'DIVISION':'division',
+                   'TIMES':'multiplication', 'DIVIDE':'division',
                    'LESS_THAN_OR_EQUAL':'less_than_or_equal',
                    'LESS_THAN':'less_than',
                    'GREATER_THAN_OR_EQUAL':'greater_than_or_equal',
