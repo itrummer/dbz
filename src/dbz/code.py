@@ -259,9 +259,9 @@ class Coder():
                 field_idx = int(d['field'])
                 flag = True if d['direction'] == 'ASCENDING' else False
                 parts += [f'\tif row_1[{field_idx}] < row_2[{field_idx}]:']
-                parts += [f'\t\treturn {1 if flag else -1}']
-                parts += [f'\telif row_1[{field_idx}] > row_2[{field_idx}]:']
                 parts += [f'\t\treturn {-1 if flag else 1}']
+                parts += [f'\telif row_1[{field_idx}] > row_2[{field_idx}]:']
+                parts += [f'\t\treturn {1 if flag else -1}']
             parts += ['\treturn 0']
             parts += [f'{result} = sort({result}, comparator)']
         
