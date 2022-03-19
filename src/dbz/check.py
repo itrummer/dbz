@@ -75,12 +75,14 @@ class Validator():
                                 
                 check_df = pd.read_csv(check_path, header=None)
                 ref_df = pd.read_csv(ref_path, header=None)
-                check_df.reindex()
-                ref_df.reindex()
+                # check_df.reindex()
+                # ref_df.reindex()
                 
                 if not 'order by' in query.lower():
-                    check_df.sort_values(list(check_df.columns), inplace=True)
-                    ref_df.sort_values(list(ref_df.columns), inplace=True)
+                    check_df.sort_values(
+                        list(check_df.columns), inplace=True, ignore_index=True)
+                    ref_df.sort_values(
+                        list(ref_df.columns), inplace=True, ignore_index=True)
                 
                 try:
                     diffs = ref_df.compare(check_df, align_axis=0)
