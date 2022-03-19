@@ -4,11 +4,7 @@ Created on Mar 9, 2022
 @author: immanueltrummer
 '''
 import argparse
-import dbz.engine
-import dbz.query
 import dbz.synthesize
-import dbz.util
-import json
 import openai
 
 if __name__ == '__main__':
@@ -29,7 +25,3 @@ if __name__ == '__main__':
     
     with open('library.py', 'w') as file:
         file.write(library)
-    
-    # engine = dbz.engine.DbzEngine(paths, library)
-    # for idx, query in enumerate(queries, 1):
-        # engine.execute(query, f'result_{idx}')

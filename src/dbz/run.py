@@ -5,27 +5,30 @@ Created on Mar 6, 2022
 '''
 import argparse
 import dbz.engine
-import dbz.plan
 import dbz.util
-import sys
+import os
+import prompt_toolkit
 
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
     parser.add_argument('data_dir', type=str, help='Path to data directory')
+    parser.add_argument('lib_path', type=str, help='Path to library')
+    parser.add_argument('python', type=str, help='Command for Python invocation')
     args = parser.parse_args()
 
     paths = dbz.util.DbzPaths(args.data_dir)
-    planner = dbz.plan.Planner(paths.tmp_dir, paths.planner)
-    engine = dbz.engine.Engine('', args.data_dir, paths.tmp_dir)
+    engine = dbz.engine.DbzEngine(paths, args.lib_path, args.python)
     
-    queries = dbz.util.load_queries(args.work_path)
-    
-    for idx, query in enumerate(queries, 1):
-        print(f'Query index: {idx}')
-        try:
-            plan = planner.plan(query)
-            code = engine.execute(plan)
-            #print(code)
-        except Exception as e:
-            print(f'Exception: {e}', file=sys.stderr)
+    terminated = False
+    while not terminated:
+        user_input = prompt_toolkit.prompt('0>')
+        print(f'Input: {user_input}')
+        if user_input == 'quit':
+            terminated = True
+        else:
+            try:
+                engine.execute(user_input, 'query_result.csv')
+                os.system('cat query_result.csv')
+            except Exception as e:
+                print(f'Exception: {e}')
