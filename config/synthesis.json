@@ -82,7 +82,7 @@
 	
 	
 	{"type":"generate", "task_id":"sort", "context":[], 
-		"template":"sort.py", "substitutions":[]},
+		"template":"sort.py", "substitutions":{}},
 	{"type":"check", 
 		"queries":["select * from lineitem order by l_extendedprice DESC limit 5"]},
 
