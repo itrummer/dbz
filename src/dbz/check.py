@@ -78,6 +78,10 @@ class Validator():
                 check_df.reindex()
                 ref_df.reindex()
                 
+                if not 'order by' in query.lower():
+                    check_df.sort_values(list(check_df.columns))
+                    ref_df.sort_values(list(ref_df.columns))
+                
                 try:
                     diffs = ref_df.compare(check_df, align_axis=0)
                     print(f'--- Differences ---\n{diffs}\n---')

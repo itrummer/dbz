@@ -44,22 +44,22 @@
 	{"type":"generate", "task_id":"sum", "context":[], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"sum"}},
 	{"type":"check", 
-	"queries":["select sum(l_extendedprice) from lineitem group by l_shipmode order by l_shipmode"]},
+	"queries":["select sum(l_extendedprice) from lineitem group by l_shipmode"]},
 	
 	{"type":"generate", "task_id":"min", "context":[], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"min"}},
 	{"type":"check", 
-	"queries":["select min(l_extendedprice) from lineitem group by l_shipmode order by l_shipmode"]},
+	"queries":["select min(l_extendedprice) from lineitem group by l_shipmode"]},
 	
 	{"type":"generate", "task_id":"max", "context":[], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"max"}},
 	{"type":"check", 
-	"queries":["select max(l_extendedprice) from lineitem group by l_shipmode order by l_shipmode"]},
+	"queries":["select max(l_extendedprice) from lineitem group by l_shipmode"]},
 	
 	{"type":"generate", "task_id":"avg", "context":[], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"avg"}},
 	{"type":"check", 
-	"queries":["select avg(l_extendedprice) from lineitem group by l_shipmode order by l_shipmode"]},
+	"queries":["select avg(l_extendedprice) from lineitem group by l_shipmode"]},
 
 
 
