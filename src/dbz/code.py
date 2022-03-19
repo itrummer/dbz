@@ -248,22 +248,31 @@ class Coder():
         Returns:
             code for executing plan step
         """
+        step_id = step['id']
+        result = self._result_name(step_id)
+        parts = [f'{result} = to_row_format(last_result)']
+        
+        if 'collation' in step:
+            parts += 'def comparator(row_1, row_2):'
+            collation = step['collation']
+            for d in collation:
+                field_idx = int(d['field'])
+                flag = True if d['direction'] == 'ASCENDING' else False
+                parts += [f'\tif row_1[{field_idx}] < row_2[{field_idx}]:']
+                parts += [f'\t\treturn {1 if flag else -1}']
+                parts += [f'\telif row_1[{field_idx}] > row_2[{field_idx}]:']
+                parts += [f'\t\treturn {-1 if flag else 1}']
+            parts += ['\treturn 0']
+            parts += [f'{result} = sort({result}, comparator)']
+        
         if 'fetch' in step:
             nr_rows = step['fetch']['literal']
-        else:
-            nr_rows = -1
-
-        if 'collation' in step:
-            collation = step['collation']
-            fields = [d['field'] for d in collation]
-            flags = [d['direction'] == 'ASCENDING' for d in collation]
-        else:
-            fields = []
-            flags = []
+            parts += [f'{result} = {result}[:{nr_rows}]']
         
-        code = f'top_k(last_result, {fields}, {flags}, {nr_rows})'
-        return self._assignment(step, code)
-    
+        parts += [f'{result} = rows_to_columns({result})']
+        parts += [f'last_result = {result}']
+        return '\n'.join(parts)
+
     def _LogicalTableScan(self, step):
         """ Produces code for table scan.
         

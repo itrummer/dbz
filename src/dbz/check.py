@@ -75,8 +75,6 @@ class Validator():
                                 
                 check_df = pd.read_csv(check_path, header=None)
                 ref_df = pd.read_csv(ref_path, header=None)
-                # check_df.reindex()
-                # ref_df.reindex()
                 
                 if not 'order by' in query.lower():
                     check_df.sort_values(

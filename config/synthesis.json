@@ -54,10 +54,10 @@
 	
 	
 	
-	{"type":"generate", "task_id":"tuples_to", "context":[], 
-		"template":"tuples_to.py", "substitutions":{}},
-	{"type":"generate", "task_id":"tuples_from", "context":["tuples_to"], 
-		"template":"tuples_from.py", "substitutions":{}},
+	{"type":"generate", "task_id":"to_tuples", "context":[], 
+		"template":"to_tuples.py", "substitutions":{}},
+	{"type":"generate", "task_id":"rows_to_columns", "context":[], 
+		"template":"rows_to_columns.py", "substitutions":{}},
 		
 	{"type":"generate", "task_id":"sum", "context":[], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"sum"}},
@@ -114,7 +114,7 @@
 		"queries":["select * from lineitem where l_extendedprice >= 13309.60"]},	
 	
 	
-	{"type":"generate", "task_id":"sort", "context":["imports", "table"],
+	{"type":"generate", "task_id":"sort", "context":[], 
 		"template":"sort", "substitutions":[]},
 	{"type":"check", 
 		"queries":["select * from lineitem order by l_extendedprice DESC limit 5"]}

@@ -1,14 +1,10 @@
-def top_k(table, sort_cols, ascending, k):
-    """ Select top-k rows from table.
-    
-    <OperatorInstructions>
+def sort(rows, comparator):
+    """ Sort rows using comparator function.
     
     Args:
-        table: select rows from this table
-        sort_cols: indexes of columns to sort by (list of integers)
-        ascending: sort direction for each column (Boolean vector)
-        k: select so many rows (-1 for all rows)
+        rows: a list of rows where each row is a list
+        comparator: comparator(i,j) is -1 if row i comes before row j, +1 if row j comes first, 0 if equal
     
     Returns:
-        new table containing top-k rows in sort order
+        sorted rows
     """
