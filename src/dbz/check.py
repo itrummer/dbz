@@ -88,7 +88,8 @@ class Validator():
                     diffs = ref_df.compare(check_df, align_axis=0)
                     print(f'--- Differences ---\n{diffs}\n---')
                     nr_diffs = diffs.shape[0]
-                except:
+                except Exception as e:
+                    print(f'Exception during comparison: {e}')
                     nr_diffs = 777
 
                 if nr_diffs:
