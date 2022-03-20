@@ -59,9 +59,10 @@ def extract(connection, table, to_dir):
     retrieval_query = f'select ' + ', '.join(selects) + ' from ' + table
     
     to_path = f'{to_dir}/{table}.csv'
-    extract_query = f'\copy ({retrieval_query}) to \'{to_path}\' csv'
+    copy_query = f'COPY ({retrieval_query}) to STDOUT csv'
     cursor = connection.cursor()
-    cursor.execute(extract_query)
+    with open(to_path, 'w') as file:
+        cursor.copy_expert(copy_query, file)
 
 
 if __name__ == '__main__':
