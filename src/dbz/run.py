@@ -18,7 +18,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     paths = dbz.util.DbzPaths(args.data_dir)
-    engine = dbz.engine.DbzEngine(paths, args.lib_path, args.python)
+    with open(args.lib_path) as file:
+        library = file.read()
+    engine = dbz.engine.DbzEngine(paths, library, args.python)
     
     terminated = False
     while not terminated:
