@@ -43,7 +43,7 @@ class Coder():
         kind = agg['agg']['kind']
         name = {
             'SUM':'sum', 'AVG':'avg', 'MIN':'min', 
-            'MAX':'max', 'COUNT':'count'}[kind]
+            'MAX':'max', 'COUNT':'row_count'}[kind]
         if groups:
             name = 'per_group_' + name
         else:
