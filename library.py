@@ -166,38 +166,43 @@ def greater_than_or_equal(operand_1, operand_2):
 import os
 
 
-def logical_and(column_1, column_2):
+def logical_and(columns):
     """ Performs logical and.
     
     Args:
-        column_1: a column (which is a list) with Boolean values
-        column_2: a column (which is a list) with Boolean values
+        columns: list of columns with Boolean values where each column is a list
     
     Returns:
         a column (which is a list) containing result of and
     """
     result = []
-    for i in range(len(column_1)):
-        result.append(column_1[i] and column_2[i])
+    for i in range(len(columns[0])):
+        result.append(True)
+        for j in range(len(columns)):
+            result[i] = result[i] and columns[j][i]
     return result
 
 
 import os
 
 
-def logical_or(column_1, column_2):
+def logical_or(columns):
     """ Performs logical or.
     
     Args:
-        column_1: a column (which is a list) with Boolean values
-        column_2: a column (which is a list) with Boolean values
+        columns: list of columns with Boolean values where each column is a list
     
     Returns:
         a column (which is a list) containing result of or
     """
     result = []
-    for i in range(len(column_1)):
-        result.append(column_1[i] or column_2[i])
+    for i in range(len(columns[0])):
+        for j in range(len(columns)):
+            if columns[j][i] == 1:
+                result.append(1)
+                break
+            elif j == len(columns) - 1:
+                result.append(0)
     return result
 
 
@@ -228,14 +233,16 @@ def addition(operand_1, operand_2):
     """
     if isinstance(operand_1, list) and isinstance(operand_2, list):
         if len(operand_1) != len(operand_2):
-            raise ValueError("Lists must have the same length.")
+            raise ValueError("Operands must have the same length")
         return [operand_1[i] + operand_2[i] for i in range(len(operand_1))]
     elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
         return [operand_1[i] + operand_2 for i in range(len(operand_1))]
     elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
         return [operand_1 + operand_2[i] for i in range(len(operand_2))]
+    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, (int, float)):
+        return operand_1 + operand_2
     else:
-        raise ValueError("Invalid operand types.")
+        raise TypeError("Operands must be either two lists or two scalars")
 
 
 def subtraction(operand_1, operand_2):
@@ -374,7 +381,11 @@ def calculate_row_count(column):
     Returns:
         row count of column values
     """
-    return len(column)
+    row_count = 0
+    for value in column:
+        if value:
+            row_count += 1
+    return row_count
 
 
 import os
@@ -528,10 +539,10 @@ def per_group_avg(agg_column, group_id_column):
     """
     # collect values for each group
     group_to_values = {}
-    for group_id, values in zip(group_id_column, agg_column):
+    for group_id, value in zip(group_id_column, agg_column):
         if group_id not in group_to_values:
             group_to_values[group_id] = []
-        group_to_values[group_id].append(values)
+        group_to_values[group_id].append(value)
     
     # calculate avg for each group
     group_to_avg = {}
@@ -586,7 +597,7 @@ def sort(rows, comparator):
         sorted rows
     """
     for i in range(len(rows)):
-        for j in range(i+1, len(rows)):
+        for j in range(i, len(rows)):
             if comparator(rows[i], rows[j]) > 0:
                 rows[i], rows[j] = rows[j], rows[i]
     return rows
