@@ -313,6 +313,8 @@ class Coder():
                 return self._binary_code(operation)
             if name == 'CAST':
                 return self._cast_code(operation)
+            if name == 'NOT':
+                return self._unary_code(operation)
         
         raise ValueError(f'Unhandled operation: {operation}')
     
@@ -339,3 +341,18 @@ class Coder():
         rel_op = step['relOp']
         handler = f'_{rel_op}'
         return getattr(self, handler)(step)
+    
+    def _unary_code(self, operation):
+        """ Translates unary operation into code.
+        
+        Args:
+            operation: write code for this operation
+        
+        Returns:
+            code processing input operation
+        """
+        operands = operation['operands']
+        assert len(operands) == 1
+        operand_code = self._operation_code(operands[0])
+        name = operation['op']['name']
+        return f'{name}({operand_code})'
