@@ -354,5 +354,6 @@ class Coder():
         operands = operation['operands']
         assert len(operands) == 1
         operand_code = self._operation_code(operands[0])
-        name = operation['op']['name']
-        return f'{name}({operand_code})'
+        kind = operation['op']['kind']
+        op_name = {'NOT':'logical_not'}[kind]
+        return f'{op_name}({operand_code})'

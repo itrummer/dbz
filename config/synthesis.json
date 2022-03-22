@@ -57,7 +57,7 @@
 	{"type":"check", 
 		"queries":["select * from lineitem where l_extendedprice < 14000 or l_extendedprice > 12000"]},
 	{"type":"generate", "task_id":"not", "context":[], "template":"unary.py", 
-		"substitutions":{"<operator>":"not", "<InputDescription>":"with Boolean values"}},
+		"substitutions":{"<operator>":"logical_not", "<InputDescription>":"with Boolean values"}},
 	{"type":"check", 
 		"queries":["select * from lineitem where not (l_extendedprice < 13000)"]},
 	
