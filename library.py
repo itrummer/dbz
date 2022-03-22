@@ -50,6 +50,172 @@ def to_row_format(columns):
     return list(zip(*columns))
 
 
+def filter_column(column, row_idx):
+    """ Filter rows in column.
+    
+    Args:
+        column: the column is a list.
+        row_idx: the column is a list, it contains Booleans.
+    
+    Returns:
+        values at positions where row_idx is True.
+    """
+    return [column[i] for i in range(len(column)) if row_idx[i]]
+
+
+def less_than(operand_1, operand_2):
+    """ True where operand_1 < operand_2.
+    
+    Args:
+        operand_1: either a column (which is a list) or a constant
+        operand_2: either a column (which is a list) or a constant
+    
+    Returns:
+        column (which is a list) of Boolean values
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        return [operand_1[i] < operand_2[i] for i in range(len(operand_1))]
+    elif isinstance(operand_1, list):
+        return [operand_1[i] < operand_2 for i in range(len(operand_1))]
+    elif isinstance(operand_2, list):
+        return [operand_1 < operand_2[i] for i in range(len(operand_2))]
+    else:
+        return operand_1 < operand_2
+
+
+def greater_than(operand_1, operand_2):
+    """ True where operand_1 > operand_2.
+    
+    Args:
+        operand_1: either a column (which is a list) or a constant
+        operand_2: either a column (which is a list) or a constant
+    
+    Returns:
+        column (which is a list) of Boolean values
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        return [x > y for x, y in zip(operand_1, operand_2)]
+    elif isinstance(operand_1, list):
+        return [x > operand_2 for x in operand_1]
+    elif isinstance(operand_2, list):
+        return [operand_1 > y for y in operand_2]
+    else:
+        return operand_1 > operand_2
+
+
+def equal(operand_1, operand_2):
+    """ True where operand_1 = operand_2.
+    
+    Args:
+        operand_1: either a column (which is a list) or a constant
+        operand_2: either a column (which is a list) or a constant
+    
+    Returns:
+        column (which is a list) of Boolean values
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        return [operand_1[i] == operand_2[i] for i in range(len(operand_1))]
+    elif isinstance(operand_1, list):
+        return [operand_1[i] == operand_2 for i in range(len(operand_1))]
+    elif isinstance(operand_2, list):
+        return [operand_1 == operand_2[i] for i in range(len(operand_2))]
+    else:
+        return operand_1 == operand_2
+
+
+def less_than_or_equal(operand_1, operand_2):
+    """ True where operand_1 <= operand_2.
+    
+    Args:
+        operand_1: either a column (which is a list) or a constant
+        operand_2: either a column (which is a list) or a constant
+    
+    Returns:
+        column (which is a list) of Boolean values
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        return [operand_1[i] <= operand_2[i] for i in range(len(operand_1))]
+    elif isinstance(operand_1, list):
+        return [operand_1[i] <= operand_2 for i in range(len(operand_1))]
+    elif isinstance(operand_2, list):
+        return [operand_1 <= operand_2[i] for i in range(len(operand_2))]
+    else:
+        return [operand_1 <= operand_2]
+
+
+def greater_than_or_equal(operand_1, operand_2):
+    """ True where operand_1 >= operand_2.
+    
+    Args:
+        operand_1: either a column (which is a list) or a constant
+        operand_2: either a column (which is a list) or a constant
+    
+    Returns:
+        column (which is a list) of Boolean values
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        return [operand_1[i] >= operand_2[i] for i in range(len(operand_1))]
+    elif isinstance(operand_1, list):
+        return [operand_1[i] >= operand_2 for i in range(len(operand_1))]
+    elif isinstance(operand_2, list):
+        return [operand_1 >= operand_2[i] for i in range(len(operand_2))]
+    else:
+        return [operand_1 >= operand_2]
+
+
+import os
+
+
+def logical_and(column_1, column_2):
+    """ Performs logical and.
+    
+    Args:
+        column_1: a column (which is a list) with Boolean values
+        column_2: a column (which is a list) with Boolean values
+    
+    Returns:
+        a column (which is a list) containing result of and
+    """
+    result = []
+    for i in range(len(column_1)):
+        result.append(column_1[i] and column_2[i])
+    return result
+
+
+import os
+
+
+def logical_or(column_1, column_2):
+    """ Performs logical or.
+    
+    Args:
+        column_1: a column (which is a list) with Boolean values
+        column_2: a column (which is a list) with Boolean values
+    
+    Returns:
+        a column (which is a list) containing result of or
+    """
+    result = []
+    for i in range(len(column_1)):
+        result.append(column_1[i] or column_2[i])
+    return result
+
+
+import os
+
+
+def logical_not(column):
+    """ Performs logical_not on input column.
+    
+    Args:
+        column: a column (which is a list) with Boolean values
+    
+    Returns:
+        a column (which is a list) containing result of logical_not
+    """
+    return [not i for i in column]
+
+
 def addition(operand_1, operand_2):
     """ Performs addition between two operands.
     
@@ -62,14 +228,14 @@ def addition(operand_1, operand_2):
     """
     if isinstance(operand_1, list) and isinstance(operand_2, list):
         if len(operand_1) != len(operand_2):
-            raise ValueError("Operands must have the same length")
+            raise ValueError("Lists must have the same length.")
         return [operand_1[i] + operand_2[i] for i in range(len(operand_1))]
     elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
         return [operand_1[i] + operand_2 for i in range(len(operand_1))]
     elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
         return [operand_1 + operand_2[i] for i in range(len(operand_2))]
     else:
-        return operand_1 + operand_2
+        raise ValueError("Invalid operand types.")
 
 
 def subtraction(operand_1, operand_2):
@@ -84,9 +250,9 @@ def subtraction(operand_1, operand_2):
     """
     if isinstance(operand_1, list) and isinstance(operand_2, list):
         return [operand_1[i] - operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list) and not isinstance(operand_2, list):
+    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
         return [operand_1[i] - operand_2 for i in range(len(operand_1))]
-    elif not isinstance(operand_1, list) and isinstance(operand_2, list):
+    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
         return [operand_1 - operand_2[i] for i in range(len(operand_2))]
     else:
         return operand_1 - operand_2
@@ -104,7 +270,7 @@ def multiplication(operand_1, operand_2):
     """
     if isinstance(operand_1, list) and isinstance(operand_2, list):
         if len(operand_1) != len(operand_2):
-            raise ValueError("Operands should have the same length")
+            raise ValueError("Operands must have the same length")
         return [operand_1[i] * operand_2[i] for i in range(len(operand_1))]
     elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
         return [operand_1[i] * operand_2 for i in range(len(operand_1))]
@@ -157,10 +323,7 @@ def calculate_sum(column):
     Returns:
         sum of column values
     """
-    sum_value = 0
-    for value in column:
-        sum_value += value
-    return sum_value
+    return sum(column)
 
 
 def calculate_min(column):
@@ -211,11 +374,7 @@ def calculate_row_count(column):
     Returns:
         row count of column values
     """
-    row_count = 0
-    for value in column:
-        if value != '':
-            row_count += 1
-    return row_count
+    return len(column)
 
 
 import os
@@ -335,14 +494,14 @@ def per_group_max(agg_column, group_id_column):
     Returns:
         a dictionary mapping each group ID to the max
     """
-    # 1. Collect values for each group.
+    # collect values for each group
     group_to_values = {}
-    for group_id, values in zip(group_id_column, agg_column):
+    for group_id, value in zip(group_id_column, agg_column):
         if group_id not in group_to_values:
             group_to_values[group_id] = []
-        group_to_values[group_id].append(values)
+        group_to_values[group_id].append(value)
     
-    # 2. Calculate max for each group.
+    # calculate max for each group
     group_to_max = {}
     for group_id, values in group_to_values.items():
         group_to_max[group_id] = max(values)
@@ -427,121 +586,8 @@ def sort(rows, comparator):
         sorted rows
     """
     for i in range(len(rows)):
-        for j in range(i,len(rows)):
-            if comparator(rows[i],rows[j]) == 1:
+        for j in range(i+1, len(rows)):
+            if comparator(rows[i], rows[j]) > 0:
                 rows[i], rows[j] = rows[j], rows[i]
     return rows
-
-
-def filter_column(column, row_idx):
-    """ Filter rows in column.
-    
-    Args:
-        column: the column is a list.
-        row_idx: the column is a list, it contains Booleans.
-    
-    Returns:
-        values at positions where row_idx is True.
-    """
-    return [column[i] for i in range(len(column)) if row_idx[i]]
-
-
-def less_than(operand_1, operand_2):
-    """ True where operand_1 < operand_2.
-    
-    Args:
-        operand_1: either a column (which is a list) or a constant
-        operand_2: either a column (which is a list) or a constant
-    
-    Returns:
-        column (which is a list) of Boolean values
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        return [operand_1[i] < operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list):
-        return [operand_1[i] < operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_2, list):
-        return [operand_1 < operand_2[i] for i in range(len(operand_2))]
-    else:
-        return operand_1 < operand_2
-
-
-def greater_than(operand_1, operand_2):
-    """ True where operand_1 > operand_2.
-    
-    Args:
-        operand_1: either a column (which is a list) or a constant
-        operand_2: either a column (which is a list) or a constant
-    
-    Returns:
-        column (which is a list) of Boolean values
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        return [x > y for x, y in zip(operand_1, operand_2)]
-    elif isinstance(operand_1, list):
-        return [x > operand_2 for x in operand_1]
-    elif isinstance(operand_2, list):
-        return [operand_1 > y for y in operand_2]
-    else:
-        return operand_1 > operand_2
-
-
-def equal(operand_1, operand_2):
-    """ True where operand_1 = operand_2.
-    
-    Args:
-        operand_1: either a column (which is a list) or a constant
-        operand_2: either a column (which is a list) or a constant
-    
-    Returns:
-        column (which is a list) of Boolean values
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        return [operand_1[i] == operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list):
-        return [operand_1[i] == operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_2, list):
-        return [operand_1 == operand_2[i] for i in range(len(operand_2))]
-    else:
-        return operand_1 == operand_2
-
-
-def less_than_or_equal(operand_1, operand_2):
-    """ True where operand_1 <= operand_2.
-    
-    Args:
-        operand_1: either a column (which is a list) or a constant
-        operand_2: either a column (which is a list) or a constant
-    
-    Returns:
-        column (which is a list) of Boolean values
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        return [operand_1[i] <= operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list):
-        return [operand_1[i] <= operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_2, list):
-        return [operand_1 <= operand_2[i] for i in range(len(operand_2))]
-    else:
-        return [operand_1 <= operand_2]
-
-
-def greater_than_or_equal(operand_1, operand_2):
-    """ True where operand_1 >= operand_2.
-    
-    Args:
-        operand_1: either a column (which is a list) or a constant
-        operand_2: either a column (which is a list) or a constant
-    
-    Returns:
-        column (which is a list) of Boolean values
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        return [operand_1[i] >= operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list):
-        return [operand_1[i] >= operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_2, list):
-        return [operand_1 >= operand_2[i] for i in range(len(operand_2))]
-    else:
-        return [operand_1 >= operand_2]
 
