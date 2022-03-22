@@ -57,6 +57,7 @@ class DbzEngine(Engine):
             true iff execution succeeds
         """
         sql = dbz.query.simplify(sql)
+        print(f'Simplified query: {sql}')
         plan = self.planner.plan(sql)
         print(f'Plan: {plan}')
         code_parts = []
