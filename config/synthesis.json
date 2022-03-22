@@ -14,6 +14,55 @@
 	
 	
 	
+	{"type":"generate", "task_id":"filter", "context":[],
+		"template":"filter.py", "substitutions":{}},
+	{"type":"generate", "task_id":"less_than", "context":[],
+		"template":"binary_cmp.py", 
+		"substitutions":{"binary_op":"less_than", "<short_op>":"<"}},
+	{"type":"check", 
+		"queries":["select * from lineitem where l_extendedprice < 13309.60"]},
+	
+	{"type":"generate", "task_id":"greater_than", "context":[],
+		"template":"binary_cmp.py", 
+		"substitutions":{"binary_op":"greater_than", "<short_op>":">"}},
+	{"type":"check", 
+		"queries":["select * from lineitem where l_extendedprice > 13309.60"]},
+	
+	{"type":"generate", "task_id":"equal_to", "context":[],
+		"template":"binary_cmp.py", 
+		"substitutions":{"binary_op":"equal", "<short_op>":"="}},
+	{"type":"check", 
+		"queries":["select * from lineitem where l_extendedprice = 13309.60"]},
+
+	{"type":"generate", "task_id":"less_than_or_equal", "context":[],
+		"template":"binary_cmp.py", 
+		"substitutions":{"binary_op":"less_than_or_equal", "<short_op>":"<="}},
+	{"type":"check", 
+		"queries":["select * from lineitem where l_extendedprice <= 13309.60"]},
+	
+	{"type":"generate", "task_id":"greater_than_or_equal", "context":[],
+		"template":"binary_cmp.py", 
+		"substitutions":{"binary_op":"greater_than_or_equal", "<short_op>":">="}},
+	{"type":"check", 
+		"queries":["select * from lineitem where l_extendedprice >= 13309.60"]},
+	
+	
+	
+	{"type":"generate", "task_id":"and", "context":[], 
+		"template":"boolean_compound", "substitutions":{"<operator>":"and"}},
+	{"type":"check", 
+		"queries":["select * from lineitem where l_extendedprice < 14000 and l_extendedprice > 12000"]},
+	{"type":"generate", "task_id":"or", "context":[], 
+		"template":"boolean_compound", "substitutions":{"<operator>":"or"}},
+	{"type":"check", 
+		"queries":["select * from lineitem where l_extendedprice < 14000 or l_extendedprice > 12000"]},
+	{"type":"generate", "task_id":"not", "context":[], 
+		"template":"boolean_compound", "substitutions":{"<operator>":"not"}},
+	{"type":"check", 
+		"queries":["select * from lineitem where not (l_extendedprice < 13000)"]},
+	
+	
+	
 	{"type":"generate", "task_id":"addition", "context":[],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"addition"}},
 	{"type":"check", "queries":["select l_extendedprice + 0.1 from lineitem"]},
@@ -92,40 +141,6 @@
 	{"type":"generate", "task_id":"sort", "context":[], 
 		"template":"sort.py", "substitutions":{}},
 	{"type":"check", 
-		"queries":["select * from lineitem order by l_extendedprice DESC limit 5"]},
-
-
-
-	{"type":"generate", "task_id":"filter", "context":[],
-		"template":"filter.py", "substitutions":{}},
-	{"type":"generate", "task_id":"less_than", "context":[],
-		"template":"binary_boolean.py", 
-		"substitutions":{"binary_op":"less_than", "<short_op>":"<"}},
-	{"type":"check", 
-		"queries":["select * from lineitem where l_extendedprice < 13309.60"]},
-	
-	{"type":"generate", "task_id":"greater_than", "context":[],
-		"template":"binary_boolean.py", 
-		"substitutions":{"binary_op":"greater_than", "<short_op>":">"}},
-	{"type":"check", 
-		"queries":["select * from lineitem where l_extendedprice > 13309.60"]},
-	
-	{"type":"generate", "task_id":"equal_to", "context":[],
-		"template":"binary_boolean.py", 
-		"substitutions":{"binary_op":"equal", "<short_op>":"="}},
-	{"type":"check", 
-		"queries":["select * from lineitem where l_extendedprice = 13309.60"]},
-
-	{"type":"generate", "task_id":"less_than_or_equal", "context":[],
-		"template":"binary_boolean.py", 
-		"substitutions":{"binary_op":"less_than_or_equal", "<short_op>":"<="}},
-	{"type":"check", 
-		"queries":["select * from lineitem where l_extendedprice <= 13309.60"]},
-	
-	{"type":"generate", "task_id":"greater_than_or_equal", "context":[],
-		"template":"binary_boolean.py", 
-		"substitutions":{"binary_op":"greater_than_or_equal", "<short_op>":">="}},
-	{"type":"check", 
-		"queries":["select * from lineitem where l_extendedprice >= 13309.60"]}	
+		"queries":["select * from lineitem order by l_extendedprice DESC limit 5"]}
 	]
 }
