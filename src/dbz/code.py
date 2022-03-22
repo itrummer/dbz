@@ -95,9 +95,7 @@ class Coder():
                    'LESS_THAN':'less_than',
                    'GREATER_THAN_OR_EQUAL':'greater_than_or_equal',
                    'GREATER_THAN':'greater_than',
-                   'EQUALS':'equal',
-                   'AND':'logical_and', 'OR':'logical_or', 
-                   'NOT':'logical_not'}[op_kind]
+                   'EQUALS':'equal'}[op_kind]
         operands = operation['operands']
         left_op = self._operation_code(operands[0])
         right_op = self._operation_code(operands[1])
@@ -293,6 +291,21 @@ class Coder():
             'new_table = to_columnar_format(new_table)'
         return scan_code + '\n' + self._assignment(step, 'new_table')
     
+    def _nary_boolean_code(self, operation):
+        """ Generate code realizing n-ary Boolean operator.
+        
+        Args:
+            operation: translate this operation into code
+        
+        Returns:
+            code realizing operation
+        """
+        op_kind = operation['op']['kind']
+        op_name = {'AND':'logical_and', 'OR':'logical_or'}[op_kind]
+        operands = operation['operands']
+        params = [self._operation_code(operand) for operand in operands]
+        return f'{op_name}([{", ".join(params)}])'
+    
     def _operation_code(self, operation):
         """ Generate code realizing given operation. 
         
@@ -309,6 +322,8 @@ class Coder():
         elif 'op' in operation:
             syntax = operation['op']['syntax']
             name = operation['op']['name']
+            if name in ['AND', 'OR']:
+                return self._nary_boolean_code(operation)
             if syntax == 'BINARY' or name in ['+', '-']:
                 return self._binary_code(operation)
             if name == 'CAST':

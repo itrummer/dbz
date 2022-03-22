@@ -1,12 +1,11 @@
 import os
 
 
-def logical_<operator>(column_1, column_2):
+def logical_<operator>(columns):
     """ Performs logical <operator>.
     
     Args:
-        column_1: a column (which <DataInstructions>) with Boolean values
-        column_2: a column (which <DataInstructions>) with Boolean values
+        columns: list of columns with Boolean values where each column <DataInstructions>
     
     Returns:
         a column (which <DataInstructions>) containing result of <operator>
