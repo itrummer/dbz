@@ -163,7 +163,7 @@ class Coder():
         if scale is None:
             return value
         else:
-            return f'{round}({value}*1e{scale})'
+            return f'round({value}*1e{scale})'
     
     def _LogicalAggregate(self, step):
         """ Produce code for aggregates (optionally with grouping). 
