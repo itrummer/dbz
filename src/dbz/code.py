@@ -441,7 +441,7 @@ class Coder():
             code: code for evaluating node
         
         Returns:
-            code for unscaling operation if required
+            code for unscaling result of given code
         """
         scale = self._get_scale(node)
         if scale is None:
