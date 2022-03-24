@@ -10,6 +10,7 @@ import dbz.util
 import filecmp
 import os
 import pandas as pd
+import traceback
 
 
 class Validator():
@@ -103,6 +104,7 @@ class Validator():
         
         except Exception as e:
             print(f'Validation failed with exception: {e}')
+            traceback.print_exc()
             return False
         return True
 
