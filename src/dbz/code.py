@@ -99,6 +99,17 @@ class Coder():
         operands = operation['operands']
         left_op = self._operation_code(operands[0])
         right_op = self._operation_code(operands[1])
+        
+        scale_1 = self._get_scale(operands[0])
+        scale_2 = self._get_scale(operands[1])
+        result_scale = self._get_scale(operation)
+        diff_1, diff_2 = self._scale_diffs(
+            scale_1, scale_2, result_scale, op_kind)
+        assert(diff_1 >= 0)
+        assert(diff_2 >= 0)
+        left_op = f'multiplication(left_op, 1e{diff_1})' if diff_1 else left_op
+        right_op = f'multiplication(right_op, 1e{diff_2}' if diff_2 else right_op
+        
         return f'{op_name}({left_op},{right_op})'
     
     def _cast_code(self, operation):
@@ -129,6 +140,17 @@ class Coder():
         column_nr = column_ref['input']
         return f'last_result[{column_nr}]'
     
+    def _get_scale(self, node):
+        """ Extract scale for exact numeric type results.
+        
+        Args:
+            node: a node in the query plan
+        
+        Returns:
+            scale if node produces exact numeric result, otherwise None
+        """
+        return node['type'].get('scale', None)
+    
     def _literal_code(self, literal):
         """ Produces a code snippet producing given literal.
         
@@ -138,7 +160,12 @@ class Coder():
         Returns:
             code producing given literal
         """
-        return literal['literal']
+        scale = self._get_scale(literal)
+        value = literal['literal']
+        if scale is None:
+            return value
+        else:
+            return f'{round}({value}*1e{scale})'
     
     def _LogicalAggregate(self, step):
         """ Produce code for aggregates (optionally with grouping). 
@@ -169,6 +196,7 @@ class Coder():
             parts += ['agg_dicts = []']
             for agg in aggs:
                 agg_code = self._agg_code(agg, groups)
+                agg_code = self._unscale_code(agg, agg_code)
                 parts += [f'agg_dicts += [{agg_code}]']
             parts += ['agg_rows = []']
             parts += ['for id_tuple in id_tuples:']
@@ -232,6 +260,7 @@ class Coder():
         exprs = step['exprs']
         for expr in exprs:
             expr_code = self._operation_code(expr)
+            expr_code = self._unscale_code(expr, expr_code)
             col_code = f'column = {expr_code}'
             add_code = f'{result} += [column]'
             parts += [col_code]
@@ -344,6 +373,37 @@ class Coder():
         """
         return f"result_{step_id}"
     
+    def _scale_diffs(self, scale_1, scale_2, result_scale, op_kind):
+        """ Calculate required (re)scaling for inputs to binary operation.
+        
+        Args:
+            scale_1: scale of first (left) input
+            scale_2: scale of second (right) input
+            result_scale: scale of operation result
+            op_kind: kind of operation
+        
+        Returns:
+            two values indicating by how much to scale left and right input
+        """
+        if scale_1 is None and scale_2 is not None:
+            return 0, -scale_2
+        elif scale_1 is not None and scale_2 is None:
+            return -scale_1, 0
+        elif op_kind in ['LESS_THAN_OR_EQUAL', 'LESS_THAN', 
+                         'GREATER_THAN_OR_EQUAL',
+                         'GREATER_THAN', 'EQUALS',
+                         'PLUS', 'MINUS']:
+            if scale_1 < scale_2:
+                return scale_2 - scale_1, 0
+            else:
+                return 0, scale_1 - scale_2
+        elif op_kind == 'TIMES':
+            return 0, 0
+        elif op_kind == 'DIVIDE':
+            return result_scale - scale_1, 0
+        else:
+            raise NotImplementedError(f'Unknown scaling scenario!')
+    
     def _step_code(self, step):
         """ Translates one plan step into code.
         
@@ -372,3 +432,19 @@ class Coder():
         kind = operation['op']['kind']
         op_name = {'NOT':'logical_not'}[kind]
         return f'{op_name}({operand_code})'
+    
+    def _unscale_code(self, node, code):
+        """ Returns code to transform scaled into unscaled representation. 
+        
+        Args:
+            node: a node in the query plan tree
+            code: code for evaluating node
+        
+        Returns:
+            code for unscaling operation if required
+        """
+        scale = self._get_scale(node)
+        if scale is None:
+            return code
+        else:
+            return f'division({code},1e{scale})'
