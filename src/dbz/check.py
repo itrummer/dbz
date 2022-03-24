@@ -130,7 +130,7 @@ if __name__ == '__main__':
     
     print(f'Comparing query results to Postgres on sample queries ...')
     paths = dbz.util.DbzPaths(args.data_dir)
-    with open(args.library) as file:
+    with open(args.lib_path) as file:
         library = file.read()
     dbz_engine = dbz.engine.DbzEngine(
         paths, library, args.python)
