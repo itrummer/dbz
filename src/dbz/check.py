@@ -3,9 +3,14 @@ Created on Mar 9, 2022
 
 @author: immanueltrummer
 '''
+import argparse
+import dbz.engine
+import dbz.query
+import dbz.util
 import filecmp
 import os
 import pandas as pd
+
 
 class Validator():
     """ Validates an engine implementation by comparing to reference. """
@@ -108,3 +113,34 @@ class Validator():
             print(f'Treating query {idx}/{self.nr_queries} ...')
             out = f'{self.paths.tmp_dir}/ref_{idx}'
             self.ref_engine.execute(query, out)
+
+
+if __name__ == '__main__':
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('data_dir', type=str, help='Path to data directory')
+    parser.add_argument('lib_path', type=str, help='Path to library')
+    parser.add_argument('python', type=str, help='Command for Python invocation')
+    parser.add_argument('pg_db', type=str, help='Name of Postgres database')
+    parser.add_argument('pg_user', type=str, help='Name of Postgres user')
+    parser.add_argument('pg_pwd', type=str, help='Password for Postgres database')
+    parser.add_argument('pg_host', type=str, help='Path to Postgres host')
+    parser.add_argument('queries', type=str, help='Path to input queries')
+    args = parser.parse_args()
+    
+    print(f'Comparing query results to Postgres on sample queries ...')
+    paths = dbz.util.DbzPaths(args.data_dir)
+    with open(args.library) as file:
+        library = file.read()
+    dbz_engine = dbz.engine.DbzEngine(
+        paths, library, args.python)
+    pg_engine = dbz.engine.PgEngine(
+        args.pg_db, args.pg_user, 
+        args.pg_pwd, args.pg_host)
+    
+    queries = dbz.query.load_queries(args.queries)
+    queries = [dbz.query.simplify(q) for q in queries]
+    
+    validator = Validator(paths, queries, pg_engine)
+    success = validator.validate(dbz_engine)
+    print(f'Validation success: {success}')
