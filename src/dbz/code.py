@@ -389,6 +389,8 @@ class Coder():
             return 0, -scale_2
         elif scale_1 is not None and scale_2 is None:
             return -scale_1, 0
+        elif scale_1 is None and scale_2 is not None:
+            return 0, -scale_2
         elif op_kind in ['LESS_THAN_OR_EQUAL', 'LESS_THAN', 
                          'GREATER_THAN_OR_EQUAL',
                          'GREATER_THAN', 'EQUALS',
