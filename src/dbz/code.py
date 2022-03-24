@@ -105,8 +105,6 @@ class Coder():
         result_scale = self._get_scale(operation)
         diff_1, diff_2 = self._scale_diffs(
             scale_1, scale_2, result_scale, op_kind)
-        assert(diff_1 >= 0)
-        assert(diff_2 >= 0)
         left_op = f'multiplication(left_op, 1e{diff_1})' if diff_1 else left_op
         right_op = f'multiplication(right_op, 1e{diff_2}' if diff_2 else right_op
         
