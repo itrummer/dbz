@@ -245,7 +245,8 @@ class Coder():
         assert(join_pred['op']['kind'] == 'EQUALS')
         col_idx_1 = join_pred['operands'][0]['input']
         col_idx_2_raw = join_pred['operands'][1]['input']
-        col_idx_2 = f'{col_idx_2_raw}-len({params[0]})'
+        in_1_name = self._result_name(inputs[0])
+        col_idx_2 = f'{col_idx_2_raw}-len({in_1_name})'
         params += [str(col_idx_1), col_idx_2]
         op_code = f'rows_to_columns(equi_join({", ".join(params)}))'
         return self._assignment(step, op_code)
