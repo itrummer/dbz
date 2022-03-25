@@ -161,7 +161,12 @@ class Coder():
         scale = self._get_scale(literal)
         value = literal['literal']
         if scale is None:
-            return value
+            
+            data_type = literal['type']['type']
+            if data_type in ['CHAR', 'VARCHAR', 'TEXT']:
+                return f"'{value}'"
+            else:
+                return value
         else:
             return f'round({value}*1e{scale})'
     
