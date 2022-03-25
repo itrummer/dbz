@@ -76,6 +76,24 @@
 	
 	
 	
+	{"type":"generate", "task_id":"addition", "context":[],
+		"template":"binary_expression.py", "substitutions":{"<binary_op>":"addition"}},
+	{"type":"check", "queries":["select l_extendedprice + 0.1 from lineitem"]},
+	
+	{"type":"generate", "task_id":"subtraction", "context":[],
+		"template":"binary_expression.py", "substitutions":{"<binary_op>":"subtraction"}},
+	{"type":"check", "queries":["select l_extendedprice - 0.1 from lineitem"]},
+
+	{"type":"generate", "task_id":"multiplication", "context":[],
+		"template":"binary_expression.py", "substitutions":{"<binary_op>":"multiplication"}},
+	{"type":"check", "queries":["select l_extendedprice * 10 from lineitem"]},
+	
+	{"type":"generate", "task_id":"division", "context":[],
+		"template":"binary_expression.py", "substitutions":{"<binary_op>":"division"}},
+	{"type":"check", "queries":["select l_extendedprice / 2 from lineitem"]},
+
+	
+		
 	{"type":"generate", "task_id":"filter", "context":[],
 		"template":"filter.py", "substitutions":{}},
 	{"type":"generate", "task_id":"less_than", "context":[],
@@ -126,26 +144,7 @@
 		"queries":["select * from lineitem where not (l_extendedprice < 13000)"]},
 	
 	
-	
-	{"type":"generate", "task_id":"addition", "context":[],
-		"template":"binary_expression.py", "substitutions":{"<binary_op>":"addition"}},
-	{"type":"check", "queries":["select l_extendedprice + 0.1 from lineitem"]},
-	
-	{"type":"generate", "task_id":"subtraction", "context":[],
-		"template":"binary_expression.py", "substitutions":{"<binary_op>":"subtraction"}},
-	{"type":"check", "queries":["select l_extendedprice - 0.1 from lineitem"]},
-
-	{"type":"generate", "task_id":"multiplication", "context":[],
-		"template":"binary_expression.py", "substitutions":{"<binary_op>":"multiplication"}},
-	{"type":"check", "queries":["select l_extendedprice * 10 from lineitem"]},
-	
-	{"type":"generate", "task_id":"division", "context":[],
-		"template":"binary_expression.py", "substitutions":{"<binary_op>":"division"}},
-	{"type":"check", "queries":["select l_extendedprice / 2 from lineitem"]},
-	
-	
-	
-	
+		
 	{"type":"generate", "task_id":"sort", "context":[], 
 		"template":"sort.py", "substitutions":{}},
 	{"type":"check", 
