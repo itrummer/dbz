@@ -76,6 +76,10 @@
 	
 	
 	
+	{"type":"generate", "task_id":"multiplication", "context":[],
+		"template":"binary_expression.py", "substitutions":{"<binary_op>":"multiplication"}},
+	{"type":"check", "queries":["select l_extendedprice * 10 from lineitem"]},
+	
 	{"type":"generate", "task_id":"addition", "context":[],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"addition"}},
 	{"type":"check", "queries":["select l_extendedprice + 0.1 from lineitem"]},
@@ -83,10 +87,6 @@
 	{"type":"generate", "task_id":"subtraction", "context":[],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"subtraction"}},
 	{"type":"check", "queries":["select l_extendedprice - 0.1 from lineitem"]},
-
-	{"type":"generate", "task_id":"multiplication", "context":[],
-		"template":"binary_expression.py", "substitutions":{"<binary_op>":"multiplication"}},
-	{"type":"check", "queries":["select l_extendedprice * 10 from lineitem"]},
 	
 	{"type":"generate", "task_id":"division", "context":[],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"division"}},
