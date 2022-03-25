@@ -186,6 +186,7 @@ class Coder():
         parts = [f'{result} = []']
         
         if groups:
+            nr_group_cols = len(groups)
             group_by_cols = [f'last_result[{g}]' for g in groups]
             group_by_list = ', '.join(group_by_cols)
             parts += [f'row_id_rows=to_row_format([{group_by_list}])']
@@ -193,7 +194,7 @@ class Coder():
             
             parts += ['id_tuples=list(set([tuple(g) for g in row_id_rows]))']
             parts += ['id_rows=[list(t) for t in id_tuples]']
-            parts += ['id_columns=rows_to_columns(id_rows)']
+            parts += [f'id_columns=rows_to_columns(id_rows,{nr_group_cols})']
             parts += [f'{result} += id_columns']
             
             parts += ['agg_dicts = []']
@@ -206,7 +207,8 @@ class Coder():
             parts += [
                 '\tagg_rows += [[agg_dict[id_tuple] ' +\
                 'for agg_dict in agg_dicts]]']
-            parts += [f'{result} += rows_to_columns(agg_rows)']
+            nr_aggs = len(aggs)
+            parts += [f'{result} += rows_to_columns(agg_rows,{nr_aggs})']
 
         else:
         
@@ -253,7 +255,11 @@ class Coder():
         in_1_name = self._result_name(inputs[0])
         col_idx_2 = f'{col_idx_2_raw}-len({in_1_name})'
         params += [str(col_idx_1), col_idx_2]
-        op_code = f'rows_to_columns(equi_join({", ".join(params)}))'
+        out_fields = step['outputType']['fields']
+        nr_out_fields = len(out_fields)
+        op_code = f'rows_to_columns(equi_join(' +\
+            f'{", ".join(params)}),{nr_out_fields})'
+        #op_code = f'rows_to_columns(equi_join({", ".join(params)}),)'
         return self._assignment(step, op_code)
     
     def _LogicalProject(self, step):
@@ -310,7 +316,8 @@ class Coder():
             nr_rows = step['fetch']['literal']
             parts += [f'{result} = {result}[:{nr_rows}]']
         
-        parts += [f'{result} = rows_to_columns({result})']
+        out_arity = len(step['outputType']['fields'])
+        parts += [f'{result} = rows_to_columns({result},{out_arity})']
         parts += [f'last_result = {result}']
         return '\n'.join(parts)
 
