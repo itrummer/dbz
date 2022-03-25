@@ -240,6 +240,7 @@ class Coder():
         inputs = step['inputs']
         assert(len(inputs) == 2)
         params = [self._result_name(step_id) for step_id in inputs]
+        params = [f'to_row_format({p})' for p in params]
         join_pred = step['condition']
         assert(join_pred['op']['kind'] == 'EQUALS')
         col_idx_1 = join_pred['operands'][0]['input']
