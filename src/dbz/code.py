@@ -393,6 +393,7 @@ class Coder():
             code for post-processing final result
         """
         parts = ['last_result = to_row_format(last_result)']
+        parts += ['last_result = [list(r) for r in last_result]']
         col_types = final_step['outputType']['fields']
         for col_idx, col_type in enumerate(col_types):
             base_type = col_type['type']
