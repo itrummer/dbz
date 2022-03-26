@@ -200,7 +200,6 @@ class Coder():
             parts += ['agg_dicts = []']
             for agg in aggs:
                 agg_code = self._agg_code(agg, groups)
-                agg_code = self._unscale_code(agg, agg_code)
                 parts += [f'agg_dicts += [{agg_code}]']
             parts += ['agg_rows = []']
             parts += ['for id_tuple in id_tuples:']
@@ -278,7 +277,6 @@ class Coder():
         exprs = step['exprs']
         for expr in exprs:
             expr_code = self._operation_code(expr)
-            expr_code = self._unscale_code(expr, expr_code)
             col_code = f'column = {expr_code}'
             add_code = f'{result} += [column]'
             parts += [col_code]
