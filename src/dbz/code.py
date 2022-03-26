@@ -453,9 +453,9 @@ class Coder():
             return result_scale - scale_1, result_scale - scale_2
         elif op_kind == 'TIMES':
             if scale_1 < scale_2:
-                return result_scale - scale_2, 0
+                return result_scale - scale_1 - scale_2, 0
             else:
-                return 0, result_scale - scale_1
+                return 0, result_scale - scale_1 - scale_2
         elif op_kind == 'DIVIDE':
             return result_scale - scale_1 + scale_2, 0
         elif op_kind in ['LESS_THAN_OR_EQUAL', 'LESS_THAN', 
