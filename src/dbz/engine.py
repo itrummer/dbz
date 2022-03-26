@@ -43,7 +43,9 @@ class DbzEngine(Engine):
         self.paths = paths
         self.library = library
         self.python_path = python_path
-        self.planner = dbz.plan.Planner(paths.tmp_dir, paths.planner)
+        self.planner = dbz.plan.Planner(
+            paths.schema, paths.planner, 
+            paths.tmp_dir)
         self.coder = dbz.code.Coder(paths)
     
     def execute(self, sql, out):

@@ -13,6 +13,7 @@ class DbzPaths():
             data_dir: main data directory
         """
         self.data_dir = data_dir
+        self.schema = f'{data_dir}/schema.sql'
         self.tmp_dir = f'{data_dir}/tmp'
         self.planner = 'jars/Planner.jar'
         self.code = f'{self.tmp_dir}/run_query.py'

@@ -9,15 +9,17 @@ import subprocess
 class Planner():
     """ Generates JSON plan using Apache Calcite. """
     
-    def __init__(self, tmp_dir, jar_path):
+    def __init__(self, schema_path, jar_path, tmp_dir):
         """ Initialize with given path to Calcite planner.
         
         Args:
+            schema_path: path to database schema file
+            jar_path: path to .jar file from Apache Calcite
             tmp_dir: use this directory for temporary files
-            jar_path: path to .jar file from Apache Calcite.
         """
-        self.tmp_dir = tmp_dir
+        self.schema_path = schema_path
         self.jar_path = jar_path
+        self.tmp_dir = tmp_dir
     
     def plan(self, sql):
         """ Invoke Calcite planner and generate plan.
@@ -34,6 +36,7 @@ class Planner():
             file.write(sql)
         completed = subprocess.run([
             'java', '-jar', self.jar_path, 
+            self.schema_path,
             query_file, plan_file],
             capture_output=True)
         if completed.returncode > 0:
