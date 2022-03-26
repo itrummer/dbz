@@ -411,7 +411,7 @@ class Coder():
                 parts += [f'\trow[{col_idx}] = row[{col_idx}].ljust({length})']
             elif base_type in ['DATE']:
                 parts += ['from datetime import date, timedelta']
-                parts += ["ref_date = date('1970-1-1')"]
+                parts += ["ref_date = date(1970,1,1)"]
                 parts += ['for row in last_result:']
                 parts += [f'\tdate_diff = timedelta(days=row[{col_idx}])']
                 parts += [f'\tnew_date = ref_date + date_diff']
