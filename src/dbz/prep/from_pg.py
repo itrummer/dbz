@@ -56,7 +56,7 @@ def extract(connection, table, to_dir):
         if col_type == 'date':
             selects += [f'{col_name} - date \'1970-01-01\'']
         elif scale is not None and scale > 0:
-            selects += [f'{col_name} * 1' + '0'*scale]
+            selects += [f'round({col_name} * 1' + '0'*scale + ')']
         else:
             selects += [col_name]
     retrieval_query = f'select ' + ', '.join(selects) + ' from ' + table
