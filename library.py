@@ -50,265 +50,6 @@ def to_row_format(columns):
     return list(zip(*columns))
 
 
-def filter_column(column, row_idx):
-    """ Filter rows in column.
-    
-    Args:
-        column: the column is a list.
-        row_idx: the column is a list, it contains Booleans.
-    
-    Returns:
-        values at positions where row_idx is True.
-    """
-    return [column[i] for i in range(len(column)) if row_idx[i]]
-
-
-def less_than(operand_1, operand_2):
-    """ True where operand_1 < operand_2.
-    
-    Args:
-        operand_1: either a column (which is a list) or a constant
-        operand_2: either a column (which is a list) or a constant
-    
-    Returns:
-        column (which is a list) of Boolean values
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        return [operand_1[i] < operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list):
-        return [operand_1[i] < operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_2, list):
-        return [operand_1 < operand_2[i] for i in range(len(operand_2))]
-    else:
-        return operand_1 < operand_2
-
-
-def greater_than(operand_1, operand_2):
-    """ True where operand_1 > operand_2.
-    
-    Args:
-        operand_1: either a column (which is a list) or a constant
-        operand_2: either a column (which is a list) or a constant
-    
-    Returns:
-        column (which is a list) of Boolean values
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        return [x > y for x, y in zip(operand_1, operand_2)]
-    elif isinstance(operand_1, list):
-        return [x > operand_2 for x in operand_1]
-    elif isinstance(operand_2, list):
-        return [operand_1 > y for y in operand_2]
-    else:
-        return operand_1 > operand_2
-
-
-def equal(operand_1, operand_2):
-    """ True where operand_1 = operand_2.
-    
-    Args:
-        operand_1: either a column (which is a list) or a constant
-        operand_2: either a column (which is a list) or a constant
-    
-    Returns:
-        column (which is a list) of Boolean values
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        return [operand_1[i] == operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list):
-        return [operand_1[i] == operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_2, list):
-        return [operand_1 == operand_2[i] for i in range(len(operand_2))]
-    else:
-        return operand_1 == operand_2
-
-
-def less_than_or_equal(operand_1, operand_2):
-    """ True where operand_1 <= operand_2.
-    
-    Args:
-        operand_1: either a column (which is a list) or a constant
-        operand_2: either a column (which is a list) or a constant
-    
-    Returns:
-        column (which is a list) of Boolean values
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        return [operand_1[i] <= operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list):
-        return [operand_1[i] <= operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_2, list):
-        return [operand_1 <= operand_2[i] for i in range(len(operand_2))]
-    else:
-        return [operand_1 <= operand_2]
-
-
-def greater_than_or_equal(operand_1, operand_2):
-    """ True where operand_1 >= operand_2.
-    
-    Args:
-        operand_1: either a column (which is a list) or a constant
-        operand_2: either a column (which is a list) or a constant
-    
-    Returns:
-        column (which is a list) of Boolean values
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        return [operand_1[i] >= operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list):
-        return [operand_1[i] >= operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_2, list):
-        return [operand_1 >= operand_2[i] for i in range(len(operand_2))]
-    else:
-        return [operand_1 >= operand_2]
-
-
-import os
-
-
-def logical_and(columns):
-    """ Performs logical and.
-    
-    Args:
-        columns: list of columns with Boolean values where each column is a list
-    
-    Returns:
-        a column (which is a list) containing result of and
-    """
-    result = []
-    for i in range(len(columns[0])):
-        result.append(True)
-        for j in range(len(columns)):
-            result[i] = result[i] and columns[j][i]
-    return result
-
-
-import os
-
-
-def logical_or(columns):
-    """ Performs logical or.
-    
-    Args:
-        columns: list of columns with Boolean values where each column is a list
-    
-    Returns:
-        a column (which is a list) containing result of or
-    """
-    result = []
-    for i in range(len(columns[0])):
-        for j in range(len(columns)):
-            if columns[j][i] == 1:
-                result.append(1)
-                break
-            elif j == len(columns) - 1:
-                result.append(0)
-    return result
-
-
-import os
-
-
-def logical_not(column):
-    """ Performs logical_not on input column.
-    
-    Args:
-        column: a column (which is a list) with Boolean values
-    
-    Returns:
-        a column (which is a list) containing result of logical_not
-    """
-    return [not i for i in column]
-
-
-def addition(operand_1, operand_2):
-    """ Performs addition between two operands.
-    
-    Args:
-        operand_1: a column (which is a list) or a constant
-        operand_2: a column (which is a list) or a constant
-    
-    Returns:
-        result of addition (is a list)
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        if len(operand_1) != len(operand_2):
-            raise ValueError("Operands must have the same length")
-        return [operand_1[i] + operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
-        return [operand_1[i] + operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
-        return [operand_1 + operand_2[i] for i in range(len(operand_2))]
-    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, (int, float)):
-        return operand_1 + operand_2
-    else:
-        raise TypeError("Operands must be either two lists or two scalars")
-
-
-def subtraction(operand_1, operand_2):
-    """ Performs subtraction between two operands.
-    
-    Args:
-        operand_1: a column (which is a list) or a constant
-        operand_2: a column (which is a list) or a constant
-    
-    Returns:
-        result of subtraction (is a list)
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        return [operand_1[i] - operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
-        return [operand_1[i] - operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
-        return [operand_1 - operand_2[i] for i in range(len(operand_2))]
-    else:
-        return operand_1 - operand_2
-
-
-def multiplication(operand_1, operand_2):
-    """ Performs multiplication between two operands.
-    
-    Args:
-        operand_1: a column (which is a list) or a constant
-        operand_2: a column (which is a list) or a constant
-    
-    Returns:
-        result of multiplication (is a list)
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        if len(operand_1) != len(operand_2):
-            raise ValueError("Operands must have the same length")
-        return [operand_1[i] * operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
-        return [operand_1[i] * operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
-        return [operand_1 * operand_2[i] for i in range(len(operand_2))]
-    else:
-        return operand_1 * operand_2
-
-
-def division(operand_1, operand_2):
-    """ Performs division between two operands.
-    
-    Args:
-        operand_1: a column (which is a list) or a constant
-        operand_2: a column (which is a list) or a constant
-    
-    Returns:
-        result of division (is a list)
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        if len(operand_1) != len(operand_2):
-            raise ValueError("Operands should have the same length")
-        return [operand_1[i] / operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
-        return [operand_1[i] / operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
-        return [operand_1 / operand_2[i] for i in range(len(operand_2))]
-    else:
-        return operand_1 / operand_2
-
-
 def normalize(raw_column):
     """ Normalize column representation.
     
@@ -366,7 +107,7 @@ def calculate_avg(column):
     Returns:
         avg of column values
     """
-    return sum(column) / len(column)
+    return sum(column)/len(column)
 
 
 import os
@@ -382,8 +123,8 @@ def calculate_row_count(column):
         row count of column values
     """
     row_count = 0
-    for value in column:
-        if value:
+    for i in column:
+        if i != '':
             row_count += 1
     return row_count
 
@@ -406,21 +147,22 @@ def to_tuple_column(rows):
 import os
 
 
-def rows_to_columns(rows):
+def rows_to_columns(rows, nr_columns):
     """ Change from row-based to columnar layout.
     
     Args:
         rows: list of rows where each row is a list
+        nr_columns: number of columns in schema
     
     Returns:
         a list of columns where each column is a list
     """
     columns = []
-    for i in range(len(rows[0])):
-        column = []
-        for row in rows:
-            column.append(row[i])
-        columns.append(column)
+    for i in range(nr_columns):
+        columns.append([])
+    for row in rows:
+        for i in range(nr_columns):
+            columns[i].append(row[i])
     return columns
 
 
@@ -586,6 +328,282 @@ def per_group_row_count(column, group_id_column):
     return group_row_count
 
 
+import os
+
+
+def equi_join(rows_1, rows_2, eq_col_idxs):
+    """ Performs equi-join between two input relations.
+    
+    Args:
+        rows_1: rows of first relation where each row is a list
+        rows_2: rows of second relation where each row is a list
+        eq_col_idxs: list of index pairs, representing columns in equality conditions
+    
+    Returns:
+        rows of join result where each row is a list
+    """
+    result_rows = []
+    for row_1 in rows_1:
+        for row_2 in rows_2:
+            if all(row_1[eq_col_idx[0]] == row_2[eq_col_idx[1]] for eq_col_idx in eq_col_idxs):
+                result_rows.append(row_1 + row_2)
+    return result_rows
+
+
+def multiplication(operand_1, operand_2):
+    """ Performs multiplication between two operands.
+    
+    Args:
+        operand_1: a column (which is a list) or a constant
+        operand_2: a column (which is a list) or a constant
+    
+    Returns:
+        result of multiplication (is a list)
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        if len(operand_1) != len(operand_2):
+            raise ValueError("Operands should have the same length")
+        return [operand_1[i] * operand_2[i] for i in range(len(operand_1))]
+    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
+        return [operand_1[i] * operand_2 for i in range(len(operand_1))]
+    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
+        return [operand_1 * operand_2[i] for i in range(len(operand_2))]
+    else:
+        return operand_1 * operand_2
+
+
+def addition(operand_1, operand_2):
+    """ Performs addition between two operands.
+    
+    Args:
+        operand_1: a column (which is a list) or a constant
+        operand_2: a column (which is a list) or a constant
+    
+    Returns:
+        result of addition (is a list)
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        if len(operand_1) != len(operand_2):
+            raise ValueError("Operands must have the same length")
+        return [operand_1[i] + operand_2[i] for i in range(len(operand_1))]
+    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
+        return [operand_1[i] + operand_2 for i in range(len(operand_1))]
+    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
+        return [operand_1 + operand_2[i] for i in range(len(operand_2))]
+    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, (int, float)):
+        return operand_1 + operand_2
+    else:
+        raise TypeError("Operands must be either two lists or two scalars")
+
+
+def subtraction(operand_1, operand_2):
+    """ Performs subtraction between two operands.
+    
+    Args:
+        operand_1: a column (which is a list) or a constant
+        operand_2: a column (which is a list) or a constant
+    
+    Returns:
+        result of subtraction (is a list)
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        return [operand_1[i] - operand_2[i] for i in range(len(operand_1))]
+    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
+        return [operand_1[i] - operand_2 for i in range(len(operand_1))]
+    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
+        return [operand_1 - operand_2[i] for i in range(len(operand_2))]
+    else:
+        return operand_1 - operand_2
+
+
+def division(operand_1, operand_2):
+    """ Performs division between two operands.
+    
+    Args:
+        operand_1: a column (which is a list) or a constant
+        operand_2: a column (which is a list) or a constant
+    
+    Returns:
+        result of division (is a list)
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        if len(operand_1) != len(operand_2):
+            raise ValueError("Operands should have the same length")
+        return [operand_1[i] / operand_2[i] for i in range(len(operand_1))]
+    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
+        return [operand_1[i] / operand_2 for i in range(len(operand_1))]
+    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
+        return [operand_1 / operand_2[i] for i in range(len(operand_2))]
+    else:
+        return operand_1 / operand_2
+
+
+def filter_column(column, row_idx):
+    """ Filter rows in column.
+    
+    Args:
+        column: the column is a list.
+        row_idx: the column is a list, it contains Booleans.
+    
+    Returns:
+        values at positions where row_idx is True.
+    """
+    return [column[i] for i in range(len(column)) if row_idx[i]]
+
+
+def less_than(operand_1, operand_2):
+    """ True where operand_1 < operand_2.
+    
+    Args:
+        operand_1: either a column (which is a list) or a constant
+        operand_2: either a column (which is a list) or a constant
+    
+    Returns:
+        column (which is a list) of Boolean values
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        return [operand_1[i] < operand_2[i] for i in range(len(operand_1))]
+    elif isinstance(operand_1, list):
+        return [operand_1[i] < operand_2 for i in range(len(operand_1))]
+    elif isinstance(operand_2, list):
+        return [operand_1 < operand_2[i] for i in range(len(operand_2))]
+    else:
+        return operand_1 < operand_2
+
+
+def greater_than(operand_1, operand_2):
+    """ True where operand_1 > operand_2.
+    
+    Args:
+        operand_1: either a column (which is a list) or a constant
+        operand_2: either a column (which is a list) or a constant
+    
+    Returns:
+        column (which is a list) of Boolean values
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        return [x > y for x, y in zip(operand_1, operand_2)]
+    elif isinstance(operand_1, list):
+        return [x > operand_2 for x in operand_1]
+    elif isinstance(operand_2, list):
+        return [operand_1 > y for y in operand_2]
+    else:
+        return operand_1 > operand_2
+
+
+def equal(operand_1, operand_2):
+    """ True where operand_1 = operand_2.
+    
+    Args:
+        operand_1: either a column (which is a list) or a constant
+        operand_2: either a column (which is a list) or a constant
+    
+    Returns:
+        column (which is a list) of Boolean values
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        return [operand_1[i] == operand_2[i] for i in range(len(operand_1))]
+    elif isinstance(operand_1, list):
+        return [operand_1[i] == operand_2 for i in range(len(operand_1))]
+    elif isinstance(operand_2, list):
+        return [operand_1 == operand_2[i] for i in range(len(operand_2))]
+    else:
+        return operand_1 == operand_2
+
+
+def less_than_or_equal(operand_1, operand_2):
+    """ True where operand_1 <= operand_2.
+    
+    Args:
+        operand_1: either a column (which is a list) or a constant
+        operand_2: either a column (which is a list) or a constant
+    
+    Returns:
+        column (which is a list) of Boolean values
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        return [operand_1[i] <= operand_2[i] for i in range(len(operand_1))]
+    elif isinstance(operand_1, list):
+        return [operand_1[i] <= operand_2 for i in range(len(operand_1))]
+    elif isinstance(operand_2, list):
+        return [operand_1 <= operand_2[i] for i in range(len(operand_2))]
+    else:
+        return [operand_1 <= operand_2]
+
+
+def greater_than_or_equal(operand_1, operand_2):
+    """ True where operand_1 >= operand_2.
+    
+    Args:
+        operand_1: either a column (which is a list) or a constant
+        operand_2: either a column (which is a list) or a constant
+    
+    Returns:
+        column (which is a list) of Boolean values
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        return [operand_1[i] >= operand_2[i] for i in range(len(operand_1))]
+    elif isinstance(operand_1, list):
+        return [operand_1[i] >= operand_2 for i in range(len(operand_1))]
+    elif isinstance(operand_2, list):
+        return [operand_1 >= operand_2[i] for i in range(len(operand_2))]
+    else:
+        return [operand_1 >= operand_2]
+
+
+import os
+
+
+def logical_and(columns):
+    """ Performs logical and.
+    
+    Args:
+        columns: list of columns with Boolean values where each column is a list
+    
+    Returns:
+        a column (which is a list) containing result of and
+    """
+    result = []
+    for i in range(len(columns[0])):
+        result.append(True)
+        for j in range(len(columns)):
+            result[i] = result[i] and columns[j][i]
+    return result
+
+
+import os
+
+
+def logical_or(columns):
+    """ Performs logical or.
+    
+    Args:
+        columns: list of columns with Boolean values where each column is a list
+    
+    Returns:
+        a column (which is a list) containing result of or
+    """
+    result = []
+    for i in range(len(columns[0])):
+        result.append(any([column[i] for column in columns]))
+    return result
+
+
+import os
+
+
+def logical_not(column):
+    """ Performs logical_not on input column.
+    
+    Args:
+        column: a column (which is a list) with Boolean values
+    
+    Returns:
+        a column (which is a list) containing result of logical_not
+    """
+    return [not i for i in column]
+
+
 def sort(rows, comparator):
     """ Sort rows using comparator function.
     
@@ -596,8 +614,8 @@ def sort(rows, comparator):
     Returns:
         sorted rows
     """
-    for i in range(len(rows)):
-        for j in range(i, len(rows)):
+    for i in range(len(rows)-1):
+        for j in range(i+1, len(rows)):
             if comparator(rows[i], rows[j]) > 0:
                 rows[i], rows[j] = rows[j], rows[i]
     return rows
