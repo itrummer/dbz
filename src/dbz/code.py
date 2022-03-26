@@ -28,6 +28,10 @@ class Coder():
         lines = []
         for step in plan['rels']:
             lines += [self._step_code(step)]
+        
+        final_step = plan['rels'][-1]
+        lines += [self._post_code(final_step)]
+
         return '\n'.join(lines)
     
     def _agg_code(self, agg, groups):
@@ -379,6 +383,30 @@ class Coder():
         
         raise ValueError(f'Unhandled operation: {operation}')
     
+    def _post_code(self, final_step):
+        """ Code for column-type specific post-processing. 
+        
+        Args:
+            final_step: final step in query plan
+        
+        Returns:
+            code for post-processing final result
+        """
+        parts = ['last_result = to_row_format(last_result)']
+        col_types = final_step['outputType']['fields']
+        for col_idx, col_type in enumerate(col_types):
+            base_type = col_type['type']
+            if base_type in ['DECIMAL', 'NUMERIC']:
+                scale = self._get_scale(col_type)
+                if scale is not None:
+                    parts += ['for row in last_result:']
+                    parts += [f'\trow[{col_idx}] *= 1e-{scale}']
+            elif base_type in ['CHAR']:
+                length = col_type['precision']
+                parts += ['for row in last_result:']
+                parts += [f'\trow[{col_idx}] = row[{col_idx}].ljust({length})']
+        return '\n'.join(parts)
+    
     def _result_name(self, step_id):
         """ Returns name of intermediate result variable.
         
@@ -451,19 +479,3 @@ class Coder():
         kind = operation['op']['kind']
         op_name = {'NOT':'logical_not'}[kind]
         return f'{op_name}({operand_code})'
-    
-    def _unscale_code(self, node, code):
-        """ Returns code to transform scaled into unscaled representation. 
-        
-        Args:
-            node: a node in the query plan tree
-            code: code for evaluating node
-        
-        Returns:
-            code for unscaling result of given code
-        """
-        scale = self._get_scale(node)
-        if scale is None:
-            return code
-        else:
-            return f'division({code},1e{scale})'
