@@ -3,6 +3,8 @@ Created on Mar 10, 2022
 
 @author: immanueltrummer
 '''
+import datetime
+
 class Coder():
     """ Translates query plans into code. """
     
@@ -407,6 +409,13 @@ class Coder():
                 length = col_type['precision']
                 parts += ['for row in last_result:']
                 parts += [f'\trow[{col_idx}] = row[{col_idx}].ljust({length})']
+            elif base_type in ['DATE']:
+                parts += ['from datetime import date, timedelta']
+                parts += ["ref_date = date('1970-1-1')"]
+                parts += ['for row in last_result:']
+                parts += [f'\tdate_diff = timedelta(days=row[{col_idx}])']
+                parts += [f'\tnew_date = ref_date + date_diff']
+                parts += [f'\trow[{col_idx}] = str(new_date)']
         return '\n'.join(parts)
     
     def _result_name(self, step_id):
