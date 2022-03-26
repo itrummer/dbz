@@ -397,8 +397,8 @@ class Coder():
         for col_idx, col_type in enumerate(col_types):
             base_type = col_type['type']
             if base_type in ['DECIMAL', 'NUMERIC']:
-                scale = self._get_scale(col_type)
-                if scale is not None:
+                if 'scale' in col_type:
+                    scale = col_type['scale']
                     parts += ['for row in last_result:']
                     parts += [f'\trow[{col_idx}] *= 1e-{scale}']
             elif base_type in ['CHAR']:
