@@ -447,16 +447,17 @@ class Coder():
         Returns:
             two values indicating by how much to scale left and right input
         """
+        scale_1 = 0 if scale_1 is None else scale_1
+        scale_2 = 0 if scale_2 is None else scale_2
         if op_kind in ['PLUS', 'MINUS']:
-            scale_1 = 0 if scale_1 is None else scale_1
-            scale_2 = 0 if scale_2 is None else scale_2
             return result_scale - scale_1, result_scale - scale_2
-        elif scale_1 is None and scale_2 is None:
-            return 0, 0
-        elif scale_1 is None and scale_2 is not None:
-            return 0, -scale_2
-        elif scale_1 is not None and scale_2 is None:
-            return -scale_1, 0
+        elif op_kind == 'TIMES':
+            if scale_1 < scale_2:
+                return result_scale - scale_2, 0
+            else:
+                return 0, result_scale - scale_1
+        elif op_kind == 'DIVIDE':
+            return result_scale - scale_1, 0
         elif op_kind in ['LESS_THAN_OR_EQUAL', 'LESS_THAN', 
                          'GREATER_THAN_OR_EQUAL',
                          'GREATER_THAN', 'EQUALS']:
@@ -464,12 +465,8 @@ class Coder():
                 return scale_2 - scale_1, 0
             else:
                 return 0, scale_1 - scale_2
-        elif op_kind == 'TIMES':
-            return 0, 0
-        elif op_kind == 'DIVIDE':
-            return result_scale - scale_1, 0
         else:
-            raise NotImplementedError(f'Unknown scaling scenario!')
+            raise NotImplementedError(f'Scaling {op_kind} not implemented!')
     
     def _step_code(self, step):
         """ Translates one plan step into code.
