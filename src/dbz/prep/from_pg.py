@@ -31,11 +31,12 @@ def get_cols_types(connection, table):
         table: retrieve columns for this table
     
     Returns:
-        list of tuples (column name and type)
+        list of tuples (column name, type, and numeric scale)
     """
     cursor = connection.cursor()
     cursor.execute(
-        'select column_name, data_type from information_schema.columns ' +\
+        'select column_name, data_type, numeric_scale ' +\
+        'from information_schema.columns ' +\
         f'where table_schema = \'public\' and table_name = \'{table}\' ' +\
         'order by ordinal_position')
     return [row for row in cursor]
@@ -51,9 +52,11 @@ def extract(connection, table, to_dir):
     """
     col_types = get_cols_types(connection, table)
     selects = []
-    for col_name, col_type in col_types:
+    for col_name, col_type, scale in col_types:
         if col_type == 'date':
             selects += [f'{col_name} - date \'1970-01-01\'']
+        elif scale is not None and scale > 0:
+            selects += [f'{col_name} * 1' + '0'*scale]
         else:
             selects += [col_name]
     retrieval_query = f'select ' + ', '.join(selects) + ' from ' + table
