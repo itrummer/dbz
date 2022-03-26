@@ -3,7 +3,7 @@ Created on Mar 10, 2022
 
 @author: immanueltrummer
 '''
-import datetime
+import dbz.util
 
 class Coder():
     """ Translates query plans into code. """
@@ -254,18 +254,24 @@ class Coder():
         params = [self._result_name(step_id) for step_id in inputs]
         params = [f'to_row_format({p})' for p in params]
         join_pred = step['condition']
-        assert(join_pred['op']['kind'] == 'EQUALS')
-        col_idxs = [op['input'] for op in join_pred['operands']]
-        col_idx_1 = min(col_idxs)
-        col_idx_2_raw = max(col_idxs)
-        in_1_name = self._result_name(inputs[0])
-        col_idx_2 = f'{col_idx_2_raw}-len({in_1_name})'
-        params += [str(col_idx_1), col_idx_2]
+        conjuncts = dbz.util.get_conjuncts(join_pred)
+        assert(all(pred['op']['kind'] == 'EQUALS' for pred in conjuncts))
+        
+        eq_cols = []
+        for eq_pred in conjuncts:
+            col_idxs = [op['input'] for op in eq_pred['operands']]
+            col_idx_1 = min(col_idxs)
+            col_idx_2_raw = max(col_idxs)
+            in_1_name = self._result_name(inputs[0])
+            col_idx_2 = f'{col_idx_2_raw}-len({in_1_name})'
+            eq_cols += [f'({col_idx_1},{col_idx_2})']
+            
+            
+        params += [f'[{", ".join(eq_cols)}]']
         out_fields = step['outputType']['fields']
         nr_out_fields = len(out_fields)
         op_code = f'rows_to_columns(equi_join(' +\
             f'{", ".join(params)}),{nr_out_fields})'
-        #op_code = f'rows_to_columns(equi_join({", ".join(params)}),)'
         return self._assignment(step, op_code)
     
     def _LogicalProject(self, step):

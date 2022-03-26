@@ -17,3 +17,19 @@ class DbzPaths():
         self.tmp_dir = f'{data_dir}/tmp'
         self.planner = 'jars/Planner.jar'
         self.code = f'{self.tmp_dir}/run_query.py'
+        
+
+def get_conjuncts(expression):
+    """ Decomposes AND expressions in query plans into components.
+    
+    Args:
+        expression: an expression, potentially AND expression
+    
+    Returns:
+        list of conjuncts or original expression (if not AND expression)
+    """
+    if expression['kind'] == 'AND':
+        operands = expression['operands']
+        return [c for o in operands for c in get_conjuncts(o)]
+    else:
+        return [expression]
