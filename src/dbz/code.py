@@ -253,8 +253,9 @@ class Coder():
         params = [f'to_row_format({p})' for p in params]
         join_pred = step['condition']
         assert(join_pred['op']['kind'] == 'EQUALS')
-        col_idx_1 = join_pred['operands'][0]['input']
-        col_idx_2_raw = join_pred['operands'][1]['input']
+        col_idxs = [op['input'] for op in join_pred['operands']]
+        col_idx_1 = min(col_idxs)
+        col_idx_2_raw = max(col_idxs)
         in_1_name = self._result_name(inputs[0])
         col_idx_2 = f'{col_idx_2_raw}-len({in_1_name})'
         params += [str(col_idx_1), col_idx_2]
