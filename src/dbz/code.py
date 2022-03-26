@@ -431,7 +431,11 @@ class Coder():
         Returns:
             two values indicating by how much to scale left and right input
         """
-        if scale_1 is None and scale_2 is None:
+        if op_kind in ['PLUS', 'MINUS']:
+            scale_1 = 0 if scale_1 is None else scale_1
+            scale_2 = 0 if scale_2 is None else scale_2
+            return result_scale - scale_1, result_scale - scale_2
+        elif scale_1 is None and scale_2 is None:
             return 0, 0
         elif scale_1 is None and scale_2 is not None:
             return 0, -scale_2
@@ -439,8 +443,7 @@ class Coder():
             return -scale_1, 0
         elif op_kind in ['LESS_THAN_OR_EQUAL', 'LESS_THAN', 
                          'GREATER_THAN_OR_EQUAL',
-                         'GREATER_THAN', 'EQUALS',
-                         'PLUS', 'MINUS']:
+                         'GREATER_THAN', 'EQUALS']:
             if scale_1 < scale_2:
                 return scale_2 - scale_1, 0
             else:
