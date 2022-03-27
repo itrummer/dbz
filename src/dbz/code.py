@@ -255,7 +255,7 @@ class Coder():
         params = [f'to_row_format({p})' for p in params]
         join_pred = step['condition']
         conjuncts = dbz.util.get_conjuncts(join_pred)
-        print(conjuncts)
+        #print(conjuncts)
         assert(all(pred['op']['kind'] == 'EQUALS' for pred in conjuncts))
         
         eq_cols = []
