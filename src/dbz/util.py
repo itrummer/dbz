@@ -31,7 +31,7 @@ def get_conjuncts(expression):
     if 'op' in expression and expression['op']['kind'] == 'AND':
         operands = expression['operands']
         return [c for o in operands for c in get_conjuncts(o)]
-    elif 'literal' in expression and expression['literal'] == 'true':
+    elif 'literal' in expression and expression['literal']:
         return []
     else:
         return [expression]
