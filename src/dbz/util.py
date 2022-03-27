@@ -28,8 +28,10 @@ def get_conjuncts(expression):
     Returns:
         list of conjuncts or original expression (if not AND expression)
     """
-    if expression['op']['kind'] == 'AND':
+    if 'op' in expression and expression['op']['kind'] == 'AND':
         operands = expression['operands']
         return [c for o in operands for c in get_conjuncts(o)]
+    elif 'literal' in expression and expression['literal'] == 'true':
+        return []
     else:
         return [expression]
