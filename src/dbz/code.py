@@ -61,7 +61,7 @@ class Coder():
         operands = [f'last_result[{o}]' for o in operands]
         
         if groups:
-            target_length = 'length(row_id_rows)'
+            target_length = 'len(row_id_rows)'
             operands = [f'expand_to({op},{target_length})' for op in operands]
         
         params = []
