@@ -1,32 +1,21 @@
 select
-	nation,
-	o_year,
-	sum(amount) as sum_profit
+	o_orderpriority,
+	count(*) as order_count
 from
-	(
+	orders
+where
+	o_orderdate >= date '1993-07-01'
+	and o_orderdate < date '1993-07-01' + interval '3' month
+	and exists (
 		select
-			n_name as nation,
-			extract(year from o_orderdate) as o_year,
-			l_extendedprice * (1 - l_discount) - ps_supplycost * l_quantity as amount
+			*
 		from
-			part,
-			supplier,
-			lineitem,
-			partsupp,
-			orders,
-			nation
+			lineitem
 		where
-			s_suppkey = l_suppkey
-			and ps_suppkey = l_suppkey
-			and ps_partkey = l_partkey
-			and p_partkey = l_partkey
-			and o_orderkey = l_orderkey
-			and s_nationkey = n_nationkey
-			and p_name like '%green%'
-	) as profit
+			l_orderkey = o_orderkey
+			and l_commitdate < l_receiptdate
+	)
 group by
-	nation,
-	o_year
+	o_orderpriority
 order by
-	nation,
-	o_year desc
+	o_orderpriority
