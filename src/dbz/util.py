@@ -16,7 +16,7 @@ class DbzPaths():
         self.schema = f'{data_dir}/schema.sql'
         self.tmp_dir = f'{data_dir}/tmp'
         self.planner = 'jars/Planner.jar'
-        self.includes = 'src/dbz/includes'
+        self.includes = 'src/dbz/include'
         self.code = f'{self.tmp_dir}/run_query.py'
         
 
