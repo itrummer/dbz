@@ -50,7 +50,7 @@
 	{"type":"check", 
 	"queries":[
 		"select sum(l_extendedprice) from lineitem group by l_shipmode",
-		"select sum(l_extendedprice) from lineitem group by 1"]},
+		"select 1 from lineitem group by l_shipdate"]},
 	
 	{"type":"generate", "task_id":"grouped_min", "context":[], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"min"}},
