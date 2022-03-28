@@ -82,7 +82,7 @@ class DbzEngine(Engine):
             list of code lines
         """
         with open(path) as file:
-            return file.readlines()
+            return [file.read()]
     
     def _run(self, code):
         """ Execute given Python code.
