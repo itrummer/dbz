@@ -14,8 +14,6 @@
 	
 	
 	
-	{"type":"generate", "task_id":"normalize", "context":[],
-		"template":"normalize.py", "substitutions":{}},
 	{"type":"generate", "task_id":"sum", "context":[], 
 		"template":"aggregate.py", "substitutions":{"<aggregate>":"sum"}},
 	{"type":"check", "queries":["select sum(l_extendedprice) from lineitem"]},
@@ -42,11 +40,17 @@
 		"template":"to_tuples.py", "substitutions":{}},
 	{"type":"generate", "task_id":"rows_to_columns", "context":[], 
 		"template":"rows_to_columns.py", "substitutions":{}},
+	{"type":"generate", "task_id":"normalize", "context":[],
+		"template":"normalize.py", "substitutions":{}},
+	{"type":"generate", "task_id":"fill_column", "context":[],
+		"template":"fill_column.py", "substitutions":{}},
 		
 	{"type":"generate", "task_id":"grouped_sum", "context":[], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"sum"}},
 	{"type":"check", 
-	"queries":["select sum(l_extendedprice) from lineitem group by l_shipmode"]},
+	"queries":[
+		"select sum(l_extendedprice) from lineitem group by l_shipmode",
+		"select sum(l_extendedprice) from lineitem group by 1"]},
 	
 	{"type":"generate", "task_id":"grouped_min", "context":[], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"min"}},

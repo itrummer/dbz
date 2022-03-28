@@ -60,6 +60,10 @@ class Coder():
             operands += [0]
         operands = [f'last_result[{o}]' for o in operands]
         
+        if groups:
+            target_length = 'length(row_id_rows)'
+            operands = [f'expand_to({op},{target_length})' for op in operands]
+        
         params = []
         nr_operands = len(operands)
         if nr_operands == 1:

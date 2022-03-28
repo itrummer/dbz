@@ -64,11 +64,25 @@ class DbzEngine(Engine):
         print(f'Plan: {plan}')
         code_parts = []
         code_parts += [self.library]
+        fct_path = f'{self.paths.includes}/functions.py'
+        code_parts += self._include(fct_path)
         code_parts += [self.coder.plan_code(plan)]
         code_parts += [f'write_to_csv(last_result, "{out}")']
         code = '\n'.join(code_parts)
         print(f'Code: {code}')
         return self._run(code)
+    
+    def _include(self, path):
+        """ Loads code from file.
+        
+        Args:
+            path: load code from this file
+        
+        Returns:
+            list of code lines
+        """
+        with open(path) as file:
+            return file.readlines()
     
     def _run(self, code):
         """ Execute given Python code.
