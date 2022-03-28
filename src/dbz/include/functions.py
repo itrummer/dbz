@@ -13,7 +13,7 @@ def expand_to(col_or_const, length):
     Returns:
         the first operand if it is a column or a column containing constant value
     """
-    if isinstance(col_or_const, [bool, int, float, str]):
+    if isinstance(col_or_const, (bool, int, float, str)):
         return fill_column(col_or_const, length)
     else:
         return col_or_const
