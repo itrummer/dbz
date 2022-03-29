@@ -207,7 +207,7 @@ class Coder():
             
             data_type = literal['type']['type']
             if data_type in ['CHAR', 'VARCHAR', 'TEXT']:
-                return f"'{value.rstrip()}'"
+                return f"'{value}'"
             else:
                 return value
         else:
