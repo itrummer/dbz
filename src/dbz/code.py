@@ -142,12 +142,17 @@ class Coder():
             diff = scale_after - scale_before
             operand_code = f'multiplication({operand_code},1e{diff})'
         
-        new_type = operation['type']['type'].lower()
-        if new_type == 'integer':
+        old_type = operand['type']
+        new_type = operation['type']
+        if old_type == new_type:
+            return operand_code
+        
+        new_type_name = new_type['type'].lower()
+        if new_type_name == 'integer':
             # TODO: needs to be cleaned up
             return f'map_column({operand_code}, lambda r:round(r+1e-10))'
         else:
-            return f'cast_to_{new_type}({operand_code})'
+            return f'cast_to_{new_type_name}({operand_code})'
     
     def _column_code(self, column_ref):
         """ Generate code retrieving column of last result. 
