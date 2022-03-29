@@ -107,7 +107,7 @@ def calculate_avg(column):
     Returns:
         avg of column values
     """
-    return sum(column)/len(column)
+    return sum(column) / len(column)
 
 
 import os
@@ -164,6 +164,25 @@ def rows_to_columns(rows, nr_columns):
         for i in range(nr_columns):
             columns[i].append(row[i])
     return columns
+
+
+import os
+
+
+def fill_column(constant, nr_rows):
+    """ Returns a column (which is a list), filled with constant values.
+    
+    Args:
+        constant: a constant
+        nr_rows: number of rows in result column
+    
+    Returns:
+        a column containing constant values where the column is a list
+    """
+    column = []
+    for i in range(nr_rows):
+        column.append(constant)
+    return column
 
 
 import os
@@ -362,7 +381,7 @@ def multiplication(operand_1, operand_2):
     """
     if isinstance(operand_1, list) and isinstance(operand_2, list):
         if len(operand_1) != len(operand_2):
-            raise ValueError("Operands should have the same length")
+            raise ValueError("Operands must have the same length")
         return [operand_1[i] * operand_2[i] for i in range(len(operand_1))]
     elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
         return [operand_1[i] * operand_2 for i in range(len(operand_1))]
@@ -390,10 +409,8 @@ def addition(operand_1, operand_2):
         return [operand_1[i] + operand_2 for i in range(len(operand_1))]
     elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
         return [operand_1 + operand_2[i] for i in range(len(operand_2))]
-    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, (int, float)):
-        return operand_1 + operand_2
     else:
-        raise TypeError("Operands must be either two lists or two scalars")
+        return operand_1 + operand_2
 
 
 def subtraction(operand_1, operand_2):
@@ -522,13 +539,13 @@ def less_than_or_equal(operand_1, operand_2):
         column (which is a list) of Boolean values
     """
     if isinstance(operand_1, list) and isinstance(operand_2, list):
-        return [operand_1[i] <= operand_2[i] for i in range(len(operand_1))]
+        return [a <= b for a, b in zip(operand_1, operand_2)]
     elif isinstance(operand_1, list):
-        return [operand_1[i] <= operand_2 for i in range(len(operand_1))]
+        return [a <= operand_2 for a in operand_1]
     elif isinstance(operand_2, list):
-        return [operand_1 <= operand_2[i] for i in range(len(operand_2))]
+        return [operand_1 <= b for b in operand_2]
     else:
-        return [operand_1 <= operand_2]
+        return operand_1 <= operand_2
 
 
 def greater_than_or_equal(operand_1, operand_2):
@@ -585,7 +602,12 @@ def logical_or(columns):
     """
     result = []
     for i in range(len(columns[0])):
-        result.append(any([column[i] for column in columns]))
+        for j in range(len(columns)):
+            if columns[j][i] == 1:
+                result.append(1)
+                break
+            elif j == len(columns) - 1:
+                result.append(0)
     return result
 
 
@@ -614,8 +636,9 @@ def sort(rows, comparator):
     Returns:
         sorted rows
     """
-    for i in range(len(rows)-1):
-        for j in range(i+1, len(rows)):
+    n = len(rows)
+    for i in range(n):
+        for j in range(i+1, n):
             if comparator(rows[i], rows[j]) > 0:
                 rows[i], rows[j] = rows[j], rows[i]
     return rows
