@@ -262,8 +262,8 @@ class Coder():
                 add_code = f'{result} += [{agg_code}]'
                 parts += [add_code]
         
+        parts += [f'{result} = [normalize(c) for c in {result}]']
         parts += [f'last_result = {result}']
-        parts += ['last_result = [normalize(c) for c in last_result]']
         return '\n'.join(parts)
     
     def _LogicalFilter(self, step):
