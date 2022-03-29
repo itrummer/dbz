@@ -35,6 +35,7 @@ def load_queries(query_path):
     """
     with open(query_path) as file:
         workload = file.read()
+    workload = workload.replace('\n', ' ')
     queries = workload.split(';')
     queries = [clean(q) for q in queries]
     return [q for q in queries if q]

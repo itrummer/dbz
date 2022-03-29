@@ -1,3 +1,4 @@
+-- Q1
 select
 	l_returnflag,
 	l_linestatus,
@@ -19,8 +20,9 @@ group by
 order by
 	l_returnflag,
 	l_linestatus;
+-- Q2
 select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment from part, supplier, partsupp, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = 15 and p_type like '%BRASS' and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'EUROPE' and ps_supplycost = ( select min(ps_supplycost) from partsupp, supplier, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'EUROPE' ) order by s_acctbal desc, n_name, s_name, p_partkey;
-select sum(l_extendedprice * l_discount) as revenue from lineitem where l_shipdate >= date '1994-01-01' and l_shipdate < date '1995-1-1' and l_discount between .06 - 0.01 and .06 + 0.01 and l_quantity < 24;
+-- Q3
 select
 	l_orderkey,
 	sum(l_extendedprice * (1 - l_discount)) as revenue,
@@ -43,6 +45,29 @@ group by
 order by
 	revenue desc,
 	o_orderdate;
+-- Q4
+select
+	o_orderpriority,
+	count(*) as order_count
+from
+	orders
+where
+	o_orderdate >= date '1993-07-01'
+	and o_orderdate < date '1993-07-01' + interval '3' month
+	and exists (
+		select
+			*
+		from
+			lineitem
+		where
+			l_orderkey = o_orderkey
+			and l_commitdate < l_receiptdate
+	)
+group by
+	o_orderpriority
+order by
+	o_orderpriority;
+-- Q5
 select
 	n_name,
 	sum(l_extendedprice * (1 - l_discount)) as revenue
@@ -67,6 +92,9 @@ group by
 	n_name
 order by
 	revenue desc;
+-- Q6
+select sum(l_extendedprice * l_discount) as revenue from lineitem where l_shipdate >= date '1994-01-01' and l_shipdate < date '1995-1-1' and l_discount between .06 - 0.01 and .06 + 0.01 and l_quantity < 24;
+
 select
 	c_name,
 	c_custkey,
@@ -99,6 +127,7 @@ group by
 order by
 	o_totalprice desc,
 	o_orderdate;
+-- Q10
 select
 	c_custkey,
 	c_name,
@@ -130,46 +159,3 @@ group by
 	c_comment
 order by
 	revenue desc;
-select
-	s_acctbal,
-	s_name,
-	n_name,
-	p_partkey,
-	p_mfgr,
-	s_address,
-	s_phone,
-	s_comment
-from
-	part,
-	supplier,
-	partsupp,
-	nation,
-	region
-where
-	p_partkey = ps_partkey
-	and s_suppkey = ps_suppkey
-	and p_size = 15
-	and p_type like '%BRASS'
-	and s_nationkey = n_nationkey
-	and n_regionkey = r_regionkey
-	and r_name = 'EUROPE'
-	and ps_supplycost = (
-		select
-			min(ps_supplycost)
-		from
-			partsupp,
-			supplier,
-			nation,
-			region
-		where
-			p_partkey = ps_partkey
-			and s_suppkey = ps_suppkey
-			and s_nationkey = n_nationkey
-			and n_regionkey = r_regionkey
-			and r_name = 'EUROPE'
-	)
-order by
-	s_acctbal desc,
-	n_name,
-	s_name,
-	p_partkey
