@@ -172,7 +172,7 @@ class Coder():
         to_test = self._operation_code(operands[0])
         like_expr = self._operation_code(operands[1])
         pred_code = f'lambda s:re.match({like_expr}.replace(\'%\', \'.*\'), s) is not None'
-        return f'map({to_test}, {pred_code})'
+        return f'map_column({to_test}, {pred_code})'
     
     def _literal_code(self, literal):
         """ Produces a code snippet producing given literal.
