@@ -14,10 +14,38 @@
 	
 	
 	
+	{"type":"generate", "task_id":"multiplication", "context":[],
+		"template":"binary_expression.py", "substitutions":{"<binary_op>":"multiplication"}},
+	{"type":"check", "queries":["select l_extendedprice * 10 from lineitem"]},
+	
+	{"type":"generate", "task_id":"addition", "context":[],
+		"template":"binary_expression.py", "substitutions":{"<binary_op>":"addition"}},
+	{"type":"check", "queries":["select l_extendedprice + 0.1 from lineitem"]},
+	
+	{"type":"generate", "task_id":"subtraction", "context":[],
+		"template":"binary_expression.py", "substitutions":{"<binary_op>":"subtraction"}},
+	{"type":"check", "queries":["select l_extendedprice - 0.1 from lineitem"]},
+	
+	{"type":"generate", "task_id":"division", "context":[],
+		"template":"binary_expression.py", "substitutions":{"<binary_op>":"division"}},
+	{"type":"check", "queries":["select l_extendedprice / 0.1 from lineitem"]},
+
+	
+		
 	{"type":"generate", "task_id":"map", "context":[],
 		"template":"map.py", "substitutions":{}},
 	{"type":"check", 
 		"queries":["select l_shipinstruct like '%BACK%' from lineitem"]},
+	
+	
+	
+	{"type":"generate", "task_id":"to_int", "context":[],
+		"template":"cast.py", "substitutions":{"<ToType>":"integer"}},
+	{"type":"check", "queries":["select cast(l_extendedprice as int) from lineitem"]},
+	
+	{"type":"generate", "task_id":"to_text", "context":[],
+		"template":"cast.py", "substitutions":{"<ToType>":"text"}},
+	{"type":"check", "queries":["select cast(l_extendedprice as text) from lineitem"]},
 	
 	
 	
@@ -84,24 +112,6 @@
 	{"type":"generate", "task_id":"equi_join", "context":[],
 		"template":"equi_join.py", "substitutions":{}},
 	{"type":"check", "queries":["select * from customer, orders where c_custkey = o_custkey"]},
-	
-	
-	
-	{"type":"generate", "task_id":"multiplication", "context":[],
-		"template":"binary_expression.py", "substitutions":{"<binary_op>":"multiplication"}},
-	{"type":"check", "queries":["select l_extendedprice * 10 from lineitem"]},
-	
-	{"type":"generate", "task_id":"addition", "context":[],
-		"template":"binary_expression.py", "substitutions":{"<binary_op>":"addition"}},
-	{"type":"check", "queries":["select l_extendedprice + 0.1 from lineitem"]},
-	
-	{"type":"generate", "task_id":"subtraction", "context":[],
-		"template":"binary_expression.py", "substitutions":{"<binary_op>":"subtraction"}},
-	{"type":"check", "queries":["select l_extendedprice - 0.1 from lineitem"]},
-	
-	{"type":"generate", "task_id":"division", "context":[],
-		"template":"binary_expression.py", "substitutions":{"<binary_op>":"division"}},
-	{"type":"check", "queries":["select l_extendedprice / 0.1 from lineitem"]},
 
 	
 		

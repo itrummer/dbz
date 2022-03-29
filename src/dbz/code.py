@@ -131,10 +131,19 @@ class Coder():
         """
         operands = operation['operands']
         assert len(operands) == 1
-        operand_code = self._operation_code(operands[0])
-        param = f'input_rel.get_column({operand_code})'
-        new_type = operation['type']['type']
-        return f'CAST({param}, {new_type})'
+        operand = operands[0]
+        operand_code = self._operation_code(operand)
+        
+        scale_before = self._get_scale(operand)
+        scale_after = self._get_scale(operation)
+        scale_before = 0 if scale_before is None else scale_before
+        scale_after = 0 if scale_after is None else scale_after
+        if not (scale_before == scale_after):
+            diff = scale_after - scale_before
+            operand_code = f'multiplication({operand_code},1e{diff})'
+        
+        new_type = operation['type']['type'].lower()
+        return f'cast_to_{new_type}({operand_code})'
     
     def _column_code(self, column_ref):
         """ Generate code retrieving column of last result. 
