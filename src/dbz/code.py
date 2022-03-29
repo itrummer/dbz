@@ -193,7 +193,10 @@ class Coder():
         aggs = step['aggs']
         groups = step['group']
         result = self._result_name(step_id)
-        parts = [f'{result} = []']
+        
+        parts = ['']
+        parts += [f'# LogicalAggregate: aggs: {aggs}; groups {groups}']
+        parts += [f'{result} = []']
         
         if groups:
             nr_group_cols = len(groups)
