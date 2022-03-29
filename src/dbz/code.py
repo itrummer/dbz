@@ -142,8 +142,8 @@ class Coder():
             diff = scale_after - scale_before
             operand_code = f'multiplication({operand_code},1e{diff})'
         
-        old_type = operand['type']
-        new_type = operation['type']
+        old_type = {k:v for k, v in operand['type'].items() if k != 'nullable'}
+        new_type = {k:v for k, v in operation['type'].items() if k != 'nullable'}
         if old_type == new_type:
             return operand_code
         
