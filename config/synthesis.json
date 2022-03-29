@@ -45,7 +45,7 @@
 	{"type":"check", "queries":["select cast(l_extendedprice as float) from lineitem"]},
 	
 	{"type":"generate", "task_id":"to_string", "context":[],
-		"template":"cast.py", "substitutions":{"<ToType>":"string"}},
+		"template":"cast.py", "substitutions":{"<ToType>":"varchar"}},
 	{"type":"check", "queries":["select cast(l_extendedprice as varchar(100)) from lineitem"]},
 	
 	
