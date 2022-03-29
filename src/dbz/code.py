@@ -491,7 +491,7 @@ class Coder():
         inputs = [self._result_name(in_) for in_ in step['inputs']] + ['[]']
         parts += [f'input_rel = ' + ' + '.join(inputs)]
         handler = f'_{rel_op}'
-        parts += getattr(self, handler)(step)
+        parts += [getattr(self, handler)(step)]
         return '\n'.join(parts)
     
     def _unary_code(self, operation):
