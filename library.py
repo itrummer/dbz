@@ -50,6 +50,92 @@ def to_row_format(columns):
     return list(zip(*columns))
 
 
+def multiplication(operand_1, operand_2):
+    """ Performs multiplication between two operands.
+    
+    Args:
+        operand_1: a column (which is a list) or a constant
+        operand_2: a column (which is a list) or a constant
+    
+    Returns:
+        result of multiplication (is a list)
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        if len(operand_1) != len(operand_2):
+            raise ValueError("Operands must have the same length")
+        return [operand_1[i] * operand_2[i] for i in range(len(operand_1))]
+    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
+        return [operand_1[i] * operand_2 for i in range(len(operand_1))]
+    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
+        return [operand_1 * operand_2[i] for i in range(len(operand_2))]
+    else:
+        return operand_1 * operand_2
+
+
+def addition(operand_1, operand_2):
+    """ Performs addition between two operands.
+    
+    Args:
+        operand_1: a column (which is a list) or a constant
+        operand_2: a column (which is a list) or a constant
+    
+    Returns:
+        result of addition (is a list)
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        if len(operand_1) != len(operand_2):
+            raise ValueError("Operands must have the same length")
+        return [operand_1[i] + operand_2[i] for i in range(len(operand_1))]
+    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
+        return [operand_1[i] + operand_2 for i in range(len(operand_1))]
+    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
+        return [operand_1 + operand_2[i] for i in range(len(operand_2))]
+    else:
+        return operand_1 + operand_2
+
+
+def subtraction(operand_1, operand_2):
+    """ Performs subtraction between two operands.
+    
+    Args:
+        operand_1: a column (which is a list) or a constant
+        operand_2: a column (which is a list) or a constant
+    
+    Returns:
+        result of subtraction (is a list)
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        return [operand_1[i] - operand_2[i] for i in range(len(operand_1))]
+    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
+        return [operand_1[i] - operand_2 for i in range(len(operand_1))]
+    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
+        return [operand_1 - operand_2[i] for i in range(len(operand_2))]
+    else:
+        return operand_1 - operand_2
+
+
+def division(operand_1, operand_2):
+    """ Performs division between two operands.
+    
+    Args:
+        operand_1: a column (which is a list) or a constant
+        operand_2: a column (which is a list) or a constant
+    
+    Returns:
+        result of division (is a list)
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        if len(operand_1) != len(operand_2):
+            raise ValueError("Operands should have the same length")
+        return [operand_1[i] / operand_2[i] for i in range(len(operand_1))]
+    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
+        return [operand_1[i] / operand_2 for i in range(len(operand_1))]
+    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
+        return [operand_1 / operand_2[i] for i in range(len(operand_2))]
+    else:
+        return operand_1 / operand_2
+
+
 import os
 
 
@@ -64,6 +150,40 @@ def map_column(column, map_fct):
         a column (which is a list) with the result of function
     """
     return list(map(map_fct, column))
+
+
+import os
+
+
+def cast_to_float(column):
+    """ Casts a column (which is a list) to float values.
+    
+    Args:
+        column: a column (which is a list)
+    
+    Returns:
+        a column (which is a list) with float values
+    """
+    for i in range(len(column)):
+        column[i] = float(column[i])
+    return column
+
+
+import os
+
+
+def cast_to_varchar(column):
+    """ Casts a column (which is a list) to varchar values.
+    
+    Args:
+        column: a column (which is a list)
+    
+    Returns:
+        a column (which is a list) with varchar values
+    """
+    for i in range(len(column)):
+        column[i] = str(column[i])
+    return column
 
 
 def normalize(raw_column):
@@ -123,7 +243,7 @@ def calculate_avg(column):
     Returns:
         avg of column values
     """
-    return sum(column) / len(column)
+    return sum(column)/len(column)
 
 
 import os
@@ -138,7 +258,11 @@ def calculate_row_count(column):
     Returns:
         row count of column values
     """
-    return len(column)
+    row_count = 0
+    for i in column:
+        if i != '':
+            row_count += 1
+    return row_count
 
 
 import os
@@ -374,99 +498,14 @@ def equi_join(rows_1, rows_2, eq_col_idxs):
         rows of join result where each row is a list
     """
     result_rows = []
-    for r1 in rows_1:
-        for r2 in rows_2:
-            if all(r1[eq_col_idx[0]] == r2[eq_col_idx[1]] for eq_col_idx in eq_col_idxs):
-                result_rows.append(r1 + r2)
+    for row_1 in rows_1:
+        for row_2 in rows_2:
+            for eq_col_idx in eq_col_idxs:
+                if row_1[eq_col_idx[0]] != row_2[eq_col_idx[1]]:
+                    break
+            else:
+                result_rows.append(row_1 + row_2)
     return result_rows
-
-
-def multiplication(operand_1, operand_2):
-    """ Performs multiplication between two operands.
-    
-    Args:
-        operand_1: a column (which is a list) or a constant
-        operand_2: a column (which is a list) or a constant
-    
-    Returns:
-        result of multiplication (is a list)
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        if len(operand_1) != len(operand_2):
-            raise ValueError("Operands must have the same length")
-        return [operand_1[i] * operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
-        return [operand_1[i] * operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
-        return [operand_1 * operand_2[i] for i in range(len(operand_2))]
-    else:
-        return operand_1 * operand_2
-
-
-def addition(operand_1, operand_2):
-    """ Performs addition between two operands.
-    
-    Args:
-        operand_1: a column (which is a list) or a constant
-        operand_2: a column (which is a list) or a constant
-    
-    Returns:
-        result of addition (is a list)
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        if len(operand_1) != len(operand_2):
-            raise ValueError("Operands must have the same length")
-        return [operand_1[i] + operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
-        return [operand_1[i] + operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
-        return [operand_1 + operand_2[i] for i in range(len(operand_2))]
-    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, (int, float)):
-        return operand_1 + operand_2
-    else:
-        raise TypeError("Operands must be either two lists or two scalars")
-
-
-def subtraction(operand_1, operand_2):
-    """ Performs subtraction between two operands.
-    
-    Args:
-        operand_1: a column (which is a list) or a constant
-        operand_2: a column (which is a list) or a constant
-    
-    Returns:
-        result of subtraction (is a list)
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        return [operand_1[i] - operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
-        return [operand_1[i] - operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
-        return [operand_1 - operand_2[i] for i in range(len(operand_2))]
-    else:
-        return operand_1 - operand_2
-
-
-def division(operand_1, operand_2):
-    """ Performs division between two operands.
-    
-    Args:
-        operand_1: a column (which is a list) or a constant
-        operand_2: a column (which is a list) or a constant
-    
-    Returns:
-        result of division (is a list)
-    """
-    if isinstance(operand_1, list) and isinstance(operand_2, list):
-        if len(operand_1) != len(operand_2):
-            raise ValueError("Operands should have the same length")
-        return [operand_1[i] / operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
-        return [operand_1[i] / operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
-        return [operand_1 / operand_2[i] for i in range(len(operand_2))]
-    else:
-        return operand_1 / operand_2
 
 
 def filter_column(column, row_idx):
@@ -616,9 +655,7 @@ def logical_or(columns):
     """
     result = []
     for i in range(len(columns[0])):
-        result.append(False)
-        for j in range(len(columns)):
-            result[i] = result[i] or columns[j][i]
+        result.append(any([column[i] for column in columns]))
     return result
 
 
@@ -647,7 +684,7 @@ def sort(rows, comparator):
     Returns:
         sorted rows
     """
-    for i in range(len(rows)):
+    for i in range(len(rows)-1):
         for j in range(i+1, len(rows)):
             if comparator(rows[i], rows[j]) > 0:
                 rows[i], rows[j] = rows[j], rows[i]
