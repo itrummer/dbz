@@ -64,7 +64,9 @@ class DbzEngine(Engine):
         print(f'Plan: {plan}')
         code_parts = []
         code_parts += [self.library]
+        import_path = f'{self.paths.includes}/imports.py'
         fct_path = f'{self.paths.includes}/functions.py'
+        code_parts += self._include(import_path)
         code_parts += self._include(fct_path)
         code_parts += [self.coder.plan_code(plan)]
         code_parts += [f'write_to_csv(last_result, "{out}")']
