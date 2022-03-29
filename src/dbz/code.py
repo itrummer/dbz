@@ -159,6 +159,21 @@ class Coder():
         """
         return node['type'].get('scale', None)
     
+    def _like_code(self, node):
+        """ Generate code for evaluating LIKE expression.
+        
+        Args:
+            node: describes LIKE expression
+        
+        Returns:
+            code for evaluating LIKE expression
+        """
+        operands = node['operands']
+        to_test = self._operation_code(operands[0])
+        like_expr = self._operation_code(operands[1])
+        pred_code = f'lambda s:re.match({like_expr}.replace(\'%\', \'.*\'), s) is not None'
+        return f'map({to_test}, {pred_code})'
+    
     def _literal_code(self, literal):
         """ Produces a code snippet producing given literal.
         
@@ -396,6 +411,8 @@ class Coder():
                 return self._cast_code(operation)
             if name == 'NOT':
                 return self._unary_code(operation)
+            if name == 'LIKE':
+                return self._like_code(operation)
         
         raise ValueError(f'Unhandled operation: {operation}')
     

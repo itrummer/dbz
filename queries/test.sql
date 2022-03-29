@@ -1,32 +1,43 @@
 select
-	c_name,
-	c_custkey,
-	o_orderkey,
-	o_orderdate,
-	o_totalprice,
-	sum(l_quantity)
+	s_acctbal,
+	s_name,
+	n_name,
+	p_partkey,
+	p_mfgr,
+	s_address,
+	s_phone,
+	s_comment
 from
-	customer,
-	orders,
-	lineitem
+	part,
+	supplier,
+	partsupp,
+	nation,
+	region
 where
-	o_orderkey in (
+	p_partkey = ps_partkey
+	and s_suppkey = ps_suppkey
+	and p_size = 15
+	and p_type like '%BRASS'
+	and s_nationkey = n_nationkey
+	and n_regionkey = r_regionkey
+	and r_name = 'EUROPE'
+	and ps_supplycost = (
 		select
-			l_orderkey
+			min(ps_supplycost)
 		from
-			lineitem
-		group by
-			l_orderkey having
-				sum(l_quantity) > 300
+			partsupp,
+			supplier,
+			nation,
+			region
+		where
+			p_partkey = ps_partkey
+			and s_suppkey = ps_suppkey
+			and s_nationkey = n_nationkey
+			and n_regionkey = r_regionkey
+			and r_name = 'EUROPE'
 	)
-	and c_custkey = o_custkey
-	and o_orderkey = l_orderkey
-group by
-	c_name,
-	c_custkey,
-	o_orderkey,
-	o_orderdate,
-	o_totalprice
 order by
-	o_totalprice desc,
-	o_orderdate
+	s_acctbal desc,
+	n_name,
+	s_name,
+	p_partkey
