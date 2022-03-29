@@ -17,7 +17,7 @@
 	{"type":"generate", "task_id":"map", "context":[],
 		"template":"map.py", "substitutions":{}},
 	{"type":"check", 
-		"queries":["select * from lineitem where l_shipinstruct like '%BACK%'"]},
+		"queries":["select l_shipinstruct like '%BACK%' from lineitem"]},
 	
 	
 	
