@@ -1,21 +1,32 @@
 select
-	o_orderpriority,
-	count(*) as order_count
+	c_name,
+	c_custkey,
+	o_orderkey,
+	o_orderdate,
+	o_totalprice,
+	sum(l_quantity)
 from
-	orders
+	customer,
+	orders,
+	lineitem
 where
-	o_orderdate >= date '1993-07-01'
-	and o_orderdate < date '1993-07-01' + interval '3' month
-	and exists (
+	o_orderkey in (
 		select
-			*
+			l_orderkey
 		from
 			lineitem
-		where
-			l_orderkey = o_orderkey
-			and l_commitdate < l_receiptdate
+		group by
+			l_orderkey having
+				sum(l_quantity) > 300
 	)
+	and c_custkey = o_custkey
+	and o_orderkey = l_orderkey
 group by
-	o_orderpriority
+	c_name,
+	c_custkey,
+	o_orderkey,
+	o_orderdate,
+	o_totalprice
 order by
-	o_orderpriority
+	o_totalprice desc,
+	o_orderdate
