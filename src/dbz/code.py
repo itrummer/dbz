@@ -143,7 +143,10 @@ class Coder():
             operand_code = f'multiplication({operand_code},1e{diff})'
         
         new_type = operation['type']['type'].lower()
-        return f'cast_to_{new_type}({operand_code})'
+        if new_type == 'integer':
+            return f'map_column({operand_code}, lambda r:round(r))'
+        else:
+            return f'cast_to_{new_type}({operand_code})'
     
     def _column_code(self, column_ref):
         """ Generate code retrieving column of last result. 

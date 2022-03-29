@@ -35,13 +35,14 @@
 	{"type":"generate", "task_id":"map", "context":[],
 		"template":"map.py", "substitutions":{}},
 	{"type":"check", 
-		"queries":["select l_shipinstruct like '%BACK%' from lineitem"]},
+		"queries":[
+			"select l_shipinstruct like '%BACK%' from lineitem",
+			"select cast(l_extendedprice as int) from lineitem"
+		]},
 	
-	
-	
-	{"type":"generate", "task_id":"to_int", "context":[],
-		"template":"cast.py", "substitutions":{"<ToType>":"integer"}},
-	{"type":"check", "queries":["select cast(l_extendedprice as int) from lineitem"]},
+	{"type":"generate", "task_id":"to_float", "context":[],
+		"template":"cast.py", "substitutions":{"<ToType>":"float"}},
+	{"type":"check", "queries":["select cast(l_extendedprice as float) from lineitem"]},
 	
 	{"type":"generate", "task_id":"to_text", "context":[],
 		"template":"cast.py", "substitutions":{"<ToType>":"text"}},
