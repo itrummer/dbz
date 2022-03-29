@@ -49,7 +49,7 @@
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"sum"}},
 	{"type":"check", 
 	"queries":[
-		"select 1 from lineitem group by l_shipdate",
+		"select sum(1) from lineitem group by l_shipdate",
 		"select sum(l_extendedprice) from lineitem group by l_shipmode"]},
 	
 	{"type":"generate", "task_id":"grouped_min", "context":[], 
