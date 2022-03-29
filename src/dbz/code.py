@@ -58,7 +58,7 @@ class Coder():
         operands = agg['operands']
         if not operands:
             operands += [0]
-        operands = [f'last_result[{o}]' for o in operands]
+        operands = [f'input_rel[{o}]' for o in operands]
         
         if groups:
             target_length = 'len(row_id_rows)'
@@ -132,7 +132,7 @@ class Coder():
         operands = operation['operands']
         assert len(operands) == 1
         operand_code = self._operation_code(operands[0])
-        param = f'last_result.get_column({operand_code})'
+        param = f'input_rel.get_column({operand_code})'
         new_type = operation['type']['type']
         return f'CAST({param}, {new_type})'
     
@@ -146,7 +146,7 @@ class Coder():
             code retrieving specified column
         """
         column_nr = column_ref['input']
-        return f'last_result[{column_nr}]'
+        return f'input_rel[{column_nr}]'
     
     def _get_scale(self, node):
         """ Extract scale for exact numeric type results.
@@ -200,7 +200,7 @@ class Coder():
         
         if groups:
             nr_group_cols = len(groups)
-            group_by_cols = [f'last_result[{g}]' for g in groups]
+            group_by_cols = [f'input_rel[{g}]' for g in groups]
             group_by_list = ', '.join(group_by_cols)
             parts += [f'row_id_rows=to_row_format([{group_by_list}])']
             parts += ['row_id_column=to_tuple_column(row_id_rows)']
@@ -244,7 +244,7 @@ class Coder():
         """
         condition = step['condition']
         pred_code = self._operation_code(condition)
-        op_code = f'[filter_column(c, {pred_code}) for c in last_result]'
+        op_code = f'[filter_column(c, {pred_code}) for c in input_rel]'
         return self._assignment(step, op_code)
     
     def _LogicalJoin(self, step):
@@ -315,7 +315,7 @@ class Coder():
         """
         step_id = step['id']
         result = self._result_name(step_id)
-        parts = [f'{result} = to_row_format(last_result)']
+        parts = [f'{result} = to_row_format(input_rel)']
         
         if 'collation' in step:
             parts += ['def comparator(row_1, row_2):']
@@ -484,9 +484,15 @@ class Coder():
         Returns:
             code for executing plan step
         """
+        op_id = step['id']
         rel_op = step['relOp']
+        parts = []
+        parts += [f'# Operation ID: {op_id}; Operator: {rel_op}']
+        inputs = [self._result_name(in_) for in_ in step['inputs']] + ['[]']
+        parts += [f'input_rel = ' + ' + '.join(inputs)]
         handler = f'_{rel_op}'
-        return getattr(self, handler)(step)
+        parts += getattr(self, handler)(step)
+        return '\n'.join(parts)
     
     def _unary_code(self, operation):
         """ Translates unary operation into code.
