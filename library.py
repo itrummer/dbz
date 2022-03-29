@@ -50,6 +50,22 @@ def to_row_format(columns):
     return list(zip(*columns))
 
 
+import os
+
+
+def map_column(column, map_fct):
+    """ Applies function to each element of the column.
+    
+    Args:
+        column: a column which is a list
+        map_fct: apply to each element in column
+    
+    Returns:
+        a column (which is a list) with the result of function
+    """
+    return list(map(map_fct, column))
+
+
 def normalize(raw_column):
     """ Normalize column representation.
     
@@ -122,11 +138,7 @@ def calculate_row_count(column):
     Returns:
         row count of column values
     """
-    row_count = 0
-    for i in column:
-        if i != '':
-            row_count += 1
-    return row_count
+    return len(column)
 
 
 import os
@@ -234,14 +246,14 @@ def per_group_min(agg_column, group_id_column):
     Returns:
         a dictionary mapping each group ID to the min
     """
-    # 1. Collect values for each group.
+    # collect values for each group
     group_to_values = {}
     for group_id, value in zip(group_id_column, agg_column):
         if group_id not in group_to_values:
             group_to_values[group_id] = []
         group_to_values[group_id].append(value)
     
-    # 2. Calculate min for each group.
+    # calculate min for each group
     group_to_min = {}
     for group_id, values in group_to_values.items():
         group_to_min[group_id] = min(values)
@@ -268,10 +280,10 @@ def per_group_max(agg_column, group_id_column):
     """
     # collect values for each group
     group_to_values = {}
-    for group_id, value in zip(group_id_column, agg_column):
+    for group_id, values in zip(group_id_column, agg_column):
         if group_id not in group_to_values:
             group_to_values[group_id] = []
-        group_to_values[group_id].append(value)
+        group_to_values[group_id].append(values)
     
     # calculate max for each group
     group_to_max = {}
@@ -362,10 +374,10 @@ def equi_join(rows_1, rows_2, eq_col_idxs):
         rows of join result where each row is a list
     """
     result_rows = []
-    for row_1 in rows_1:
-        for row_2 in rows_2:
-            if all(row_1[eq_col_idx[0]] == row_2[eq_col_idx[1]] for eq_col_idx in eq_col_idxs):
-                result_rows.append(row_1 + row_2)
+    for r1 in rows_1:
+        for r2 in rows_2:
+            if all(r1[eq_col_idx[0]] == r2[eq_col_idx[1]] for eq_col_idx in eq_col_idxs):
+                result_rows.append(r1 + r2)
     return result_rows
 
 
@@ -409,8 +421,10 @@ def addition(operand_1, operand_2):
         return [operand_1[i] + operand_2 for i in range(len(operand_1))]
     elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
         return [operand_1 + operand_2[i] for i in range(len(operand_2))]
-    else:
+    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, (int, float)):
         return operand_1 + operand_2
+    else:
+        raise TypeError("Operands must be either two lists or two scalars")
 
 
 def subtraction(operand_1, operand_2):
@@ -539,13 +553,13 @@ def less_than_or_equal(operand_1, operand_2):
         column (which is a list) of Boolean values
     """
     if isinstance(operand_1, list) and isinstance(operand_2, list):
-        return [a <= b for a, b in zip(operand_1, operand_2)]
+        return [operand_1[i] <= operand_2[i] for i in range(len(operand_1))]
     elif isinstance(operand_1, list):
-        return [a <= operand_2 for a in operand_1]
+        return [operand_1[i] <= operand_2 for i in range(len(operand_1))]
     elif isinstance(operand_2, list):
-        return [operand_1 <= b for b in operand_2]
+        return [operand_1 <= operand_2[i] for i in range(len(operand_2))]
     else:
-        return operand_1 <= operand_2
+        return [operand_1 <= operand_2]
 
 
 def greater_than_or_equal(operand_1, operand_2):
@@ -602,12 +616,9 @@ def logical_or(columns):
     """
     result = []
     for i in range(len(columns[0])):
+        result.append(False)
         for j in range(len(columns)):
-            if columns[j][i] == 1:
-                result.append(1)
-                break
-            elif j == len(columns) - 1:
-                result.append(0)
+            result[i] = result[i] or columns[j][i]
     return result
 
 
@@ -636,9 +647,8 @@ def sort(rows, comparator):
     Returns:
         sorted rows
     """
-    n = len(rows)
-    for i in range(n):
-        for j in range(i+1, n):
+    for i in range(len(rows)):
+        for j in range(i+1, len(rows)):
             if comparator(rows[i], rows[j]) > 0:
                 rows[i], rows[j] = rows[j], rows[i]
     return rows
