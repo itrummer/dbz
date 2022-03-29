@@ -144,7 +144,8 @@ class Coder():
         
         new_type = operation['type']['type'].lower()
         if new_type == 'integer':
-            return f'map_column({operand_code}, lambda r:round(r))'
+            # TODO: needs to be cleaned up
+            return f'map_column({operand_code}, lambda r:round(r+1e-10))'
         else:
             return f'cast_to_{new_type}({operand_code})'
     
