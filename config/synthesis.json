@@ -11,6 +11,8 @@
 	{"type":"generate", "task_id":"store", "context":[],
 		"template":"store_data.py", "substitutions":{}},
 	{"type":"check", "queries":["select * from lineitem"]},
+	{"type":"generate", "task_id":"normalize", "context":[],
+		"template":"normalize.py", "substitutions":{}},
 	
 	
 	
@@ -51,8 +53,6 @@
 	
 	
 	
-	{"type":"generate", "task_id":"normalize", "context":[],
-		"template":"normalize.py", "substitutions":{}},
 	{"type":"generate", "task_id":"sum", "context":[], 
 		"template":"aggregate.py", "substitutions":{"<aggregate>":"sum"}},
 	{"type":"check", "queries":["select sum(l_extendedprice) from lineitem"]},
