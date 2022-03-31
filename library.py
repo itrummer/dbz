@@ -62,7 +62,7 @@ def multiplication(operand_1, operand_2):
     """
     if isinstance(operand_1, list) and isinstance(operand_2, list):
         if len(operand_1) != len(operand_2):
-            raise ValueError("Operands must have the same length")
+            raise ValueError("Operands should have the same length")
         return [operand_1[i] * operand_2[i] for i in range(len(operand_1))]
     elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
         return [operand_1[i] * operand_2 for i in range(len(operand_1))]
@@ -86,9 +86,9 @@ def addition(operand_1, operand_2):
         if len(operand_1) != len(operand_2):
             raise ValueError("Operands must have the same length")
         return [operand_1[i] + operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
+    elif isinstance(operand_1, list):
         return [operand_1[i] + operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
+    elif isinstance(operand_2, list):
         return [operand_1 + operand_2[i] for i in range(len(operand_2))]
     else:
         return operand_1 + operand_2
@@ -106,9 +106,9 @@ def subtraction(operand_1, operand_2):
     """
     if isinstance(operand_1, list) and isinstance(operand_2, list):
         return [operand_1[i] - operand_2[i] for i in range(len(operand_1))]
-    elif isinstance(operand_1, list) and isinstance(operand_2, (int, float)):
+    elif isinstance(operand_1, list) and not isinstance(operand_2, list):
         return [operand_1[i] - operand_2 for i in range(len(operand_1))]
-    elif isinstance(operand_1, (int, float)) and isinstance(operand_2, list):
+    elif not isinstance(operand_1, list) and isinstance(operand_2, list):
         return [operand_1 - operand_2[i] for i in range(len(operand_2))]
     else:
         return operand_1 - operand_2
@@ -243,7 +243,7 @@ def calculate_avg(column):
     Returns:
         avg of column values
     """
-    return sum(column)/len(column)
+    return sum(column) / len(column)
 
 
 import os
@@ -370,14 +370,14 @@ def per_group_min(agg_column, group_id_column):
     Returns:
         a dictionary mapping each group ID to the min
     """
-    # collect values for each group
+    # 1. Collect values for each group.
     group_to_values = {}
     for group_id, value in zip(group_id_column, agg_column):
         if group_id not in group_to_values:
             group_to_values[group_id] = []
         group_to_values[group_id].append(value)
     
-    # calculate min for each group
+    # 2. Calculate min for each group.
     group_to_min = {}
     for group_id, values in group_to_values.items():
         group_to_min[group_id] = min(values)
@@ -404,10 +404,10 @@ def per_group_max(agg_column, group_id_column):
     """
     # collect values for each group
     group_to_values = {}
-    for group_id, values in zip(group_id_column, agg_column):
+    for group_id, value in zip(group_id_column, agg_column):
         if group_id not in group_to_values:
             group_to_values[group_id] = []
-        group_to_values[group_id].append(values)
+        group_to_values[group_id].append(value)
     
     # calculate max for each group
     group_to_max = {}
@@ -500,10 +500,7 @@ def equi_join(rows_1, rows_2, eq_col_idxs):
     result_rows = []
     for row_1 in rows_1:
         for row_2 in rows_2:
-            for eq_col_idx in eq_col_idxs:
-                if row_1[eq_col_idx[0]] != row_2[eq_col_idx[1]]:
-                    break
-            else:
+            if all([row_1[i] == row_2[j] for i, j in eq_col_idxs]):
                 result_rows.append(row_1 + row_2)
     return result_rows
 
@@ -581,6 +578,26 @@ def equal(operand_1, operand_2):
         return operand_1 == operand_2
 
 
+def not_equal(operand_1, operand_2):
+    """ True where operand_1 <> operand_2.
+    
+    Args:
+        operand_1: either a column (which is a list) or a constant
+        operand_2: either a column (which is a list) or a constant
+    
+    Returns:
+        column (which is a list) of Boolean values
+    """
+    if isinstance(operand_1, list) and isinstance(operand_2, list):
+        return [operand_1[i] != operand_2[i] for i in range(len(operand_1))]
+    elif isinstance(operand_1, list):
+        return [operand_1[i] != operand_2 for i in range(len(operand_1))]
+    elif isinstance(operand_2, list):
+        return [operand_1 != operand_2[i] for i in range(len(operand_2))]
+    else:
+        return operand_1 != operand_2
+
+
 def less_than_or_equal(operand_1, operand_2):
     """ True where operand_1 <= operand_2.
     
@@ -655,7 +672,12 @@ def logical_or(columns):
     """
     result = []
     for i in range(len(columns[0])):
-        result.append(any([column[i] for column in columns]))
+        for j in range(len(columns)):
+            if columns[j][i] == 1:
+                result.append(1)
+                break
+            if j == len(columns) - 1:
+                result.append(0)
     return result
 
 
@@ -684,9 +706,9 @@ def sort(rows, comparator):
     Returns:
         sorted rows
     """
-    for i in range(len(rows)-1):
-        for j in range(i+1, len(rows)):
-            if comparator(rows[i], rows[j]) > 0:
-                rows[i], rows[j] = rows[j], rows[i]
+    for i in range(len(rows)):
+        for j in range(i+1,len(rows)):
+            if comparator(rows[i],rows[j])>0:
+                rows[i],rows[j]=rows[j],rows[i]
     return rows
 
