@@ -12,7 +12,7 @@ def is_scalar(value):
     Returns:
         true iff the value is scalar (not a column)
     """
-    if value is None or isinstance(value, (int, float, str)):
+    if value is None or isinstance(value, (bool, int, float, str)):
         return True
     else:
         return False
