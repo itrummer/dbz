@@ -530,9 +530,9 @@ class Coder():
         parts += [f'input_rel = ' + ' + '.join(inputs)]
         handler = f'_{rel_op}'
         parts += [getattr(self, handler)(step)]
-        result = self._result_name(op_id)
-        parts += [f'{result}=[normalize(c) for c in {result}]']
-        parts += [f'last_result = {result}']
+        # result = self._result_name(op_id)
+        # parts += [f'{result}=[normalize(c) for c in {result}]']
+        # parts += [f'last_result = {result}']
         return '\n'.join(parts)
     
     def _unary_code(self, operation):
