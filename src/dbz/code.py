@@ -400,7 +400,7 @@ class Coder():
             code realizing operation
         """
         op_kind = operation['op']['kind']
-        op_name = {'AND':'logical_and', 'OR':'logical_or'}[op_kind]
+        op_name = {'AND':'smart_logical_and', 'OR':'smart_logical_or'}[op_kind]
         operands = operation['operands']
         params = [self._operation_code(operand) for operand in operands]
         return f'{op_name}([{", ".join(params)}])'
@@ -427,7 +427,10 @@ class Coder():
                 return self._binary_code(operation)
             if name == 'CAST':
                 return self._cast_code(operation)
-            if name == 'NOT':
+            if name in [
+                'NOT', 'IS NULL', 'IS NOT NULL', 
+                'IS TRUE', 'IS NOT TRUE', 
+                'IS FALSE', 'IS NOT FALSE']:
                 return self._unary_code(operation)
             if name == 'LIKE':
                 return self._like_code(operation)
@@ -540,7 +543,19 @@ class Coder():
         """
         operands = operation['operands']
         assert len(operands) == 1
-        operand_code = self._operation_code(operands[0])
+        op_code = self._operation_code(operands[0])
         kind = operation['op']['kind']
-        op_name = {'NOT':'logical_not'}[kind]
-        return f'{op_name}({operand_code})'
+        if kind in ['IS_NULL', 'IS_NOT_NULL']:
+            op_code = f'smart_is_null({op_code})'
+        elif kind in ['IS_TRUE', 'IS_NOT_TRUE']:
+            op_code = f'smart_logical_and(' +\
+                'logical_not(smart_is_null({op_code})),' +\
+                    '{op_code})'
+        if kind in ['IS_FALSE', 'IS_NOT_FALSE']:
+            op_code = f'smart_logical_and(' +\
+                'logical_not(smart_is_null({op_code})),' +\
+                    'logical_not({op_code}))'
+        if 'NOT' in op_code:
+            return f'logical_not({op_code})'
+        else:
+            return op_code

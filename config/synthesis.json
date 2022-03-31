@@ -171,8 +171,16 @@
 	{"type":"check", 
 		"queries":["select * from lineitem where not (l_extendedprice < 13000)"]},
 	
+	{"type":"generate", "task_id":"is_null", "context":[],
+		"template":"is_null.py", "substitutions":{}},
+	{"type":"check", 
+		"queries":[
+		"select l_extendedprice is null from lineitem",
+		"select null is true", "select null is false", "select null is null", 
+		"select null is not true", "select null is not false", "select null is not null"]},
 	
-		
+	
+
 	{"type":"generate", "task_id":"sort", "context":[], 
 		"template":"sort.py", "substitutions":{}},
 	{"type":"check", 
