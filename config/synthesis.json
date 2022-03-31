@@ -135,6 +135,12 @@
 		"substitutions":{"binary_op":"equal", "<short_op>":"="}},
 	{"type":"check", 
 		"queries":["select * from lineitem where l_extendedprice = 13309.60"]},
+	
+	{"type":"generate", "task_id":"not_equal_to", "context":[],
+		"template":"binary_cmp.py", 
+		"substitutions":{"binary_op":"not_equal", "<short_op>":"<>"}},
+	{"type":"check", 
+		"queries":["select * from lineitem where l_extendedprice <> 13309.60"]},
 
 	{"type":"generate", "task_id":"less_than_or_equal", "context":[],
 		"template":"binary_cmp.py", 

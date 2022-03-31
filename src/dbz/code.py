@@ -105,7 +105,7 @@ class Coder():
                    'LESS_THAN':'less_than',
                    'GREATER_THAN_OR_EQUAL':'greater_than_or_equal',
                    'GREATER_THAN':'greater_than',
-                   'EQUALS':'equal'}[op_kind]
+                   'EQUALS':'equal', 'NOT_EQUALS':'not_equal'}[op_kind]
         operands = operation['operands']
         left_op = self._operation_code(operands[0])
         right_op = self._operation_code(operands[1])
