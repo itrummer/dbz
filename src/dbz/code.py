@@ -555,7 +555,7 @@ class Coder():
             op_code = f'smart_logical_and(' +\
                 'logical_not(smart_is_null({op_code})),' +\
                     'logical_not({op_code}))'
-        if 'NOT' in op_code:
+        if 'NOT' in kind:
             return f'logical_not({op_code})'
         else:
             return op_code
