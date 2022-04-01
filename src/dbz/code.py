@@ -8,14 +8,16 @@ import dbz.util
 class Coder():
     """ Translates query plans into code. """
     
-    def __init__(self, paths):
+    def __init__(self, paths, print_results):
         """ Initialize variables and paths. 
         
         Args:
             paths: relevant paths
+            print_results: print out samples from intermediate results?
         """
         self.paths = paths
         self.id_to_plan = {}
+        self.print_results = print_results
     
     def plan_code(self, plan):
         """ Translates plan into code.
@@ -562,6 +564,10 @@ class Coder():
         result = self._result_name(op_id)
         # parts += [f'{result}=[normalize(c) for c in {result}]']
         parts += [f'last_result = {result}']
+        if self.print_results:
+            parts += [f'r = nr_rows({result}[0]) if {result} else 0']
+            parts += [f'print(f"Sample from {result}:")']
+            parts += [f'print([c[:min(r,10)] for c in {result}])']
         return '\n'.join(parts)
     
     def _unary_code(self, operation):

@@ -46,7 +46,7 @@ class DbzEngine(Engine):
         self.planner = dbz.plan.Planner(
             paths.schema, paths.planner, 
             paths.tmp_dir)
-        self.coder = dbz.code.Coder(paths)
+        self.coder = dbz.code.Coder(paths, True)
     
     def execute(self, sql, out):
         """ Execute given query and write out result.
