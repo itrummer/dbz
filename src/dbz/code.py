@@ -325,11 +325,13 @@ class Coder():
         if join_type in ['left', 'full']:
             parts += [
                 f'{result} = {result} + ' +\
-                f'complete_outer({operands[0]},0,{nr_out_cols},{result})']
+                f'complete_outer(to_row_format(' +\
+                f'{operands[0]}),0,{nr_out_cols},{result})']
         if join_type in ['right', 'full']:
             parts += [
                 f'{result} = {result} + ' +\
-                f'complete_outer({operands[1]},1,{nr_out_cols},{result})']
+                f'complete_outer(to_row_format(' +\
+                f'{operands[1]}),1,{nr_out_cols},{result})']
         
         parts += [f'{result} = rows_to_columns({result},{nr_out_cols})']
         return '\n'.join(parts)
