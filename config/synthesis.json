@@ -12,6 +12,8 @@
 		"template":"store_data.py", "substitutions":{}},
 	{"type":"generate", "task_id":"normalize", "context":[],
 		"template":"normalize.py", "substitutions":{}},
+	{"type":"generate", "task_id":"nr_rows", "context":[],
+		"template":"nr_rows.py", "substitutions":{}},
 	{"type":"check", "queries":["select * from lineitem"]},
 	
 	

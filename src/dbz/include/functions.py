@@ -17,6 +17,7 @@ def is_scalar(value):
     else:
         return False
 
+
 def expand_to(col_or_const, length):
     """ Expand first operand to column of specified length if required.
     
@@ -31,6 +32,7 @@ def expand_to(col_or_const, length):
         return fill_column(col_or_const, length)
     else:
         return col_or_const
+
 
 def smart_is_null(operand):
     """ Check whether operand (column or constant) is null.
@@ -48,6 +50,7 @@ def smart_is_null(operand):
     else:
         # Reference synthesized code piece
         return is_null(operand)
+
 
 def smart_logical_and(operands):
     """ Check whether conjunction evaluates to true.
@@ -77,6 +80,7 @@ def smart_logical_and(operands):
     else:
         return None if has_nulls else True
 
+
 def smart_logical_or(operands):
     """ Check whether disjunction evaluates to true.
     
@@ -104,3 +108,56 @@ def smart_logical_or(operands):
             return logical_or(cols)
     else:
         return None if has_nulls else False
+
+
+def adjust_after_project(input_rel, output_rel):
+    """ Adjust column height after a projection operation.
+    
+    Args:
+        input_rel: input relation
+        output_rel: output relation
+    
+    Returns:
+        output relation with appropriate column height
+    """
+    out_rows = nr_rows(input_rel[0]) if input_rel else 0
+    adjusted = []
+    for value in output_rel:
+        if is_scalar(value):
+            column = fill_column(value, out_rows)
+            adjusted += [column]
+        else:
+            adjusted += [value]
+    
+    return adjusted
+
+
+def adjust_after_aggregate(output_rel, grouping):
+    """ Adjust column height after an aggregation operation.
+    
+    Args:
+        output_rel: output relation to adjust
+        grouping: whether grouping is used
+    
+    Returns:
+        output relation with adjusted column height
+    """
+    if grouping:
+        out_rows = 0
+        for value in output_rel:
+            if not is_scalar(value):
+                cur_rows = nr_rows(value)
+                out_rows = max(out_rows, cur_rows)
+    else:
+        out_rows = 1
+    
+    adjusted = []
+    for value in output_rel:
+        if is_scalar(value):
+            column = fill_column(value, out_rows)
+            adjusted += [column]
+        else:
+            adjusted += [value]
+    
+    return adjusted
+    

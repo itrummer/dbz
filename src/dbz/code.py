@@ -231,7 +231,8 @@ class Coder():
         parts += [f'# LogicalAggregate: aggs: {aggs}; groups {groups}']
         parts += [f'{result} = []']
         
-        if groups:
+        grouping = True if groups else False
+        if grouping:
             nr_group_cols = len(groups)
             group_by_cols = [f'input_rel[{g}]' for g in groups]
             group_by_list = ', '.join(group_by_cols)
@@ -262,7 +263,7 @@ class Coder():
                 add_code = f'{result} += [{agg_code}]'
                 parts += [add_code]
         
-        parts += [f'{result} = [normalize(c) for c in {result}]']
+        parts += [f'{result} = adjust_after_aggregate({result}, {grouping})']
         parts += [f'last_result = {result}']
         return '\n'.join(parts)
     
@@ -334,6 +335,7 @@ class Coder():
             add_code = f'{result} += [column]'
             parts += [col_code]
             parts += [add_code]
+        parts += [f'{result} = adjust_after_project(input_rel, {result})']
         parts += [f'last_result = {result}']
         return '\n'.join(parts)
     
@@ -446,7 +448,8 @@ class Coder():
         Returns:
             code for post-processing final result
         """
-        parts = ['last_result = [normalize(c) for c in last_result]']
+        #parts = ['last_result = [normalize(c) for c in last_result]']
+        parts = []
         parts += ['last_result = to_row_format(last_result)']
         parts += ['last_result = [list(r) for r in last_result]']
         col_types = final_step['outputType']['fields']
