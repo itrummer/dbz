@@ -278,10 +278,12 @@ class Coder():
         Returns:
             code realizing filter
         """
+        result = self._result_name(step['id'])
         condition = step['condition']
         pred_code = self._operation_code(condition)
-        op_code = f'[filter_column(c, {pred_code}) for c in input_rel]'
-        return self._assignment(step, op_code)
+        parts = [f'p_idx = {pred_code}']
+        parts += [f'{result} = [filter_column(c, p_idx) for c in input_rel]']
+        return '\n'.join(parts)
     
     def _LogicalJoin(self, step):
         """ Produce code for an equality join.
