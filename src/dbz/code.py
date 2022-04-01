@@ -294,11 +294,14 @@ class Coder():
         """
         inputs = step['inputs']
         assert(len(inputs) == 2)
-        params = [self._result_name(step_id) for step_id in inputs]
+        operands = [self._result_name(step_id) for step_id in inputs]
+        step_id = step['id']
+        result = self._result_name(step_id)
+        
+        params = operands
         params = [f'to_row_format({p})' for p in params]
         join_pred = step['condition']
         conjuncts = dbz.util.get_conjuncts(join_pred)
-        #print(conjuncts)
         assert(all(pred['op']['kind'] == 'EQUALS' for pred in conjuncts))
         
         eq_cols = []
@@ -315,7 +318,21 @@ class Coder():
         nr_out_fields = len(out_fields)
         op_code = f'rows_to_columns(equi_join(' +\
             f'{", ".join(params)}),{nr_out_fields})'
-        return self._assignment(step, op_code)
+        
+        parts = []
+        parts += [f'{result} = {op_code}']
+        nr_out_cols = len(step['outputType']['fields'])
+        join_type = step['joinType']
+        if join_type in ['left', 'full']:
+            parts += [
+                f'{result} = {result} + ' +\
+                f'complete_outer({operands[0]},0,{nr_out_cols},{result})']
+        if join_type in ['right', 'full']:
+            parts += [
+                f'{result} = {result} + ' +\
+                f'complete_outer({operands[1]},1,{nr_out_cols},{result})']
+        
+        return '\n'.join(parts)
     
     def _LogicalProject(self, step):
         """ Produce code for projection.

@@ -175,4 +175,41 @@ def adjust_after_aggregate(output_rel, grouping):
             adjusted += [value]
     
     return adjusted
+
+
+def complete_outer(in_rows, side, nr_all_cols, inner_rows):
+    """ Complete result of inner into result of outer join.
     
+    Args:
+        in_rows: rows of input relation
+        side: 0 if in_rows from left input, 1 otherwise
+        nr_all_cols: number of columns in join output
+        inner_rows: result of inner join
+    
+    Returns:
+        rows completing result of inner join
+    """
+    if not in_rows:
+        return []
+    
+    nr_in_cols = len(in_rows[0])
+    nr_other_cols = nr_all_cols + nr_in_cols
+    matched = set()
+    for inner_row in inner_rows:
+        start_idx = 0 if side == 0 else nr_other_cols
+        ex_end_idx = nr_other_cols if side == 0 else nr_all_cols
+        inner_tuple = tuple(inner_row)
+        projected = inner_tuple[start_idx:ex_end_idx]
+        matched.add(projected)
+    
+    unmatched = set()
+    for in_row in in_rows:
+        in_tuple = tuple(in_row)
+        if in_tuple not in matched:
+            unmatched.add(in_tuple)
+    
+    nulls = (None) * nr_other_cols
+    if side == 0:
+        return [list(it + nulls) for it in unmatched]
+    else:
+        return [list(nulls + it) for it in unmatched]
