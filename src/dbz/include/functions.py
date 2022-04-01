@@ -208,7 +208,7 @@ def complete_outer(in_rows, side, nr_all_cols, inner_rows):
         if in_tuple not in matched:
             unmatched.add(in_tuple)
     
-    nulls = (None) * nr_other_cols
+    nulls = (None,) * nr_other_cols
     if side == 0:
         return [list(it + nulls) for it in unmatched]
     else:
