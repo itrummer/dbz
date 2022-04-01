@@ -52,6 +52,21 @@ def smart_is_null(operand):
         return is_null(operand)
 
 
+def smart_logical_not(operand):
+    """ Negate operand, terating columns and constants separately.
+    
+    Args:
+        operand: either a column or a constant
+    
+    Returns:
+        negated operand
+    """
+    if is_scalar(operand):
+        return not operand
+    else:
+        return logical_not(operand)
+    
+
 def smart_logical_and(operands):
     """ Check whether conjunction evaluates to true.
     
