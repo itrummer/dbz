@@ -413,7 +413,7 @@ class Coder():
             out_rows += [out_row]
         
         parts = []
-        parts += [f'out_rows = {str(out_rows)})']
+        parts += [f'out_rows = {str(out_rows)}']
         parts += [f'{result} = rows_to_columns(out_rows, {nr_columns})']
         return '\n'.join(parts)
     
