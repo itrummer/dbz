@@ -580,13 +580,13 @@ class Coder():
         if kind in ['IS_NULL', 'IS_NOT_NULL']:
             op_code = f'smart_is_null({op_code})'
         elif kind in ['IS_TRUE', 'IS_NOT_TRUE']:
-            op_code = f'smart_logical_and(' +\
+            op_code = f'smart_logical_and([' +\
                 f'smart_logical_not(smart_is_null({op_code})),' +\
-                    f'{op_code})'
+                    f'{op_code}])'
         if kind in ['IS_FALSE', 'IS_NOT_FALSE']:
-            op_code = f'smart_logical_and(' +\
+            op_code = f'smart_logical_and([' +\
                 f'smart_logical_not(smart_is_null({op_code})),' +\
-                    f'smart_logical_not({op_code}))'
+                    f'smart_logical_not({op_code})])'
         if 'NOT' in kind:
             return f'smart_logical_not({op_code})'
         else:
