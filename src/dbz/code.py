@@ -392,6 +392,31 @@ class Coder():
             'new_table = to_columnar_format(new_table)'
         return scan_code + '\n' + self._assignment(step, 'new_table')
     
+    def _LogicalValues(self, step):
+        """ Uses rows specified as part of the query.
+        
+        Args:
+            step: plan step specifying tuples
+        
+        Returns:
+            code generating given tuples
+        """
+        result = self._result_name(step['id'])
+        nr_columns = len(step['type'])
+        in_rows = step['tuples']
+        out_rows = []
+        for in_row in in_rows:
+            out_row = []
+            for in_field in in_row:
+                out_field = self._literal_code(in_field)
+                out_row += [out_field]
+            out_rows += [out_row]
+        
+        parts = []
+        parts += [f'out_rows = {str(out_rows)})']
+        parts += [f'{result} = rows_to_columns(out_rows, {nr_columns})']
+        return '\n'.join(parts)
+    
     def _nary_boolean_code(self, operation):
         """ Generate code realizing n-ary Boolean operator.
         
@@ -534,9 +559,9 @@ class Coder():
         parts += [f'input_rel = ' + ' + '.join(inputs)]
         handler = f'_{rel_op}'
         parts += [getattr(self, handler)(step)]
-        # result = self._result_name(op_id)
+        result = self._result_name(op_id)
         # parts += [f'{result}=[normalize(c) for c in {result}]']
-        # parts += [f'last_result = {result}']
+        parts += [f'last_result = {result}']
         return '\n'.join(parts)
     
     def _unary_code(self, operation):
