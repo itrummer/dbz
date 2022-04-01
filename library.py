@@ -50,6 +50,33 @@ def to_row_format(columns):
     return list(zip(*columns))
 
 
+def normalize(raw_column):
+    """ Normalize column representation.
+    
+    1. Check if raw column is a list.
+    2. If not, transform raw column.
+    3. The result column is a list.
+    """
+    if not isinstance(raw_column, list):
+        raw_column = [raw_column]
+    return raw_column
+
+
+import os
+
+
+def nr_rows(column):
+    """ Returns number of rows in a column (which is a list).
+    
+    Args:
+        column: a column (which is a list)
+    
+    Returns:
+        number of elements in column
+    """
+    return len(column)
+
+
 def multiplication(operand_1, operand_2):
     """ Performs multiplication between two operands.
     
@@ -186,16 +213,23 @@ def cast_to_varchar(column):
     return column
 
 
-def normalize(raw_column):
-    """ Normalize column representation.
+import os
+
+
+def fill_column(constant, nr_rows):
+    """ Returns a column (which is a list), filled with constant values.
     
-    1. Check if raw column is a list.
-    2. If not, transform raw column.
-    3. The result column is a list.
+    Args:
+        constant: a constant
+        nr_rows: number of rows in result column
+    
+    Returns:
+        a column containing constant values where the column is a list
     """
-    if not isinstance(raw_column, list):
-        raw_column = [raw_column]
-    return raw_column
+    column = []
+    for i in range(nr_rows):
+        column.append(constant)
+    return column
 
 
 def calculate_sum(column):
@@ -243,7 +277,7 @@ def calculate_avg(column):
     Returns:
         avg of column values
     """
-    return sum(column) / len(column)
+    return sum(column)/len(column)
 
 
 import os
@@ -259,8 +293,8 @@ def calculate_row_count(column):
         row count of column values
     """
     row_count = 0
-    for i in column:
-        if i != '':
+    for value in column:
+        if value != '':
             row_count += 1
     return row_count
 
@@ -300,25 +334,6 @@ def rows_to_columns(rows, nr_columns):
         for i in range(nr_columns):
             columns[i].append(row[i])
     return columns
-
-
-import os
-
-
-def fill_column(constant, nr_rows):
-    """ Returns a column (which is a list), filled with constant values.
-    
-    Args:
-        constant: a constant
-        nr_rows: number of rows in result column
-    
-    Returns:
-        a column containing constant values where the column is a list
-    """
-    column = []
-    for i in range(nr_rows):
-        column.append(constant)
-    return column
 
 
 import os
@@ -370,14 +385,14 @@ def per_group_min(agg_column, group_id_column):
     Returns:
         a dictionary mapping each group ID to the min
     """
-    # 1. Collect values for each group.
+    # collect values for each group
     group_to_values = {}
     for group_id, value in zip(group_id_column, agg_column):
         if group_id not in group_to_values:
             group_to_values[group_id] = []
         group_to_values[group_id].append(value)
     
-    # 2. Calculate min for each group.
+    # calculate min for each group
     group_to_min = {}
     for group_id, values in group_to_values.items():
         group_to_min[group_id] = min(values)
@@ -404,10 +419,10 @@ def per_group_max(agg_column, group_id_column):
     """
     # collect values for each group
     group_to_values = {}
-    for group_id, value in zip(group_id_column, agg_column):
+    for group_id, values in zip(group_id_column, agg_column):
         if group_id not in group_to_values:
             group_to_values[group_id] = []
-        group_to_values[group_id].append(value)
+        group_to_values[group_id].append(values)
     
     # calculate max for each group
     group_to_max = {}
@@ -500,7 +515,7 @@ def equi_join(rows_1, rows_2, eq_col_idxs):
     result_rows = []
     for row_1 in rows_1:
         for row_2 in rows_2:
-            if all([row_1[i] == row_2[j] for i, j in eq_col_idxs]):
+            if all(row_1[eq_col_idx[0]] == row_2[eq_col_idx[1]] for eq_col_idx in eq_col_idxs):
                 result_rows.append(row_1 + row_2)
     return result_rows
 
@@ -652,9 +667,7 @@ def logical_and(columns):
     """
     result = []
     for i in range(len(columns[0])):
-        result.append(True)
-        for j in range(len(columns)):
-            result[i] = result[i] and columns[j][i]
+        result.append(all(column[i] for column in columns))
     return result
 
 
@@ -672,12 +685,7 @@ def logical_or(columns):
     """
     result = []
     for i in range(len(columns[0])):
-        for j in range(len(columns)):
-            if columns[j][i] == 1:
-                result.append(1)
-                break
-            if j == len(columns) - 1:
-                result.append(0)
+        result.append(any([column[i] for column in columns]))
     return result
 
 
@@ -696,6 +704,21 @@ def logical_not(column):
     return [not i for i in column]
 
 
+import os
+
+
+def is_null(column):
+    """ Checks if values in a column (which is a list) are null.
+    
+    Args:
+        column: a column (which is a list)
+    
+    Returns:
+        Boolean column (which is a list)
+    """
+    return [x is None for x in column]
+
+
 def sort(rows, comparator):
     """ Sort rows using comparator function.
     
@@ -706,9 +729,11 @@ def sort(rows, comparator):
     Returns:
         sorted rows
     """
-    for i in range(len(rows)):
-        for j in range(i+1,len(rows)):
-            if comparator(rows[i],rows[j])>0:
-                rows[i],rows[j]=rows[j],rows[i]
+    nrows = len(rows)
+    for i in range(nrows):
+        for j in range(i+1, nrows):
+            c = comparator(rows[i], rows[j])
+            if c > 0:
+                rows[i], rows[j] = rows[j], rows[i]
     return rows
 
