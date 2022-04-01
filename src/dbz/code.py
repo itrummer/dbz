@@ -314,9 +314,7 @@ class Coder():
             eq_cols += [f'({col_idx_1},{col_idx_2})']
             
         params += [f'[{", ".join(eq_cols)}]']
-        out_fields = step['outputType']['fields']
-        nr_out_fields = len(out_fields)
-        op_code = f'equi_join({", ".join(params)}),{nr_out_fields}'
+        op_code = f'equi_join({", ".join(params)})'
         
         parts = []
         parts += [f'{result} = {op_code}']
@@ -331,7 +329,7 @@ class Coder():
                 f'{result} = {result} + ' +\
                 f'complete_outer({operands[1]},1,{nr_out_cols},{result})']
         
-        parts += [f'{result} = rows_to_columns({result})']
+        parts += [f'{result} = rows_to_columns({result},{nr_out_cols})']
         return '\n'.join(parts)
     
     def _LogicalProject(self, step):
