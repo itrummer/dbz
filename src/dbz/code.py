@@ -112,13 +112,28 @@ class Coder():
         left_op = self._operation_code(operands[0])
         right_op = self._operation_code(operands[1])
         
-        scale_1 = self._get_scale(operands[0])
-        scale_2 = self._get_scale(operands[1])
-        result_scale = self._get_scale(operation)
-        diff_1, diff_2 = self._scale_diffs(
-            scale_1, scale_2, result_scale, op_kind)
-        left_op = f'multiplication({left_op}, 1e{diff_1})' if diff_1 else left_op
-        right_op = f'multiplication({right_op}, 1e{diff_2})' if diff_2 else right_op
+        op_types = set([op['type']['type'] for op in operands])
+        assert(len(op_types) == 1)
+        op_type = op_types.pop()
+        
+        if op_type in ['DECIMAL', 'NUMERIC', 'FLOAT']:
+            scale_1 = self._get_scale(operands[0])
+            scale_2 = self._get_scale(operands[1])
+            result_scale = self._get_scale(operation)
+            diff_1, diff_2 = self._scale_diffs(
+                scale_1, scale_2, result_scale, op_kind)
+            left_op = f'multiplication({left_op}, 1e{diff_1})' if diff_1 else left_op
+            right_op = f'multiplication({right_op}, 1e{diff_2})' if diff_2 else right_op
+        
+        elif op_type == 'CHAR':
+            precision_1 = self._get_precision(operands[0])
+            precision_2 = self._get_precision(operands[1])
+            precision_1 = 0 if precision_1 is None else precision_1
+            precision_2 = 0 if precision_2 is None else precision_2
+            if not (precision_1 == precision_2):
+                pad_to = max(precision_1, precision_2)
+                left_op = f'smart_padding({left_op}, {pad_to})'
+                right_op = f'smart_padding({right_op},{pad_to})'
         
         return f'{op_name}({left_op},{right_op})'
     
@@ -167,6 +182,17 @@ class Coder():
         """
         column_nr = column_ref['input']
         return f'input_rel[{column_nr}]'
+    
+    def _get_precision(self, node):
+        """ Extract precision for chars and numeric nodes.
+        
+        Args:
+            node: an expression node
+        
+        Returns:
+            precision or None (if not specified)
+        """
+        return node['type'].get('precision', None)
     
     def _get_scale(self, node):
         """ Extract scale for exact numeric type results.

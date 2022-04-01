@@ -213,3 +213,19 @@ def complete_outer(in_rows, side, nr_all_cols, inner_rows):
         return [list(it + nulls) for it in unmatched]
     else:
         return [list(nulls + it) for it in unmatched]
+
+
+def smart_padding(operand, pad_to):
+    """ Pad string operands (columns or constants) to given length.
+    
+    Args:
+        operand: either a string column or a string
+        pad_to: pad operand to this target length
+    
+    Returns:
+        padded operand
+    """
+    if is_scalar(operand):
+        return operand.ljust(pad_to)
+    else:
+        return map_column(operand, lambda s:s.ljust(pad_to))
