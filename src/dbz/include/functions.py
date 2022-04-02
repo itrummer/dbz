@@ -3,7 +3,6 @@ Created on Mar 28, 2022
 
 @author: immanueltrummer
 '''
-from dbz.prompt import rows_to_columns
 def is_scalar(value):
     """ Returns true iff the value is scalar (i.e., not a column).
     
