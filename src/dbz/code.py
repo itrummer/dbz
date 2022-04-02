@@ -64,7 +64,7 @@ class Coder():
             name = 'per_group_' + name
         else:
             name = 'calculate_' + name
-        parts += [f'{name}(*params)']
+        parts += [f'agg_result = {name}(*params)']
 
         return '\n'.join(parts)
     
@@ -265,9 +265,9 @@ class Coder():
             
             parts += ['agg_dicts = []']
             for agg in aggs:
-                agg_code = self._agg_code(agg, groups)
+                parts += [self._agg_code(agg, groups)]
                 def_val = 0 if agg['agg']['kind'] == 'COUNT' else None
-                parts += [f'agg_dicts_defs += [({agg_code},{def_val})]']
+                parts += [f'agg_dicts_defs += [(agg_result,{def_val})]']
             parts += ['agg_rows = []']
             parts += ['for id_tuple in id_tuples:']
             parts += [
@@ -280,9 +280,8 @@ class Coder():
         else:
         
             for agg in aggs:
-                agg_code = self._agg_code(agg, groups)
-                add_code = f'{result} += [{agg_code}]'
-                parts += [add_code]
+                parts += [self._agg_code(agg, groups)]
+                parts += [f'{result} += [agg_result]']
         
         parts += [f'{result} = adjust_after_aggregate({result}, {grouping})']
         parts += [f'last_result = {result}']
