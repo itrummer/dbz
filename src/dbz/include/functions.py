@@ -270,3 +270,26 @@ def prepare_aggregate(input_rel, op_cols, row_id_column, distinct):
         columns = rows_to_columns(distinct_rows, nr_columns)
     
     return columns
+
+
+def smart_date_extract(from_date, field):
+    """ Extract a property from a date. 
+    
+    Args:
+        from_date: date column or constant (number of days since 1/1/1970)
+        field: which field to extract from date (e.g., year)
+    
+    Returns:
+        integer value representing extracted property
+    """
+    def scalar_extract(from_date, field):
+        """ Extracts property from a scalar date (i.e., no column). """
+        return getattr(
+            datetime.datetime(1970,1,1) +\
+            datetime.timedelta(days=from_date), 
+            field)
+    
+    if is_scalar(from_date):
+        return scalar_extract(from_date, field)
+    else:
+        return map_column(from_date, lambda d: scalar_extract(d, field))

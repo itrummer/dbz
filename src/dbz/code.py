@@ -173,6 +173,22 @@ class Coder():
         column_nr = column_ref['input']
         return f'input_rel[{column_nr}]'
     
+    def _extract_code(self, operation):
+        """ Generates code for extracting elements of a date.
+        
+        Args:
+            operation: describes extraction operation
+        
+        Returns:
+            code performing extraction
+        """
+        source = operation['operands'][1]
+        assert(source['type']['type'] == 'DATE')
+        source_code = self._operation_code(source)
+        field = operation['operands'][0]['literal'].lower()
+        assert(field in ['year', 'month', 'day'])
+        return f'smart_date_extract({source_code},{field})'
+    
     def _get_precision(self, node):
         """ Extract precision for chars and numeric nodes.
         
@@ -499,6 +515,8 @@ class Coder():
                 return self._unary_code(operation)
             if name == 'LIKE':
                 return self._like_code(operation)
+            if name == 'EXTRACT':
+                return self._extract_code(operation)
         
         raise ValueError(f'Unhandled operation: {operation}')
     
