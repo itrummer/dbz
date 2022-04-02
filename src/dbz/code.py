@@ -106,7 +106,7 @@ class Coder():
         right_op = self._operation_code(operands[1])
         op_types = [op['type']['type'] for op in operands]
         
-        if all(t in ['DECIMAL', 'NUMERIC', 'FLOAT'] for t in op_types):
+        if all(t in ['DECIMAL', 'NUMERIC', 'FLOAT', 'INTEGER'] for t in op_types):
             scale_1 = self._get_scale(operands[0])
             scale_2 = self._get_scale(operands[1])
             result_scale = self._get_scale(operation)
