@@ -3,6 +3,7 @@ Created on Mar 28, 2022
 
 @author: immanueltrummer
 '''
+from dbz.prompt import rows_to_columns
 def is_scalar(value):
     """ Returns true iff the value is scalar (i.e., not a column).
     
@@ -229,3 +230,41 @@ def smart_padding(operand, pad_to):
         return operand.ljust(pad_to)
     else:
         return map_column(operand, lambda s:s.ljust(pad_to))
+
+
+def prepare_aggregate(input_rel, op_cols, row_id_column, distinct):
+    """ Prepare intermediate result for aggregation.
+    
+    Args:
+        input_rel: list of input columns
+        op_cols: indexes of operand columns (if any)
+        row_id_column: column with group IDs (or None)
+        distinct: whether distinct was used
+    
+    Returns:
+        list with parameters for aggregation function
+    """
+    # Ensure at least one operand
+    if op_cols:
+        operands = [input_rel[idx] for idx in op_cols]
+    else:
+        operands = [1]
+    
+    # Expand scalar values into columns
+    scale_to = nr_rows(input_rel[0])
+    operands = [expand_to(op, scale_to) for op in operands]
+    row_id_column = expand_to(row_id_column, scale_to)
+    
+    # Remove rows with null values in operands
+    keep_row = logical_or([is_null(op) for op in operands])
+    columns = operands + [] if row_id_column is None else [row_id_column]
+    columns = [filter(c, keep_row) for c in columns]
+    
+    # Only keep distinct rows if activated
+    if distinct:
+        rows = to_row_format(columns)
+        distinct_rows = list(set(rows))
+        nr_columns = len(columns)
+        columns = rows_to_columns(distinct_rows, nr_columns)
+    
+    return columns

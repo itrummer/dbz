@@ -48,7 +48,15 @@ class Coder():
         Returns:
             code processing given aggregate
         """
+        operands = agg['operands']
+        distinct = agg['distinct']
         kind = agg['agg']['kind']
+        
+        parts = []
+        parts += [
+            f'params = prepare_aggregate(' +\
+            f'input_rel,{str(operands)},row_id_column,{distinct})']
+        
         name = {
             'SUM':'sum', 'AVG':'avg', 'MIN':'min', 
             'MAX':'max', 'COUNT':'row_count'}[kind]
@@ -56,26 +64,9 @@ class Coder():
             name = 'per_group_' + name
         else:
             name = 'calculate_' + name
-        
-        operands = agg['operands']
-        if not operands:
-            operands += [0]
-        operands = [f'input_rel[{o}]' for o in operands]
-        
-        if groups:
-            target_length = 'len(row_id_rows)'
-            operands = [f'expand_to({op},{target_length})' for op in operands]
-        
-        params = []
-        nr_operands = len(operands)
-        if nr_operands == 1:
-            params += operands
-        elif nr_operands > 1:
-            params += [str(operands)]
-        if groups:
-            params += ['row_id_column']
-        
-        return f'{name}({",".join(params)})'
+        parts += [f'{name}(*params)']
+
+        return '\n'.join(parts)
     
     def _assignment(self, step, op_code):
         """ Returns code for assigning operation result to variable.
@@ -275,12 +266,14 @@ class Coder():
             parts += ['agg_dicts = []']
             for agg in aggs:
                 agg_code = self._agg_code(agg, groups)
-                parts += [f'agg_dicts += [{agg_code}]']
+                def_val = 0 if agg['agg']['kind'] == 'COUNT' else None
+                parts += [f'agg_dicts_defs += [({agg_code},{def_val})]']
             parts += ['agg_rows = []']
             parts += ['for id_tuple in id_tuples:']
             parts += [
-                '\tagg_rows += [[agg_dict[id_tuple] ' +\
-                'for agg_dict in agg_dicts]]']
+                '\tagg_rows += [' +\
+                '[dict_def[0].get(id_tuple, dict_def[1]) ' +\
+                'for dict_def in agg_dicts_defs]]']
             nr_aggs = len(aggs)
             parts += [f'{result} += rows_to_columns(agg_rows,{nr_aggs})']
 
