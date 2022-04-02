@@ -265,7 +265,7 @@ class Coder():
             parts += [f'id_columns=rows_to_columns(id_rows,{nr_group_cols})']
             parts += [f'{result} += id_columns']
             
-            parts += ['agg_dicts = []']
+            parts += ['agg_dicts_defs = []']
             for agg in aggs:
                 parts += [self._agg_code(agg, groups)]
                 def_val = 0 if agg['agg']['kind'] == 'COUNT' else None
