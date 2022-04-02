@@ -51,11 +51,13 @@ class Coder():
         operands = agg['operands']
         distinct = agg['distinct']
         kind = agg['agg']['kind']
+        row_id_column = 'row_id_column' if groups else 'None'
         
         parts = []
         parts += [
             f'params = prepare_aggregate(' +\
-            f'input_rel,{str(operands)},row_id_column,{distinct})']
+            f'input_rel,{str(operands)},' +\
+            f'{row_id_column},{distinct})']
         
         name = {
             'SUM':'sum', 'AVG':'avg', 'MIN':'min', 

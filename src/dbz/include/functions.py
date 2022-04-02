@@ -252,7 +252,8 @@ def prepare_aggregate(input_rel, op_cols, row_id_column, distinct):
     # Expand scalar values into columns
     scale_to = nr_rows(input_rel[0])
     operands = [expand_to(op, scale_to) for op in operands]
-    row_id_column = expand_to(row_id_column, scale_to)
+    if row_id_column is not None:
+        row_id_column = expand_to(row_id_column, scale_to)
     
     # Remove rows with null values in operands
     keep_row = logical_not(logical_or([is_null(op) for op in operands]))
