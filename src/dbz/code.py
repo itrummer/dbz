@@ -104,12 +104,9 @@ class Coder():
         operands = operation['operands']
         left_op = self._operation_code(operands[0])
         right_op = self._operation_code(operands[1])
+        op_types = [op['type']['type'] for op in operands]
         
-        op_types = set([op['type']['type'] for op in operands])
-        assert(len(op_types) == 1)
-        op_type = op_types.pop()
-        
-        if op_type in ['DECIMAL', 'NUMERIC', 'FLOAT']:
+        if all(t in ['DECIMAL', 'NUMERIC', 'FLOAT'] for t in op_types):
             scale_1 = self._get_scale(operands[0])
             scale_2 = self._get_scale(operands[1])
             result_scale = self._get_scale(operation)
@@ -118,7 +115,7 @@ class Coder():
             left_op = f'multiplication({left_op}, 1e{diff_1})' if diff_1 else left_op
             right_op = f'multiplication({right_op}, 1e{diff_2})' if diff_2 else right_op
         
-        elif op_type == 'CHAR':
+        elif all(t in ['CHAR'] for t in op_types):
             precision_1 = self._get_precision(operands[0])
             precision_2 = self._get_precision(operands[1])
             precision_1 = 0 if precision_1 is None else precision_1
