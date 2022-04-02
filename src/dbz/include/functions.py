@@ -255,7 +255,7 @@ def prepare_aggregate(input_rel, op_cols, row_id_column, distinct):
     row_id_column = expand_to(row_id_column, scale_to)
     
     # Remove rows with null values in operands
-    keep_row = logical_or([is_null(op) for op in operands])
+    keep_row = logical_not(logical_or([is_null(op) for op in operands]))
     columns = operands + [] if row_id_column is None else [row_id_column]
     columns = [filter_column(c, keep_row) for c in columns]
     
