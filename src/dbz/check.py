@@ -40,7 +40,7 @@ class Validator():
             True if validation succeeds
         """
         print('Validation in progress ...')
-        passed = True
+        results = []
         try:
             for idx, query in enumerate(self.queries, 1):
                 print(f'Treating query {idx}/{self.nr_queries} ...')
@@ -48,7 +48,8 @@ class Validator():
                 success = engine.execute(query, check_path)
                 print(f'Execution successful: {success}')
                 if not success:
-                    passed = False
+                    print(f'Validation failed!')
+                    results += [False]
                     continue
                 
                 ref_path = f'{self.paths.tmp_dir}/ref_{idx}'
@@ -59,6 +60,8 @@ class Validator():
                 
                 # Handle special case of empty files
                 if filecmp.cmp(check_path, ref_path):
+                    print(f'Validation successful!')
+                    results += [True]
                     continue
                 
                 def write_rounded(in_path, precision):
@@ -100,15 +103,18 @@ class Validator():
 
                 if nr_diffs:
                     print(f'Result comparison failed for query {query}!')
-                    passed = False
+                    results += [False]
                 else:
                     print(f'Validation successful!')
+                    results += [True]
         
         except Exception as e:
             print(f'Validation failed with exception: {e}')
             traceback.print_exc()
             return False
-        return passed
+        
+        print(f'Validation results: {results}')
+        return all(r for r in results)
 
     def _generate_ref(self):
         """ Generates reference results for all queries. """
