@@ -127,6 +127,20 @@ class Coder():
         
         return f'{op_name}({left_op},{right_op})'
     
+    def _case_code(self, operation):
+        """ Generate code representing case statement.
+        
+        Args:
+            operation: describes case statement
+        
+        Returns:
+            code realizing case statement
+        """
+        operands = operation['operands']
+        op_codes = [self._operation_code(op) for op in operands]
+        pred_code, if_code, else_code = op_codes
+        return f'smart_case({pred_code},{if_code},{else_code})'
+    
     def _cast_code(self, operation):
         """ Generate code for a casting operation.
         
@@ -528,8 +542,12 @@ class Coder():
                 return self._nary_boolean_code(operation)
             if syntax == 'BINARY' or name in ['+', '-']:
                 return self._binary_code(operation)
+            if name == 'CASE':
+                return self._case_code(operation)
             if name == 'CAST':
                 return self._cast_code(operation)
+            if name == 'EXTRACT':
+                return self._extract_code(operation)
             if name in [
                 'NOT', 'IS NULL', 'IS NOT NULL', 
                 'IS TRUE', 'IS NOT TRUE', 
@@ -537,8 +555,8 @@ class Coder():
                 return self._unary_code(operation)
             if name == 'LIKE':
                 return self._like_code(operation)
-            if name == 'EXTRACT':
-                return self._extract_code(operation)
+            if name == 'SUBSTRING':
+                return self._substring_code(operation)
         
         raise ValueError(f'Unhandled operation: {operation}')
     
@@ -649,6 +667,20 @@ class Coder():
             parts += [f'r = nr_rows({result}[0]) if {result} else 0']
             parts += [f'print([c[:min(r,10)] for c in {result}])']
         return '\n'.join(parts)
+    
+    def _substring_code(self, operation):
+        """ Generates code for extracting substrings.
+        
+        Args:
+            operation: describes substring extraction
+        
+        Returns:
+            code for extracting substrings
+        """
+        operands = operation['operands']
+        op_codes = [self._operation_code(op) for op in operands]
+        src, start, length = op_codes
+        return f'smart_substring({src},{start},{length})'
     
     def _unary_code(self, operation):
         """ Translates unary operation into code.

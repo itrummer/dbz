@@ -293,3 +293,41 @@ def smart_date_extract(from_date, field):
         return scalar_extract(from_date, field)
     else:
         return map_column(from_date, lambda d: scalar_extract(d, field))
+
+
+def smart_case(predicate, if_value, else_value):
+    """ Executes case statement on scalars or columns.
+    
+    Args:
+        predicate: predicate evaluation results (either scalar or column)
+        if_value: value if predicate is satisfied (scalar or column)
+        else_value: value if predicate is false (scalar or column)
+    
+    Returns:
+        column or scalar with result of case statement
+    """
+    operands = [predicate, if_value, else_value]
+    if all(is_scalar(op) for op in operands):
+        return if_value if predicate else else_value
+    else:
+        scale_to = max([nr_rows(op) for op in operands])
+        scaled_ops = [expand_to(op, scale_to) for op in operands]
+        predicate, if_value, else_value = scaled_ops
+        return if_else(predicate, if_value, else_value)
+
+
+def smart_substring(src, start, length):
+    """ Extracts substrings from columns or scalars.
+    
+    Args:
+        src: extract substrings from this column or scalar
+        start: start index of extracted substring
+        length: length of extracted substring
+    
+    Returns:
+        extracted substring(s) (column or scalar)
+    """
+    assert not is_scalar(src), 'Error - cannot extract from scalar source'
+    assert is_scalar(start), 'Error - only scalar start indexes supported'
+    assert is_scalar(end), 'Error - only scalar length values supported'
+    return substring(src, start, length)
