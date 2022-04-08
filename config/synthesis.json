@@ -114,7 +114,7 @@
 	
 	
 	{"type":"generate", "task_id":"equi_join", "context":[],
-		"template":"equi_join.py", "substitutions":{}},
+		"template":"hash_join.py", "substitutions":{}},
 	{"type":"check", "queries":["select * from customer, orders where c_custkey = o_custkey"]},
 
 	
