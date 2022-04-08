@@ -96,11 +96,6 @@
 		"substitutions":{"binary_op":"greater_than_or_equal", "<short_op>":">="}},
 	{"type":"check", 
 		"queries":["select * from lineitem where l_extendedprice >= 13309.60"]},
-	
-	{"type":"generate", "task_id":"case", "context":[],
-		"template":"case.py", "substitutions":{}},
-	{"type":"check", 
-		"queries":["select case when l_extendedprice < 25000 then 1 else 0 end from lineitem"]},
 		
 	
 	
@@ -126,8 +121,13 @@
 		"template":"count.py", "substitutions":{}},
 	{"type":"check", "queries":["select count(*) from lineitem"]},
 	
+	{"type":"generate", "task_id":"case", "context":[],
+		"template":"case.py", "substitutions":{}},
+	{"type":"check", 
+		"queries":["select case when l_extendedprice < 25000 then 1 else 0 end from lineitem"]},
+
 	
-	
+		
 	{"type":"generate", "task_id":"to_tuples", "context":[], 
 		"template":"to_tuples.py", "substitutions":{}},
 	{"type":"generate", "task_id":"rows_to_columns", "context":[], 
