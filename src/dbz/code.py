@@ -634,7 +634,7 @@ class Coder():
         parts = []
         parts += [f'# Operation ID: {op_id}; Operator: {rel_op}']
         inputs = [self._result_name(in_) for in_ in step['inputs']] + ['[]']
-        if len(inputs) == 1:
+        if len(inputs) == 2:
             parts += [f'input_rel = ' + ' + '.join(inputs)]
         handler = f'_{rel_op}'
         parts += [getattr(self, handler)(step)]
