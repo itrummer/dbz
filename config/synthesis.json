@@ -116,6 +116,8 @@
 	
 	{"type":"generate", "task_id":"fill_column", "context":[],
 		"template":"fill_column.py", "substitutions":{}},
+	{"type":"generate", "task_id":"rows_to_columns", "context":[], 
+		"template":"rows_to_columns.py", "substitutions":{}},
 	{"type":"generate", "task_id":"is_null", "context":[],
 		"template":"is_null.py", "substitutions":{}},
 	{"type":"check", 
@@ -155,8 +157,6 @@
 		
 	{"type":"generate", "task_id":"to_tuples", "context":[], 
 		"template":"to_tuples.py", "substitutions":{}},
-	{"type":"generate", "task_id":"rows_to_columns", "context":[], 
-		"template":"rows_to_columns.py", "substitutions":{}},
 		
 	{"type":"generate", "task_id":"grouped_sum", "context":[], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"sum"}},
