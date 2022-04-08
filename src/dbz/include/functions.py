@@ -310,7 +310,7 @@ def smart_case(predicate, if_value, else_value):
     if all(is_scalar(op) for op in operands):
         return if_value if predicate else else_value
     else:
-        scale_to = max([nr_rows(op) for op in operands])
+        scale_to = max([nr_rows(op) for op in operands if not is_scalar(op)])
         scaled_ops = [expand_to(op, scale_to) for op in operands]
         predicate, if_value, else_value = scaled_ops
         return if_else(predicate, if_value, else_value)
