@@ -378,6 +378,7 @@ class Coder():
                 f'complete_outer(to_row_format(' +\
                 f'{operands[1]}),1,{nr_out_cols},{result})']
         parts += [f'{result} = rows_to_columns({result},{nr_out_cols})']
+        parts += [f'input_rel = {result}']
         
         filter_codes = []
         filter_preds = [c for c in conjuncts if not is_eq_col_pred(c)]
@@ -633,7 +634,8 @@ class Coder():
         parts = []
         parts += [f'# Operation ID: {op_id}; Operator: {rel_op}']
         inputs = [self._result_name(in_) for in_ in step['inputs']] + ['[]']
-        parts += [f'input_rel = ' + ' + '.join(inputs)]
+        if len(inputs) == 1:
+            parts += [f'input_rel = ' + ' + '.join(inputs)]
         handler = f'_{rel_op}'
         parts += [getattr(self, handler)(step)]
         result = self._result_name(op_id)
