@@ -329,5 +329,5 @@ def smart_substring(src, start, length):
     """
     assert not is_scalar(src), 'Error - cannot extract from scalar source'
     assert is_scalar(start), 'Error - only scalar start indexes supported'
-    assert is_scalar(end), 'Error - only scalar length values supported'
+    assert is_scalar(length), 'Error - only scalar length values supported'
     return substring(src, start, length)
