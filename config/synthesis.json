@@ -96,7 +96,32 @@
 		"substitutions":{"binary_op":"greater_than_or_equal", "<short_op>":">="}},
 	{"type":"check", 
 		"queries":["select * from lineitem where l_extendedprice >= 13309.60"]},
-		
+
+
+
+	{"type":"generate", "task_id":"and", "context":[], 
+		"template":"boolean_compound.py", "substitutions":{"<operator>":"and"}},
+	{"type":"check", 
+		"queries":["select * from lineitem where l_extendedprice < 14000 and l_extendedprice > 12000 and l_extendedprice > 13000"]},
+	
+	{"type":"generate", "task_id":"or", "context":[], 
+		"template":"boolean_compound.py", "substitutions":{"<operator>":"or"}},
+	{"type":"check", 
+		"queries":["select * from lineitem where l_extendedprice < 14000 or l_extendedprice > 12000 or l_extendedprice < 13000"]},
+	
+	{"type":"generate", "task_id":"not", "context":[], "template":"unary.py", 
+		"substitutions":{"<operator>":"logical_not", "<InputDescription>":"with Boolean values"}},
+	{"type":"check", 
+		"queries":["select * from lineitem where not (l_extendedprice < 13000)"]},
+	
+	{"type":"generate", "task_id":"is_null", "context":[],
+		"template":"is_null.py", "substitutions":{}},
+	{"type":"check", 
+		"queries":[
+		"select l_extendedprice is null from lineitem",
+		"select null is true", "select null is false", "select null is null", 
+		"select null is not true", "select null is not false", "select null is not null"]},		
+	
 	
 	
 	{"type":"generate", "task_id":"fill_column", "context":[],
@@ -165,30 +190,6 @@
 	{"type":"generate", "task_id":"equi_join", "context":[],
 		"template":"hash_join.py", "substitutions":{}},
 	{"type":"check", "queries":["select * from customer, orders where c_custkey = o_custkey"]},
-	
-	
-	{"type":"generate", "task_id":"and", "context":[], 
-		"template":"boolean_compound.py", "substitutions":{"<operator>":"and"}},
-	{"type":"check", 
-		"queries":["select * from lineitem where l_extendedprice < 14000 and l_extendedprice > 12000 and l_extendedprice > 13000"]},
-	
-	{"type":"generate", "task_id":"or", "context":[], 
-		"template":"boolean_compound.py", "substitutions":{"<operator>":"or"}},
-	{"type":"check", 
-		"queries":["select * from lineitem where l_extendedprice < 14000 or l_extendedprice > 12000 or l_extendedprice < 13000"]},
-	
-	{"type":"generate", "task_id":"not", "context":[], "template":"unary.py", 
-		"substitutions":{"<operator>":"logical_not", "<InputDescription>":"with Boolean values"}},
-	{"type":"check", 
-		"queries":["select * from lineitem where not (l_extendedprice < 13000)"]},
-	
-	{"type":"generate", "task_id":"is_null", "context":[],
-		"template":"is_null.py", "substitutions":{}},
-	{"type":"check", 
-		"queries":[
-		"select l_extendedprice is null from lineitem",
-		"select null is true", "select null is false", "select null is null", 
-		"select null is not true", "select null is not false", "select null is not null"]},
 	
 	
 
