@@ -141,6 +141,11 @@ class Coder():
         operand = operands[0]
         operand_code = self._operation_code(operand)
         
+        old_type = {k:v for k, v in operand['type'].items() if k != 'nullable'}
+        new_type = {k:v for k, v in operation['type'].items() if k != 'nullable'}
+        if old_type == new_type:
+            return operand_code
+        
         scale_before = self._get_scale(operand)
         scale_after = self._get_scale(operation)
         scale_before = 0 if scale_before is None else scale_before
@@ -149,15 +154,14 @@ class Coder():
             diff = scale_after - scale_before
             operand_code = f'multiplication({operand_code},1e{diff})'
         
-        old_type = {k:v for k, v in operand['type'].items() if k != 'nullable'}
-        new_type = {k:v for k, v in operation['type'].items() if k != 'nullable'}
-        if old_type == new_type:
-            return operand_code
-        
+        old_type_name = old_type['type'].lower()
         new_type_name = new_type['type'].lower()
         if new_type_name == 'integer':
             # TODO: needs to be cleaned up
             return f'map_column({operand_code}, lambda r:round(r+1e-10))'
+        elif old_type_name == 'CHAR' and new_type_name == 'CHAR':
+            pad_to = new_type['precision']
+            return f'smart_padding({operand_code},{pad_to})'
         else:
             return f'cast_to_{new_type_name}({operand_code})'
     
