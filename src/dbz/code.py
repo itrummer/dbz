@@ -337,17 +337,25 @@ class Coder():
         params = [f'to_row_format({p})' for p in params]
         join_pred = step['condition']
         conjuncts = dbz.util.get_conjuncts(join_pred)
-        assert(all(pred['op']['kind'] == 'EQUALS' for pred in conjuncts))
         
+        def is_eq_col_pred(pred):
+            """ Returns true iff equality between two columns. """
+            if pred['op']['kind'] == 'EQUALS' and \
+                all('input' in op for op in pred['operands']):
+                return True
+            else:
+                return False
+
         eq_cols = []
-        for eq_pred in conjuncts:
-            col_idxs = [op['input'] for op in eq_pred['operands']]
+        join_preds = [c for c in conjuncts if is_eq_col_pred(c)]
+        for join_pred in join_preds:
+            col_idxs = [op['input'] for op in join_pred['operands']]
             col_idx_1 = min(col_idxs)
             col_idx_2_raw = max(col_idxs)
             in_1_name = self._result_name(inputs[0])
             col_idx_2 = f'{col_idx_2_raw}-len({in_1_name})'
             eq_cols += [f'({col_idx_1},{col_idx_2})']
-            
+
         params += [f'[{", ".join(eq_cols)}]']
         op_code = f'equi_join({", ".join(params)})'
         
@@ -365,8 +373,16 @@ class Coder():
                 f'{result} = {result} + ' +\
                 f'complete_outer(to_row_format(' +\
                 f'{operands[1]}),1,{nr_out_cols},{result})']
-        
         parts += [f'{result} = rows_to_columns({result},{nr_out_cols})']
+        
+        filter_codes = []
+        filter_preds = [c for c in conjuncts if not is_eq_col_pred(c)]
+        for filter_pred in filter_preds:
+            filter_code = self._operation_code(filter_pred)
+            filter_codes += [filter_code]
+        parts += [f'keep_row = smart_logical_and({str(filter_codes)})']
+        parts += [f'{result} = [filter_column(c,keep_row) for c in {result}]']
+        
         return '\n'.join(parts)
     
     def _LogicalProject(self, step):
