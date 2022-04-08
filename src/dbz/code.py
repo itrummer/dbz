@@ -159,7 +159,7 @@ class Coder():
         if new_type_name == 'integer':
             # TODO: needs to be cleaned up
             return f'map_column({operand_code}, lambda r:round(r+1e-10))'
-        elif old_type_name == 'CHAR' and new_type_name == 'CHAR':
+        elif old_type_name == 'char' and new_type_name == 'char':
             pad_to = new_type['precision']
             return f'smart_padding({operand_code},{pad_to})'
         else:
