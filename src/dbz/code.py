@@ -595,6 +595,7 @@ class Coder():
         """
         scale_1 = 0 if scale_1 is None else scale_1
         scale_2 = 0 if scale_2 is None else scale_2
+        result_scale = 0 if result_scale is None else result_scale
         if op_kind in ['PLUS', 'MINUS']:
             return result_scale - scale_1, result_scale - scale_2
         elif op_kind == 'TIMES':
