@@ -5,6 +5,7 @@ Created on Mar 9, 2022
 '''
 import argparse
 import dbz.synthesize
+import json
 import openai
 
 if __name__ == '__main__':
@@ -20,8 +21,13 @@ if __name__ == '__main__':
     synthesizer = dbz.synthesize.Synthesizer(
         args.config, args.data_nl, 
         args.operator_nl)
-    library = synthesizer.synthesize()
+    library, stats = synthesizer.synthesize()
+    print('*** GENERATED LIBRARY ***')
     print(library)
+    print('*** SYNTHESIS STATISTICS ***')
+    print(stats)
     
     with open('library.py', 'w') as file:
         file.write(library)
+    with open('synthesis_stats.json', 'w') as file:
+        json.dump(stats, file)

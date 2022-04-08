@@ -53,6 +53,10 @@
 		"template":"cast.py", "substitutions":{"<ToType>":"varchar"}},
 	{"type":"check", "queries":["select cast(l_extendedprice as varchar(100)) from lineitem"]},
 	
+	{"type":"generate", "task_id":"substring", "context":[],
+		"template":"substring.py", "substitutions":{}},
+	{"type":"check", "queries":["select substring(l_comment, 1, 3) from lineitem"]},
+	
 	
 	
 	{"type":"generate", "task_id":"fill_column", "context":[],

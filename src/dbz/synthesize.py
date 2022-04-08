@@ -33,7 +33,7 @@ class Synthesizer():
         """ Synthesize code for DBMS engine. 
         
         Returns:
-            code defining table and operator implementations
+            code defining table and operator implementations, statistics
         """
         print('Starting DBMS code synthesis ...')
         tasks = self.config['tasks']
@@ -42,10 +42,19 @@ class Synthesizer():
         task_idx = 0
         last_passed = -1
         
+        stats = {}
         while task_idx < nr_tasks:
             cur_task = tasks[task_idx]
             task_type = cur_task['type']
             print(f'Treating task {cur_task} ...')
+            
+            task_stats = {}
+            task_stats['task_idx'] = task_idx
+            task_stats['task'] = cur_task
+            task_stats['temperature'] = temperature
+            stats += [task_stats]
+            
+            start_s = time.time()
             if task_type == 'generate':
                 solution = self._generate(cur_task, temperature)
                 task_id = cur_task['task_id']
@@ -71,8 +80,11 @@ class Synthesizer():
                                 self.solved_tasks += [task_id]
             else:
                 raise ValueError(f'Unknown task type: {task_type}')
+            
+            total_s = start_s - time.time()
+            stats['total_s'] = total_s
         
-        return self._library()
+        return self._library(), stats
     
     def _complete(self, prompt, temperature, stop):
         """ Use OpenAI's GPT-3 Codex model for completion.
