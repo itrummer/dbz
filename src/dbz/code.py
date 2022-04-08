@@ -378,15 +378,16 @@ class Coder():
                 f'complete_outer(to_row_format(' +\
                 f'{operands[1]}),1,{nr_out_cols},{result})']
         parts += [f'{result} = rows_to_columns({result},{nr_out_cols})']
-        parts += [f'input_rel = {result}']
         
-        filter_codes = []
         filter_preds = [c for c in conjuncts if not is_eq_col_pred(c)]
-        for filter_pred in filter_preds:
-            filter_code = self._operation_code(filter_pred)
-            filter_codes += [filter_code]
-        parts += [f'keep_row = smart_logical_and([{", ".join(filter_codes)}])']
-        parts += [f'{result} = [filter_column(c,keep_row) for c in {result}]']
+        if filter_preds:
+            parts += [f'input_rel = {result}']
+            filter_codes = []
+            for filter_pred in filter_preds:
+                filter_code = self._operation_code(filter_pred)
+                filter_codes += [filter_code]
+            parts += [f'p_idx = smart_logical_and([{", ".join(filter_codes)}])']
+            parts += [f'{result} = [filter_column(c,p_idx) for c in {result}]']
         
         return '\n'.join(parts)
     
