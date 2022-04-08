@@ -42,7 +42,7 @@ class Synthesizer():
         task_idx = 0
         last_passed = -1
         
-        stats = {}
+        stats = []
         while task_idx < nr_tasks:
             cur_task = tasks[task_idx]
             task_type = cur_task['type']
