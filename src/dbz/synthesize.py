@@ -82,7 +82,7 @@ class Synthesizer():
                 raise ValueError(f'Unknown task type: {task_type}')
             
             total_s = start_s - time.time()
-            stats['total_s'] = total_s
+            task_stats['total_s'] = total_s
         
         return self._library(), stats
     
