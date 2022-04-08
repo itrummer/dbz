@@ -643,9 +643,10 @@ class Coder():
         # parts += [f'{result}=[normalize(c) for c in {result}]']
         parts += [f'last_result = {result}']
         if self.print_results:
-            parts += [f'r = nr_rows({result}[0]) if {result} else 0']
-            parts += [f'print(f"Size of {result}: {{[nr_rows(c) for c in {result}]}}")']
+            parts += [f'print(f"Column sizes in {result}: ' +\
+                      f'{{[nr_rows(c) for c in {result}]}}")']
             parts += [f'print(f"Sample from {result}:")']
+            parts += [f'r = nr_rows({result}[0]) if {result} else 0']
             parts += [f'print([c[:min(r,10)] for c in {result}])']
         return '\n'.join(parts)
     
