@@ -1,0 +1,3 @@
+TPC-H Q19 now successful - 
+  however, reduced variant in test.sql does not yet work 
+  (0 vs. NULL result for aggregate sum without grouping with empty input)
