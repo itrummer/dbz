@@ -40,6 +40,7 @@ class Validator():
             True if validation succeeds
         """
         print('Validation in progress ...')
+        passed = True
         try:
             for idx, query in enumerate(self.queries, 1):
                 print(f'Treating query {idx}/{self.nr_queries} ...')
@@ -47,7 +48,8 @@ class Validator():
                 success = engine.execute(query, check_path)
                 print(f'Execution successful: {success}')
                 if not success:
-                    return False
+                    passed = False
+                    continue
                 
                 ref_path = f'{self.paths.tmp_dir}/ref_{idx}'
                 print('Start of test result:')
@@ -98,7 +100,7 @@ class Validator():
 
                 if nr_diffs:
                     print(f'Result comparison failed for query {query}!')
-                    return False
+                    passed = False
                 else:
                     print(f'Validation successful!')
         
@@ -106,7 +108,7 @@ class Validator():
             print(f'Validation failed with exception: {e}')
             traceback.print_exc()
             return False
-        return True
+        return passed
 
     def _generate_ref(self):
         """ Generates reference results for all queries. """
