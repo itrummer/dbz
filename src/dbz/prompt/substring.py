@@ -6,7 +6,7 @@ def substring(column, start, length):
     
     Args:
         column: a column (which <DataInstructions>) of strings
-        start: start index of substring
+        start: start index of substring (count starts with 1)
         length: length of substring
     
     Returns:
