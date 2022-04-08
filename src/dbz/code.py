@@ -385,7 +385,7 @@ class Coder():
         for filter_pred in filter_preds:
             filter_code = self._operation_code(filter_pred)
             filter_codes += [filter_code]
-        parts += [f'keep_row = smart_logical_and({", ".join(filter_codes)})']
+        parts += [f'keep_row = smart_logical_and([{", ".join(filter_codes)}])']
         parts += [f'{result} = [filter_column(c,keep_row) for c in {result}]']
         
         return '\n'.join(parts)
