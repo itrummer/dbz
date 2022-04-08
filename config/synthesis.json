@@ -114,6 +114,8 @@
 	{"type":"check", 
 		"queries":["select * from lineitem where not (l_extendedprice < 13000)"]},
 	
+	{"type":"generate", "task_id":"fill_column", "context":[],
+		"template":"fill_column.py", "substitutions":{}},
 	{"type":"generate", "task_id":"is_null", "context":[],
 		"template":"is_null.py", "substitutions":{}},
 	{"type":"check", 
@@ -124,8 +126,6 @@
 	
 	
 	
-	{"type":"generate", "task_id":"fill_column", "context":[],
-		"template":"fill_column.py", "substitutions":{}},
 	{"type":"generate", "task_id":"sum", "context":[], 
 		"template":"aggregate.py", "substitutions":{"<aggregate>":"sum"}},
 	{"type":"check", "queries":["select sum(l_extendedprice) from lineitem"]},
