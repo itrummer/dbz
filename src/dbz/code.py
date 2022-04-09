@@ -125,6 +125,9 @@ class Coder():
                 left_op = f'smart_padding({left_op}, {pad_to})'
                 right_op = f'smart_padding({right_op},{pad_to})'
         
+        elif all(t in ['DATE'] for t in op_types):
+            pass
+        
         else:
             raise NotImplementedError(
                 f'Unsupported types for binary operation: {op_types}; ' +\
