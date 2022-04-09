@@ -212,8 +212,9 @@ class Coder():
         assert(source['type']['type'] == 'DATE')
         source_code = self._operation_code(source)
         field = operation['operands'][0]['literal'].lower()
-        assert(field in ['year', 'month', 'day'])
-        return f'smart_date_extract({source_code},{field})'
+        assert field in ['year', 'month', 'day'], \
+            f'Unsupported extraction: {field}'
+        return f'smart_date_extract({source_code},"{field}")'
     
     def _get_precision(self, node):
         """ Extract precision for chars and numeric nodes.
