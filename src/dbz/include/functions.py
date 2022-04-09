@@ -197,7 +197,7 @@ def complete_outer(in_rows, side, nr_all_cols, inner_rows):
     matched = set()
     for inner_row in inner_rows:
         start_idx = 0 if side == 0 else nr_other_cols
-        ex_end_idx = nr_other_cols if side == 0 else nr_all_cols
+        ex_end_idx = nr_in_cols if side == 0 else nr_all_cols
         inner_tuple = tuple(inner_row)
         projected = inner_tuple[start_idx:ex_end_idx]
         matched.add(projected)
