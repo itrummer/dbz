@@ -322,7 +322,11 @@ class Coder():
         else:
         
             for agg in aggs:
-                parts += [self._agg_code(agg, groups)]
+                parts += [f'if input_rel and nr_rows(input_rel[0]):']
+                parts += ['\t' + self._agg_code(agg, groups)]
+                parts += ['else:']
+                def_val = 0 if agg['agg']['kind'] == 'COUNT' else None
+                parts += [f'\tagg_result = {def_val}']
                 parts += [f'{result} += [agg_result]']
         
         parts += [f'{result} = adjust_after_aggregate({result}, {grouping})']
