@@ -193,7 +193,7 @@ def complete_outer(in_rows, side, nr_all_cols, inner_rows):
         return []
     
     nr_in_cols = len(in_rows[0])
-    nr_other_cols = nr_all_cols + nr_in_cols
+    nr_other_cols = nr_all_cols - nr_in_cols
     matched = set()
     for inner_row in inner_rows:
         start_idx = 0 if side == 0 else nr_other_cols
