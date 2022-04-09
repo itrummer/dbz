@@ -1,4 +1,5 @@
 select
+			c_custkey,
 			substring(c_phone from 1 for 2) as cntrycode,
 			c_acctbal
 		from
