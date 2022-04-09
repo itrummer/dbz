@@ -115,7 +115,7 @@ class Coder():
             left_op = f'multiplication({left_op}, 1e{diff_1})' if diff_1 else left_op
             right_op = f'multiplication({right_op}, 1e{diff_2})' if diff_2 else right_op
         
-        elif all(t in ['CHAR'] for t in op_types):
+        elif all(t in ['CHAR', 'VARCHAR'] for t in op_types):
             precision_1 = self._get_precision(operands[0])
             precision_2 = self._get_precision(operands[1])
             precision_1 = 0 if precision_1 is None else precision_1
@@ -124,6 +124,11 @@ class Coder():
                 pad_to = max(precision_1, precision_2)
                 left_op = f'smart_padding({left_op}, {pad_to})'
                 right_op = f'smart_padding({right_op},{pad_to})'
+        
+        else:
+            raise NotImplementedError(
+                f'Unsupported types for binary operation: {op_types}; ' +\
+                    f'operation: {operation}')
         
         return f'{op_name}({left_op},{right_op})'
     
