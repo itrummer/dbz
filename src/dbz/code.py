@@ -590,8 +590,9 @@ class Coder():
                     scale = col_type['scale']
                     parts += [
                         f'last_result[{col_idx}] = ' +\
-                        f'multiplication(last_result[{col_idx}], ' +\
-                        f'1e-{scale})']
+                            f'multiplication(last_result[{col_idx}], ' +\
+                                f'fill_column(1e-{scale},' +\
+                                f'nr_rows(last_result[{col_idx}])))']
             elif base_type in ['CHAR']:
                 length = col_type['precision']
                 parts += [
