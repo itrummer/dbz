@@ -3,23 +3,23 @@ Created on Mar 28, 2022
 
 @author: immanueltrummer
 '''
-def is_scalar(value):
-    """ Returns true iff the value is scalar (i.e., not a column).
+def is_scalar(column):
+    """ Returns true iff the column has one element.
     
     Args:
-        value: either a scalar value or a column
+        column: a column
     
     Returns:
-        true iff the value is scalar (not a column)
+        true iff the column contains one scalar value
     """
-    if value is None or isinstance(value, (bool, int, float, str)):
+    if nr_rows(column) == 1:
         return True
     else:
         return False
 
 
 def expand_to(col_or_const, length):
-    """ Expand first operand to column of specified length if required.
+    """ Expand column to specified length if required.
     
     Args:
         col_or_const: either a column or a constant
@@ -29,100 +29,10 @@ def expand_to(col_or_const, length):
         the first operand if it is a column or a column containing constant value
     """
     if is_scalar(col_or_const):
-        return fill_column(col_or_const, length)
+        value = get_value(column, 0)
+        return fill_column(value, length)
     else:
         return col_or_const
-
-
-def smart_is_null(operand):
-    """ Check whether operand (column or constant) is null.
-    
-    Args:
-        operand: a column or a constant
-    
-    Returns:
-        True wherever operand is null
-    """
-    if operand is None:
-        return True
-    elif isinstance(operand, (bool, int, float, str)):
-        return False
-    else:
-        # Reference synthesized code piece
-        return is_null(operand)
-
-
-def smart_logical_not(operand):
-    """ Negate operand, terating columns and constants separately.
-    
-    Args:
-        operand: either a column or a constant
-    
-    Returns:
-        negated operand
-    """
-    if is_scalar(operand):
-        return not operand
-    else:
-        return logical_not(operand)
-    
-
-def smart_logical_and(operands):
-    """ Check whether conjunction evaluates to true.
-    
-    Args:
-        operands: a list containing scalar operands or columns
-    
-    Returns:
-        Boolean result (either constant or column)
-    """
-    cols = []
-    has_nulls = False
-    for operand in operands:
-        if is_scalar(operand):
-            if operand is None:
-                has_nulls = True
-            elif operand == False:
-                return False
-        else:
-            cols += [operand]
-    
-    if cols:
-        if has_nulls:
-            raise NotImplementedError('Not implemented: AND with scalar NULL')
-        else:
-            return logical_and(cols)
-    else:
-        return None if has_nulls else True
-
-
-def smart_logical_or(operands):
-    """ Check whether disjunction evaluates to true.
-    
-    Args:
-        operands: a list containing scalar operands or columns
-    
-    Returns:
-        a Boolean result (either a Boolean column or a scalar value)
-    """
-    cols = []
-    has_nulls = False
-    for operand in operands:
-        if is_scalar(operand):
-            if operand is None:
-                has_nulls = True
-            elif operand == True:
-                return True
-        else:
-            cols += [operand]
-    
-    if cols:
-        if has_nulls:
-            raise NotImplementedError('Not implemented: OR with scalar NULL')
-        else:
-            return logical_or(cols)
-    else:
-        return None if has_nulls else False
 
 
 def adjust_after_project(input_rel, output_rel):
@@ -135,16 +45,10 @@ def adjust_after_project(input_rel, output_rel):
     Returns:
         output relation with appropriate column height
     """
-    out_rows = nr_rows(input_rel[0]) if input_rel else 0
-    adjusted = []
-    for value in output_rel:
-        if is_scalar(value):
-            column = fill_column(value, out_rows)
-            adjusted += [column]
-        else:
-            adjusted += [value]
-    
-    return adjusted
+    if input_rel:
+        return fix_rel([input_rel[0]] + output_rel)[1:]
+    else:
+        return output_rel
 
 
 def adjust_after_aggregate(output_rel, grouping):
@@ -167,9 +71,9 @@ def adjust_after_aggregate(output_rel, grouping):
         out_rows = 1
     
     adjusted = []
-    for value in output_rel:
-        if is_scalar(value):
-            column = fill_column(value, out_rows)
+    for column in output_rel:
+        if is_scalar(column):
+            column = fill_column(get_value(column, 0), out_rows)
             adjusted += [column]
         else:
             adjusted += [value]
@@ -225,10 +129,7 @@ def smart_padding(operand, pad_to):
     Returns:
         padded operand
     """
-    if is_scalar(operand):
-        return operand.ljust(pad_to)
-    else:
-        return map_column(operand, lambda s:s.ljust(pad_to))
+    return map_column(operand, lambda s:s.ljust(pad_to))
 
 
 def prepare_aggregate(input_rel, op_cols, row_id_column, distinct):
@@ -288,32 +189,8 @@ def smart_date_extract(from_date, field):
             datetime.datetime(1970,1,1) +\
             datetime.timedelta(days=from_date), 
             field)
-    
-    if is_scalar(from_date):
-        return scalar_extract(from_date, field)
-    else:
-        return map_column(from_date, lambda d: scalar_extract(d, field))
-
-
-def smart_case(predicate, if_value, else_value):
-    """ Executes case statement on scalars or columns.
-    
-    Args:
-        predicate: predicate evaluation results (either scalar or column)
-        if_value: value if predicate is satisfied (scalar or column)
-        else_value: value if predicate is false (scalar or column)
-    
-    Returns:
-        column or scalar with result of case statement
-    """
-    operands = [predicate, if_value, else_value]
-    if all(is_scalar(op) for op in operands):
-        return if_value if predicate else else_value
-    else:
-        scale_to = max([nr_rows(op) for op in operands if not is_scalar(op)])
-        scaled_ops = [expand_to(op, scale_to) for op in operands]
-        predicate, if_value, else_value = scaled_ops
-        return if_else(predicate, if_value, else_value)
+        
+    return map_column(from_date, lambda d: scalar_extract(d, field))
 
 
 def smart_substring(src, start, length):
@@ -330,4 +207,27 @@ def smart_substring(src, start, length):
     assert not is_scalar(src), 'Error - cannot extract from scalar source'
     assert is_scalar(start), 'Error - only scalar start indexes supported'
     assert is_scalar(length), 'Error - only scalar length values supported'
-    return substring(src, start, length)
+    return substring(src, get_value(start, 0), get_value(length, 0))
+
+
+def fix_rel(columns):
+    """ Fix relation by scaling up scalar columns. 
+    
+    Args:
+        columns: list of columns
+    
+    Returns:
+        columns of equal size
+    """
+    if columns:
+        max_length = max([nr_rows(c) for c in columns])
+        assert all(nr_rows(c) in [1, max_length] for c in columns)
+        scaled_cols = []
+        for col in columns:
+            if nr_rows(col) < max_length:
+                value = get_value(col, 0)
+                col = fill_column(value, max_length)
+            scaled_cols.append(col)
+        return scaled_cols
+    else:
+        return []

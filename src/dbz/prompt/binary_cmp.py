@@ -1,10 +1,10 @@
-def binary_op(operand_1, operand_2):
+def <binary_op>(column_1, column_2):
     """ True where operand_1 <short_op> operand_2.
     
     Args:
-        operand_1: either a column (which <DataInstructions>) or a constant
-        operand_2: either a column (which <DataInstructions>) or a constant
+        column_1: a column (which <DataInstructions>)
+        column_2: a column (which <DataInstructions>)
     
     Returns:
-        column (which <DataInstructions>) of Boolean values
+        result column (which <DataInstructions>) of Boolean values, NULL where any of the operands is NULL
     """

@@ -21,11 +21,18 @@
 	{"type":"generate", "task_id":"multiplication", "context":[],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"multiplication"}},
 	
+	{"type":"generate", "task_id":"get", "context":[],
+		"template":"get.py", "substitutions":{}},
+
+	{"type":"generate", "task_id":"fill_column", "context":[],
+		"template":"fill_column.py", "substitutions":{}},
+		
 	{"type":"generate", "task_id":"addition", "context":[],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"addition"}},
 	{"type":"check", "queries":[
 		"select l_extendedprice + 0.1 from lineitem",
-		"select l_extendedprice * 10 from lineitem"]},
+		"select l_extendedprice * 10 from lineitem",
+		"select l_extendedprice + NULL from lineitem"]},
 	
 	{"type":"generate", "task_id":"subtraction", "context":[],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"subtraction"}},
@@ -63,37 +70,37 @@
 		"template":"filter.py", "substitutions":{}},
 	{"type":"generate", "task_id":"less_than", "context":[],
 		"template":"binary_cmp.py", 
-		"substitutions":{"binary_op":"less_than", "<short_op>":"<"}},
+		"substitutions":{"<binary_op>":"less_than", "<short_op>":"<"}},
 	{"type":"check", 
 		"queries":["select * from lineitem where l_extendedprice < 13309.60"]},
 	
 	{"type":"generate", "task_id":"greater_than", "context":[],
 		"template":"binary_cmp.py", 
-		"substitutions":{"binary_op":"greater_than", "<short_op>":">"}},
+		"substitutions":{"<binary_op>":"greater_than", "<short_op>":">"}},
 	{"type":"check", 
 		"queries":["select * from lineitem where l_extendedprice > 13309.60"]},
 	
 	{"type":"generate", "task_id":"equal_to", "context":[],
 		"template":"binary_cmp.py", 
-		"substitutions":{"binary_op":"equal", "<short_op>":"="}},
+		"substitutions":{"<binary_op>":"equal", "<short_op>":"="}},
 	{"type":"check", 
 		"queries":["select * from lineitem where l_extendedprice = 13309.60"]},
 	
 	{"type":"generate", "task_id":"not_equal_to", "context":[],
 		"template":"binary_cmp.py", 
-		"substitutions":{"binary_op":"not_equal", "<short_op>":"<>"}},
+		"substitutions":{"<binary_op>":"not_equal", "<short_op>":"<>"}},
 	{"type":"check", 
 		"queries":["select * from lineitem where l_extendedprice <> 13309.60"]},
 
 	{"type":"generate", "task_id":"less_than_or_equal", "context":[],
 		"template":"binary_cmp.py", 
-		"substitutions":{"binary_op":"less_than_or_equal", "<short_op>":"<="}},
+		"substitutions":{"<binary_op>":"less_than_or_equal", "<short_op>":"<="}},
 	{"type":"check", 
 		"queries":["select * from lineitem where l_extendedprice <= 13309.60"]},
 	
 	{"type":"generate", "task_id":"greater_than_or_equal", "context":[],
 		"template":"binary_cmp.py", 
-		"substitutions":{"binary_op":"greater_than_or_equal", "<short_op>":">="}},
+		"substitutions":{"<binary_op>":"greater_than_or_equal", "<short_op>":">="}},
 	{"type":"check", 
 		"queries":["select * from lineitem where l_extendedprice >= 13309.60"]},
 
@@ -114,8 +121,6 @@
 	{"type":"check", 
 		"queries":["select * from lineitem where not (l_extendedprice < 13000)"]},
 	
-	{"type":"generate", "task_id":"fill_column", "context":[],
-		"template":"fill_column.py", "substitutions":{}},
 	{"type":"generate", "task_id":"rows_to_columns", "context":[], 
 		"template":"rows_to_columns.py", "substitutions":{}},
 	{"type":"generate", "task_id":"is_null", "context":[],

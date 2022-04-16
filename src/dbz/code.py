@@ -133,7 +133,7 @@ class Coder():
                 f'Unsupported types for binary operation: {op_types}; ' +\
                     f'operation: {operation}')
         
-        return f'{op_name}({left_op},{right_op})'
+        return f'{op_name}(*prepare_binary({left_op},{right_op}))'
     
     def _case_code(self, operation):
         """ Generate code representing case statement.
@@ -147,7 +147,7 @@ class Coder():
         operands = operation['operands']
         op_codes = [self._operation_code(op) for op in operands]
         pred_code, if_code, else_code = op_codes
-        return f'smart_case({pred_code},{if_code},{else_code})'
+        return f'if_else(*fix_rel([{pred_code},{if_code},{else_code}]))'
     
     def _cast_code(self, operation):
         """ Generate code for a casting operation.
@@ -265,14 +265,12 @@ class Coder():
         scale = self._get_scale(literal)
         value = literal['literal']
         if scale is None:
-            
             data_type = literal['type']['type']
             if data_type in ['CHAR', 'VARCHAR', 'TEXT']:
-                return f"'{value}'"
-            else:
-                return value
+                value = f"'{value}'"
         else:
-            return f'round({value}*1e{scale})'
+            value = f'round({value}*1e{scale})'
+        return f'fill_column({value},1)'
     
     def _LogicalAggregate(self, step):
         """ Produce code for aggregates (optionally with grouping). 
@@ -530,10 +528,10 @@ class Coder():
             code realizing operation
         """
         op_kind = operation['op']['kind']
-        op_name = {'AND':'smart_logical_and', 'OR':'smart_logical_or'}[op_kind]
+        op_name = {'AND':'logical_and', 'OR':'logical_or'}[op_kind]
         operands = operation['operands']
         params = [self._operation_code(operand) for operand in operands]
-        return f'{op_name}([{", ".join(params)}])'
+        return f'{op_name}(*fix_rel([{", ".join(params)}]))'
     
     def _operation_code(self, operation):
         """ Generate code realizing given operation. 
@@ -711,14 +709,14 @@ class Coder():
         if kind in ['IS_NULL', 'IS_NOT_NULL']:
             op_code = f'smart_is_null({op_code})'
         elif kind in ['IS_TRUE', 'IS_NOT_TRUE']:
-            op_code = f'smart_logical_and([' +\
-                f'smart_logical_not(smart_is_null({op_code})),' +\
+            op_code = f'logical_and([' +\
+                f'logical_not(is_null({op_code})),' +\
                     f'{op_code}])'
         if kind in ['IS_FALSE', 'IS_NOT_FALSE']:
-            op_code = f'smart_logical_and([' +\
-                f'smart_logical_not(smart_is_null({op_code})),' +\
-                    f'smart_logical_not({op_code})])'
+            op_code = f'logical_and([' +\
+                f'logical_not(is_null({op_code})),' +\
+                    f'logical_not({op_code})])'
         if 'NOT' in kind:
-            return f'smart_logical_not({op_code})'
+            return f'logical_not({op_code})'
         else:
             return op_code
