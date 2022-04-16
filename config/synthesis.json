@@ -14,18 +14,16 @@
 		"template":"normalize.py", "substitutions":{}},
 	{"type":"generate", "task_id":"nr_rows", "context":[],
 		"template":"nr_rows.py", "substitutions":{}},
+	{"type":"generate", "task_id":"multiplication", "context":[],
+		"template":"binary_expression.py", 
+		"substitutions":{"<binary_op>":"multiplication"}},
+	{"type":"generate", "task_id":"get", "context":[],
+		"template":"get.py", "substitutions":{}},
+	{"type":"generate", "task_id":"fill_column", "context":[],
+		"template":"fill_column.py", "substitutions":{}},
 	{"type":"check", "queries":["select * from lineitem"]},
 	
 	
-	
-	{"type":"generate", "task_id":"multiplication", "context":[],
-		"template":"binary_expression.py", "substitutions":{"<binary_op>":"multiplication"}},
-	
-	{"type":"generate", "task_id":"get", "context":[],
-		"template":"get.py", "substitutions":{}},
-
-	{"type":"generate", "task_id":"fill_column", "context":[],
-		"template":"fill_column.py", "substitutions":{}},
 		
 	{"type":"generate", "task_id":"addition", "context":[],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"addition"}},
