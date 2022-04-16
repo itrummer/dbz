@@ -582,27 +582,32 @@ class Coder():
         """
         #parts = ['last_result = [normalize(c) for c in last_result]']
         parts = []
-        parts += ['last_result = to_row_format(last_result)']
-        parts += ['last_result = [list(r) for r in last_result]']
         col_types = final_step['outputType']['fields']
         for col_idx, col_type in enumerate(col_types):
             base_type = col_type['type']
             if base_type in ['DECIMAL', 'NUMERIC']:
                 if 'scale' in col_type:
                     scale = col_type['scale']
-                    parts += ['for row in last_result:']
-                    parts += [f'\trow[{col_idx}] *= 1e-{scale}']
+                    parts += [
+                        f'last_result[{col_idx}] = ' +\
+                        f'multiplication(last_result[{col_idx}], ' +\
+                        f'1e-{scale})']
             elif base_type in ['CHAR']:
                 length = col_type['precision']
-                parts += ['for row in last_result:']
-                parts += [f'\trow[{col_idx}] = row[{col_idx}].ljust({length})']
+                parts += [
+                    f'last_result[{col_idx}] = ' +\
+                    f'smart_padding(last_result[{col_idx}], ' +\
+                    f'{length})']
             elif base_type in ['DATE']:
                 parts += ['from datetime import date, timedelta']
                 parts += ["ref_date = date(1970,1,1)"]
-                parts += ['for row in last_result:']
-                parts += [f'\tdate_diff = timedelta(days=row[{col_idx}])']
-                parts += [f'\tnew_date = ref_date + date_diff']
-                parts += [f'\trow[{col_idx}] = str(new_date)']
+                parts += [
+                    f'last_result[{col_idx}] = ' +\
+                    f'map_column(last_result[{col_idx}],' +\
+                    f'lambda d:str(ref_date + timedelta(days=d)))']
+        
+        parts += ['last_result = to_row_format(last_result)']
+        parts += ['last_result = [list(r) for r in last_result]']
         return '\n'.join(parts)
     
     def _result_name(self, step_id):
