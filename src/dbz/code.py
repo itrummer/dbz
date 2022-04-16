@@ -133,7 +133,7 @@ class Coder():
                 f'Unsupported types for binary operation: {op_types}; ' +\
                     f'operation: {operation}')
         
-        return f'{op_name}(*prepare_binary({left_op},{right_op}))'
+        return f'{op_name}(*fix_rel([{left_op},{right_op}]))'
     
     def _case_code(self, operation):
         """ Generate code representing case statement.
