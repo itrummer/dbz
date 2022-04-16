@@ -250,7 +250,8 @@ class Coder():
         operands = node['operands']
         to_test = self._operation_code(operands[0])
         like_expr = self._operation_code(operands[1])
-        pred_code = f'lambda s:re.match({like_expr}.replace(\'%\', \'.*\'), s) is not None'
+        like_expr = f'map_column({like_expr},lambda s:s.replace(\'%\', \'.*\'))'
+        pred_code = f'lambda s:None if s is None else re.match({like_expr}, s) is not None'
         return f'map_column({to_test}, {pred_code})'
     
     def _literal_code(self, literal):
