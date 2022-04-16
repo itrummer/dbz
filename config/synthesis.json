@@ -21,7 +21,13 @@
 		"template":"get.py", "substitutions":{}},
 	{"type":"generate", "task_id":"fill_column", "context":[],
 		"template":"fill_column.py", "substitutions":{}},
-	{"type":"check", "queries":["select * from lineitem"]},
+	{"type":"generate", "task_id":"map", "context":[],
+		"template":"map.py", "substitutions":{}},
+	{"type":"check", "queries":[
+		"select * from lineitem",
+		"select l_shipinstruct like '%BACK%' from lineitem",
+		"select cast(l_extendedprice as int) from lineitem"]
+	},
 	
 	
 		
@@ -41,14 +47,6 @@
 	{"type":"check", "queries":["select l_extendedprice / 0.1 from lineitem"]},
 
 	
-		
-	{"type":"generate", "task_id":"map", "context":[],
-		"template":"map.py", "substitutions":{}},
-	{"type":"check", 
-		"queries":[
-			"select l_shipinstruct like '%BACK%' from lineitem",
-			"select cast(l_extendedprice as int) from lineitem"
-		]},
 	
 	{"type":"generate", "task_id":"to_float", "context":[],
 		"template":"cast.py", "substitutions":{"<ToType>":"float"}},
