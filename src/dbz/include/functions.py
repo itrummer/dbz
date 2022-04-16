@@ -231,3 +231,18 @@ def fix_rel(columns):
         return scaled_cols
     else:
         return []
+
+
+def multiply_by_scalar(column, scalar):
+    """ Multiplies column by a scalar.
+    
+    Args:
+        column: a column containing numerical values
+        scalar: an integer or float constant
+    
+    Returns:
+        column resulting from multiplication
+    """
+    scale_to = nr_rows(column)
+    const_col = fill_column(scalar, scale_to)
+    return multiplication(column, const_col)

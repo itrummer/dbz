@@ -112,8 +112,8 @@ class Coder():
             result_scale = self._get_scale(operation)
             diff_1, diff_2 = self._scale_diffs(
                 scale_1, scale_2, result_scale, op_kind)
-            left_op = f'multiplication({left_op}, 1e{diff_1})' if diff_1 else left_op
-            right_op = f'multiplication({right_op}, 1e{diff_2})' if diff_2 else right_op
+            left_op = f'multiply_by_scalar({left_op}, 1e{diff_1})' if diff_1 else left_op
+            right_op = f'multiply_by_scalar({right_op}, 1e{diff_2})' if diff_2 else right_op
         
         elif all(t in ['CHAR', 'VARCHAR'] for t in op_types):
             precision_1 = self._get_precision(operands[0])
@@ -174,7 +174,7 @@ class Coder():
         scale_after = 0 if scale_after is None else scale_after
         if not (scale_before == scale_after):
             diff = scale_after - scale_before
-            operand_code = f'multiplication({operand_code},1e{diff})'
+            operand_code = f'multiply_by_scalar({operand_code},1e{diff})'
         
         old_type_name = old_type['type'].lower()
         new_type_name = new_type['type'].lower()
@@ -590,9 +590,8 @@ class Coder():
                     scale = col_type['scale']
                     parts += [
                         f'last_result[{col_idx}] = ' +\
-                            f'multiplication(last_result[{col_idx}], ' +\
-                                f'fill_column(1e-{scale},' +\
-                                f'nr_rows(last_result[{col_idx}])))']
+                            f'multiply_by_scalar(last_result[{col_idx}], ' +\
+                            f'1e-{scale})']
             elif base_type in ['CHAR']:
                 length = col_type['precision']
                 parts += [
