@@ -532,7 +532,7 @@ class Coder():
         op_name = {'AND':'logical_and', 'OR':'logical_or'}[op_kind]
         operands = operation['operands']
         params = [self._operation_code(operand) for operand in operands]
-        return f'{op_name}(*fix_rel([{", ".join(params)}]))'
+        return f'{op_name}(fix_rel([{", ".join(params)}]))'
     
     def _operation_code(self, operation):
         """ Generate code realizing given operation. 
