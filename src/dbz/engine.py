@@ -71,7 +71,7 @@ class DbzEngine(Engine):
         code_parts += [self.coder.plan_code(plan)]
         code_parts += [f'write_to_csv(last_result, "{out}")']
         code = '\n'.join(code_parts)
-        print(f'Code: {code}')
+        #print(f'Code: {code}')
         return self._run(code)
     
     def _include(self, path):
