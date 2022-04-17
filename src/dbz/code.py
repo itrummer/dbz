@@ -274,9 +274,9 @@ class Coder():
         if scale is None:
             data_type = literal['type']['type']
             if data_type in ['CHAR', 'VARCHAR', 'TEXT']:
-                value = f"None if '{value}' is None else '{value}'"
+                value = f"None if '{value}' == 'None' else '{value}'"
         else:
-            value = f'None if {value} is None else round({value}*1e{scale})'
+            value = f'None if {value} == None else round({value}*1e{scale})'
         return f'fill_column({value},1)' if embed else value
     
     def _LogicalAggregate(self, step):
