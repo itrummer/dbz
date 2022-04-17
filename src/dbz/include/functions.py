@@ -76,7 +76,7 @@ def adjust_after_aggregate(output_rel, grouping):
             column = fill_column(get_value(column, 0), out_rows)
             adjusted += [column]
         else:
-            adjusted += [value]
+            adjusted += [column]
     
     return adjusted
 
