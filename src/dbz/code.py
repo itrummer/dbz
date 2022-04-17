@@ -254,11 +254,12 @@ class Coder():
         pred_code = f'lambda s:None if s is None else re.match({like_expr}, s) is not None'
         return f'map_column({to_test}, {pred_code})'
     
-    def _literal_code(self, literal):
+    def _literal_code(self, literal, embed=True):
         """ Produces a code snippet producing given literal.
         
         Args:
             literal: translate this literal into code
+            embed: whether to embed literal in column
         
         Returns:
             code producing given literal
@@ -271,7 +272,7 @@ class Coder():
                 value = f"None if '{value}' is None else '{value}'"
         else:
             value = f'None if {value} is None else round({value}*1e{scale})'
-        return f'fill_column({value},1)'
+        return f'fill_column({value},1)' if embed else value
     
     def _LogicalAggregate(self, step):
         """ Produce code for aggregates (optionally with grouping). 
@@ -510,7 +511,7 @@ class Coder():
         for in_row in in_rows:
             out_row = []
             for in_field in in_row:
-                out_field = self._literal_code(in_field)
+                out_field = self._literal_code(in_field, False)
                 out_row += [out_field]
             out_rows += [out_row]
         
