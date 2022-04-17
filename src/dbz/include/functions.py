@@ -46,7 +46,8 @@ def adjust_after_project(input_rel, output_rel):
         output relation with appropriate column height
     """
     if input_rel:
-        return fix_rel([input_rel[0]] + output_rel)[1:]
+        scale_to = nr_rows(input_rel[0])
+        return [expand_to(c, scale_to) for c in output_rel]
     else:
         return output_rel
 
