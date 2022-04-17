@@ -38,12 +38,13 @@ class Coder():
 
         return '\n'.join(lines)
     
-    def _agg_code(self, agg, groups):
+    def _agg_code(self, agg, groups, indent=0):
         """ Generates code for processing aggregates.
         
         Args:
             agg: produce code for this aggregate
             groups: column indices for grouping
+            indent: number of tabs before each line
         
         Returns:
             code processing given aggregate
@@ -68,7 +69,8 @@ class Coder():
             name = 'calculate_' + name
         parts += [f'agg_result = {name}(*params)']
 
-        return '\n'.join(parts)
+        prefix = '\t' * indent
+        return '\n'.join([prefix + p for p in parts])
     
     def _assignment(self, step, op_code):
         """ Returns code for assigning operation result to variable.
@@ -323,7 +325,7 @@ class Coder():
         
             for agg in aggs:
                 parts += [f'if input_rel and nr_rows(input_rel[0]):']
-                parts += ['\t' + self._agg_code(agg, groups)]
+                parts += [self._agg_code(agg, groups, 1)]
                 parts += ['else:']
                 def_val = 0 if agg['agg']['kind'] == 'COUNT' else None
                 parts += [f'\tagg_result = {def_val}']
