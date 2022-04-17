@@ -29,7 +29,7 @@ def expand_to(col_or_const, length):
         the first operand if it is a column or a column containing constant value
     """
     if is_scalar(col_or_const):
-        value = get_value(column, 0)
+        value = get_value(col_or_const, 0)
         return fill_column(value, length)
     else:
         return col_or_const
