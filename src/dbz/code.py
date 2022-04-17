@@ -68,6 +68,9 @@ class Coder():
         else:
             name = 'calculate_' + name
         parts += [f'agg_result = {name}(*params)']
+        
+        if not groups:
+            parts += [f'agg_result = fill_column(agg_result,1)']
 
         prefix = '\t' * indent
         return '\n'.join([prefix + p for p in parts])
