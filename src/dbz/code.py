@@ -420,7 +420,7 @@ class Coder():
             for filter_pred in filter_preds:
                 filter_code = self._operation_code(filter_pred)
                 filter_codes += [filter_code]
-            parts += [f'p_idx = smart_logical_and([{", ".join(filter_codes)}])']
+            parts += [f'p_idx = logical_and([{", ".join(filter_codes)}])']
             parts += [f'{result} = [filter_column(c,p_idx) for c in {result}]']
         
         return '\n'.join(parts)
@@ -721,7 +721,7 @@ class Coder():
         op_code = self._operation_code(operands[0])
         kind = operation['op']['kind']
         if kind in ['IS_NULL', 'IS_NOT_NULL']:
-            op_code = f'smart_is_null({op_code})'
+            op_code = f'is_null({op_code})'
         elif kind in ['IS_TRUE', 'IS_NOT_TRUE']:
             op_code = f'logical_and([' +\
                 f'logical_not(is_null({op_code})),' +\
