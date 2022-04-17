@@ -319,7 +319,7 @@ class Coder():
             parts += ['for id_tuple in id_tuples:']
             parts += [
                 '\tagg_rows += [' +\
-                '[dict_def[0].get(id_tuple, dict_def[1]) ' +\
+                '[fill_column(dict_def[0].get(id_tuple, dict_def[1]),1) ' +\
                 'for dict_def in agg_dicts_defs]]']
             nr_aggs = len(aggs)
             parts += [f'{result} += rows_to_columns(agg_rows,{nr_aggs})']
@@ -330,7 +330,9 @@ class Coder():
                 parts += [f'if input_rel and nr_rows(input_rel[0]):']
                 parts += [self._agg_code(agg, groups, 1)]
                 parts += ['else:']
-                def_val = 0 if agg['agg']['kind'] == 'COUNT' else None
+                def_val = 'fill_column(0,1)' \
+                    if agg['agg']['kind'] == 'COUNT' \
+                    else 'fill_column(None,1)'
                 parts += [f'\tagg_result = {def_val}']
                 parts += [f'{result} += [agg_result]']
         
