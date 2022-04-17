@@ -319,7 +319,7 @@ class Coder():
             parts += ['for id_tuple in id_tuples:']
             parts += [
                 '\tagg_rows += [' +\
-                '[fill_column(dict_def[0].get(id_tuple, dict_def[1]),1) ' +\
+                '[dict_def[0].get(id_tuple, dict_def[1]) ' +\
                 'for dict_def in agg_dicts_defs]]']
             nr_aggs = len(aggs)
             parts += [f'{result} += rows_to_columns(agg_rows,{nr_aggs})']
