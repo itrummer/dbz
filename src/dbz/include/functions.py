@@ -148,7 +148,7 @@ def prepare_aggregate(input_rel, op_cols, row_id_column, distinct):
     if op_cols:
         operands = [input_rel[idx] for idx in op_cols]
     else:
-        operands = [1]
+        operands = [fill_column(1,1)]
     
     # Expand scalar values into columns
     scale_to = nr_rows(input_rel[0])
