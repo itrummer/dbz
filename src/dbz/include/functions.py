@@ -65,9 +65,8 @@ def adjust_after_aggregate(output_rel, grouping):
     if grouping:
         out_rows = 0
         for value in output_rel:
-            if not is_scalar(value):
-                cur_rows = nr_rows(value)
-                out_rows = max(out_rows, cur_rows)
+            cur_rows = nr_rows(value)
+            out_rows = max(out_rows, cur_rows)
     else:
         out_rows = 1
     
