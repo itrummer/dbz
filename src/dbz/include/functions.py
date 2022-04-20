@@ -220,6 +220,12 @@ def fix_rel(columns):
         columns of equal size
     """
     if columns:
+        
+        min_length = min([nr_rows(c) for c in columns])
+        if min_length == 0:
+            nr_cols = len(columns)
+            return [fill_column(None, 0) for _ in range(nr_cols)]
+        
         max_length = max([nr_rows(c) for c in columns])
         assert all(nr_rows(c) in [1, max_length] for c in columns)
         scaled_cols = []
@@ -229,6 +235,7 @@ def fix_rel(columns):
                 col = fill_column(value, max_length)
             scaled_cols.append(col)
         return scaled_cols
+    
     else:
         return []
 
