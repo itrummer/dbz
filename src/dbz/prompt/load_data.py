@@ -20,5 +20,5 @@ def to_columnar_format(csv_data):
         csv_data: data loaded using load_from_csv
     
     Returns:
-        a list of columns where each column is a list.
+        a list of columns where each column <DataInstructions>.
     """

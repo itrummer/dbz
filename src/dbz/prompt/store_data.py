@@ -15,7 +15,7 @@ def to_row_format(columns):
     """ Transforms columnar layout to row-based representation.
     
     Args:
-        columns: a list of columns where each column is a list.
+        columns: a list of columns where each column <DataInstructions>.
     
     Returns:
         a list of rows where each row is a list
