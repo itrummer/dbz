@@ -1,10 +1,10 @@
-def filter_column(column, row_idx):
-    """ Filter rows in column.
+def filter_table(table, row_idx):
+    """ Filter rows in table.
     
     Args:
-        column: the column <DataInstructions>.
-        row_idx: the column <DataInstructions>, it contains Booleans.
+        column: <Column>.
+        row_idx: <Column> containing Booleans.
     
     Returns:
-        values at positions where row_idx is True.
+        table with rows where row_idx is True.
     """

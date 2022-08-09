@@ -1,12 +1,9 @@
-import os
-
-
 def <operator>(column):
     """ Performs <operator> on input column.
     
     Args:
-        column: a column (which <DataInstructions>) <InputDescription>
+        column: <Column> <InputDescription>.
     
     Returns:
-        a column (which <DataInstructions>) containing result of <operator>
+        <Column> containing result of <operator>.
     """

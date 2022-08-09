@@ -1,12 +1,9 @@
-import os
-
-
 def cast_to_<ToType>(column):
-    """ Casts a column (which <DataInstructions>) to <ToType> values.
+    """ Casts a column to <ToType> values.
     
     Args:
-        column: a column (which <DataInstructions>)
+        column: <Column>.
     
     Returns:
-        a column (which <DataInstructions>) with <ToType> values
+        <Column> with <ToType> values.
     """

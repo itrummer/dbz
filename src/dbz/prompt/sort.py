@@ -1,10 +1,11 @@
-def sort(rows, comparator):
-    """ Sort rows using comparator function.
+def sort_rows(table, sort_cols, ascending):
+    """ Sort table rows by specified columns.
     
     Args:
-        rows: a list of rows where each row is a list
-        comparator: comparator(i,j) is -1 if row i comes before row j, +1 if row j comes first, 0 if equal
+        table: <Table>.
+        sort_cols: indexes of columns to sort by.
+        ascending: flags for each column.
     
     Returns:
-        sorted rows
+        sorted table.
     """

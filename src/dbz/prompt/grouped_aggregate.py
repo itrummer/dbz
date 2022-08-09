@@ -1,17 +1,10 @@
-import os
-
-
-def per_group_<aggregate>(agg_column, group_id_column):
-    """ Calculate <aggregate> for each group.
-    
-    1. Collect values for each group.
-    2. Calculate <aggregate> for each group.
-    3. Return dictionary mapping each group ID to the <aggregate>.
-    
+def group_by_<aggregate>(table, group_by_col):
+    """ Calculate <aggregate> per value in the group-by column.
+   
     Args:
-        agg_column: the column <DataInstructions>. It contains values to <aggregate>.
-        group_id_column: the column <DataInstructions>. It contains for each row the associated group.
-    
+        table: <Table>.
+        group_by_col: index of column with values to group by.
+   
     Returns:
-        a dictionary mapping each group ID to the <aggregate>
+        A table (<Table>) containing two columns: the group ID and the <aggregate>.
     """

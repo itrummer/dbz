@@ -1,12 +1,9 @@
-import os
-
-
 def is_null(column):
-    """ Checks if values in a column (which <DataInstructions>) are null.
+    """ Checks if values in a column are null.
     
     Args:
-        column: a column (which <DataInstructions>)
+        column: <Column>.
     
     Returns:
-        Boolean column (which <DataInstructions>)
+        <Column> containing Boolean values.
     """

@@ -10,13 +10,17 @@
 		"template":"load_data.py", "substitutions":{}},
 	{"type":"generate", "task_id":"store", "context":[],
 		"template":"store_data.py", "substitutions":{}},
+	{"type":"generate", "task_id":"add_column", "context":[],
+		"template":"add_column.py", "substitutions":{}},
+	{"type":"generate", "task_id":"get_column", "context":[],
+		"template":"get_column.py", "substitutions":{}},
 	{"type":"generate", "task_id":"nr_rows", "context":[],
 		"template":"nr_rows.py", "substitutions":{}},
 	{"type":"generate", "task_id":"multiplication", "context":[],
 		"template":"binary_expression.py", 
 		"substitutions":{"<binary_op>":"multiplication"}},
 	{"type":"generate", "task_id":"get", "context":[],
-		"template":"get.py", "substitutions":{}},
+		"template":"get_value.py", "substitutions":{}},
 	{"type":"generate", "task_id":"fill_column", "context":[],
 		"template":"fill_column.py", "substitutions":{}},
 	{"type":"generate", "task_id":"map", "context":[],
@@ -24,10 +28,9 @@
 	{"type":"check", "queries":[
 		"select * from lineitem",
 		"select l_shipinstruct like '%BACK%' from lineitem",
-		"select cast(l_extendedprice as int) from lineitem"]
+		"select cast(l_extendedprice as int) from lineitem",
+		"select count(*) from lineitem"]
 	},
-	
-	
 		
 	{"type":"generate", "task_id":"addition", "context":[],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"addition"}},
@@ -43,8 +46,8 @@
 	{"type":"generate", "task_id":"division", "context":[],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"division"}},
 	{"type":"check", "queries":["select l_extendedprice / 0.1 from lineitem"]},
-
 	
+
 	
 	{"type":"generate", "task_id":"to_float", "context":[],
 		"template":"cast.py", "substitutions":{"<ToType>":"float"}},
@@ -115,8 +118,6 @@
 	{"type":"check", 
 		"queries":["select * from lineitem where not (l_extendedprice < 13000)"]},
 	
-	{"type":"generate", "task_id":"rows_to_columns", "context":[], 
-		"template":"rows_to_columns.py", "substitutions":{}},
 	{"type":"generate", "task_id":"is_null", "context":[],
 		"template":"is_null.py", "substitutions":{}},
 	{"type":"check", 
@@ -143,19 +144,12 @@
 		"template":"aggregate.py", "substitutions":{"<aggregate>":"avg"}},
 	{"type":"check", "queries":["select avg(l_extendedprice) from lineitem"]},
 	
-	{"type":"generate", "task_id":"count", "context":[], 
-		"template":"count.py", "substitutions":{}},
-	{"type":"check", "queries":["select count(*) from lineitem"]},
-	
 	{"type":"generate", "task_id":"case", "context":[],
 		"template":"case.py", "substitutions":{}},
 	{"type":"check", 
 		"queries":["select case when l_extendedprice < 25000 then 1 else 0 end from lineitem"]},
 
 	
-		
-	{"type":"generate", "task_id":"to_tuples", "context":[], 
-		"template":"to_tuples.py", "substitutions":{}},
 		
 	{"type":"generate", "task_id":"grouped_sum", "context":[], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"sum"}},
@@ -179,18 +173,30 @@
 	{"type":"check", 
 	"queries":["select avg(l_extendedprice) from lineitem group by l_shipmode"]},
 	
-	{"type":"generate", "task_id":"grouped_count", "context":[], 
-		"template":"grouped_count.py", "substitutions":{}},
+	{"type":"generate", "task_id":"grouped_avg", "context":[], 
+		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"count"}},
 	{"type":"check", 
 	"queries":["select count(*) from lineitem group by l_shipmode"]},
 	
 	
 	
-	{"type":"generate", "task_id":"equi_join", "context":[],
-		"template":"hash_join.py", "substitutions":{}},
+	{"type":"generate", "task_id":"equi_join", "context":[], "template":"join.py", 
+		"substitutions":{"<JoinDefinition>":"equality", "JoinDescription":"equality"}},
 	{"type":"check", "queries":["select * from customer, orders where c_custkey = o_custkey"]},
 	
+	{"type":"generate", "task_id":"left_join", "context":[], "template":"join.py", 
+		"substitutions":{"<JoinDefinition>":"left_outer", "JoinDescription":"left outer"}},
+	{"type":"check", "queries":["select * from customer left join orders on c_custkey = o_custkey"]},
+
+	{"type":"generate", "task_id":"right_join", "context":[], "template":"join.py", 
+		"substitutions":{"<JoinDefinition>":"right_outer", "JoinDescription":"right outer"}},
+	{"type":"check", "queries":["select * from customer right join orders on c_custkey = o_custkey"]},
 	
+	{"type":"generate", "task_id":"full_join", "context":[], "template":"join.py", 
+		"substitutions":{"<JoinDefinition>":"full_outer", "JoinDescription":"full outer"}},
+	{"type":"check", "queries":["select * from customer full outer join orders on c_custkey = o_custkey"]},
+
+
 
 	{"type":"generate", "task_id":"sort", "context":[], 
 		"template":"sort.py", "substitutions":{}},
