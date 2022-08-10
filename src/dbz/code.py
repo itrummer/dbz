@@ -16,7 +16,7 @@ class Coder():
             print_results: print out samples from intermediate results?
         """
         self.paths = paths
-        self.id_to_plan = {}
+        self.id_to_step = {}
         self.print_results = print_results
     
     def plan_code(self, plan):
@@ -28,7 +28,11 @@ class Coder():
         Returns:
             Python code (referencing library operators).
         """
-        self.id_to_plan = {}
+        self.id_to_step = {}
+        for step in plan['rels']:
+            step_id = step['id']
+            self.id_to_step[step_id] = step
+        
         lines = []
         for step in plan['rels']:
             lines += [self._step_code(step)]
@@ -62,7 +66,7 @@ class Coder():
         
         name = {
             'SUM':'sum', 'AVG':'avg', 'MIN':'min', 
-            'MAX':'max', 'COUNT':'row_count'}[kind]
+            'MAX':'max', 'COUNT':'count'}[kind]
         if groups:
             name = 'per_group_' + name
         else:
@@ -221,6 +225,17 @@ class Coder():
             f'Unsupported extraction: {field}'
         return f'smart_date_extract({source_code},"{field}")'
     
+    def _get_arity(self, step):
+        """ Get number of columns in step output. 
+        
+        Args:
+            step: processing step in plan
+        
+        Returns:
+            number of output columns
+        """
+        return len(step['outputType']['fields'])
+    
     def _get_precision(self, node):
         """ Extract precision for chars and numeric nodes.
         
@@ -353,7 +368,8 @@ class Coder():
         condition = step['condition']
         pred_code = self._operation_code(condition)
         parts = [f'p_idx = {pred_code}']
-        parts += [f'{result} = [filter_column(c, p_idx) for c in input_rel]']
+        parts += [f'p_idx = scale_to_table(p_idx, in_rel_1)']
+        parts += [f'{result} = filter_table(in_rel_1, p_idx)']
         return '\n'.join(parts)
     
     def _LogicalJoin(self, step):
@@ -367,12 +383,12 @@ class Coder():
         """
         inputs = step['inputs']
         assert(len(inputs) == 2)
-        operands = [self._result_name(step_id) for step_id in inputs]
+        in_1_id = inputs[0]
+        in_1_step = self.id_to_step[in_1_id]
+        in_1_arity = self._get_arity(in_1_step)
+        
         step_id = step['id']
         result = self._result_name(step_id)
-        
-        params = operands
-        params = [f'to_row_format({p})' for p in params]
         join_pred = step['condition']
         conjuncts = dbz.util.get_conjuncts(join_pred)
         
@@ -384,44 +400,35 @@ class Coder():
             else:
                 return False
 
-        eq_cols = []
-        join_preds = [c for c in conjuncts if is_eq_col_pred(c)]
-        for join_pred in join_preds:
-            col_idxs = [op['input'] for op in join_pred['operands']]
+        key_cols_1 = []
+        key_cols_2 = []
+        eq_preds = [c for c in conjuncts if is_eq_col_pred(c)]
+        for eq_pred in eq_preds:
+            col_idxs = [op['input'] for op in eq_pred['operands']]
             col_idx_1 = min(col_idxs)
             col_idx_2_raw = max(col_idxs)
-            in_1_name = self._result_name(inputs[0])
-            col_idx_2 = f'{col_idx_2_raw}-len({in_1_name})'
-            eq_cols += [f'({col_idx_1},{col_idx_2})']
+            col_idx_2 = col_idx_2_raw - in_1_arity
+            key_cols_1 += [col_idx_1]
+            key_cols_2 += [col_idx_2]
 
-        params += [f'[{", ".join(eq_cols)}]']
-        op_code = f'equi_join({", ".join(params)})'
-        
-        parts = []
-        parts += [f'{result} = {op_code}']
-        nr_out_cols = len(step['outputType']['fields'])
         join_type = step['joinType']
-        if join_type in ['left', 'full']:
-            parts += [
-                f'{result} = {result} + ' +\
-                f'complete_outer(to_row_format(' +\
-                f'{operands[0]}),0,{nr_out_cols},{result})']
-        if join_type in ['right', 'full']:
-            parts += [
-                f'{result} = {result} + ' +\
-                f'complete_outer(to_row_format(' +\
-                f'{operands[1]}),1,{nr_out_cols},{result})']
-        parts += [f'{result} = rows_to_columns({result},{nr_out_cols})']
+        type_to_def = {
+            'left':'left_outer_join', 
+            'right':'right_outer_join', 
+            'full':'full_outer_join'}
+        join_def = type_to_def.get(join_type, 'equality_join')
+        op_code = f'{join_def}(in_rel_1, in_rel_2)'        
+        parts = [f'{result} = {op_code}']
         
         filter_preds = [c for c in conjuncts if not is_eq_col_pred(c)]
         if filter_preds:
-            parts += [f'input_rel = {result}']
+            parts += [f'in_rel_1 = {result}']
             filter_codes = []
             for filter_pred in filter_preds:
                 filter_code = self._operation_code(filter_pred)
                 filter_codes += [filter_code]
             parts += [f'p_idx = logical_and([{", ".join(filter_codes)}])']
-            parts += [f'{result} = [filter_column(c,p_idx) for c in {result}]']
+            parts += [f'{result} = filter_table({result}, p_idx)']
         
         return '\n'.join(parts)
     
@@ -437,16 +444,16 @@ class Coder():
         step_id = step['id']
         result = self._result_name(step_id)
         parts = []
-        parts += [f'{result} = []']
+        parts += [f'result_cols = []']
         exprs = step['exprs']
         for expr in exprs:
             expr_code = self._operation_code(expr)
             col_code = f'column = {expr_code}'
-            add_code = f'{result} += [column]'
+            add_code = f'result_cols += [column]'
             parts += [col_code]
             parts += [add_code]
-        parts += [f'{result} = adjust_after_project(input_rel, {result})']
-        parts += [f'last_result = {result}']
+        parts += ['result_cols = scale_columns(result_cols)']
+        parts += [f'{result} = create_table(result_cols)']
         return '\n'.join(parts)
     
     def _LogicalSort(self, step):
@@ -589,34 +596,27 @@ class Coder():
         Returns:
             code for post-processing final result
         """
-        #parts = ['last_result = [normalize(c) for c in last_result]']
         parts = []
         col_types = final_step['outputType']['fields']
         for col_idx, col_type in enumerate(col_types):
+            parts += [f'col = get_column(last_result,{col_idx})']
             base_type = col_type['type']
             if base_type in ['DECIMAL', 'NUMERIC']:
                 if 'scale' in col_type:
                     scale = col_type['scale']
-                    parts += [
-                        f'last_result[{col_idx}] = ' +\
-                            f'multiply_by_scalar(last_result[{col_idx}], ' +\
-                            f'1e-{scale})']
+                    parts += [f'col = multiply_by_scalar(col, 1e-{scale})']
             elif base_type in ['CHAR']:
                 length = col_type['precision']
-                parts += [
-                    f'last_result[{col_idx}] = ' +\
-                    f'smart_padding(last_result[{col_idx}], ' +\
-                    f'{length})']
+                parts += [f'col = smart_padding(col, {length})']
             elif base_type in ['DATE']:
                 parts += ['from datetime import date, timedelta']
                 parts += ["ref_date = date(1970,1,1)"]
                 parts += [
-                    f'last_result[{col_idx}] = ' +\
-                    f'map_column(last_result[{col_idx}],' +\
+                    f'col = map_column(col, ' +\
                     f'lambda d:str(ref_date + timedelta(days=d)))']
+                
+            parts += [f'set_column(last_result, {col_idx}, col)'] 
         
-        parts += ['last_result = to_row_format(last_result)']
-        parts += ['last_result = [list(r) for r in last_result]']
         return '\n'.join(parts)
     
     def _result_name(self, step_id):
@@ -677,20 +677,13 @@ class Coder():
         rel_op = step['relOp']
         parts = []
         parts += [f'# Operation ID: {op_id}; Operator: {rel_op}']
-        inputs = [self._result_name(in_) for in_ in step['inputs']] + ['[]']
-        if len(inputs) == 2:
-            parts += [f'input_rel = ' + ' + '.join(inputs)]
+        inputs = [self._result_name(in_) for in_ in step['inputs']]
+        for idx, in_code in enumerate(inputs, 1):
+            parts += [f'in_rel_{idx} = {in_code}']
         handler = f'_{rel_op}'
         parts += [getattr(self, handler)(step)]
         result = self._result_name(op_id)
-        # parts += [f'{result}=[normalize(c) for c in {result}]']
         parts += [f'last_result = {result}']
-        if self.print_results:
-            parts += [f'print(f"Column sizes in {result}: ' +\
-                      f'{{[nr_rows(c) for c in {result}]}}")']
-            parts += [f'print(f"Sample from {result}:")']
-            parts += [f'r = nr_rows({result}[0]) if {result} else 0']
-            parts += [f'print([c[:min(r,10)] for c in {result}])']
         return '\n'.join(parts)
     
     def _substring_code(self, operation):

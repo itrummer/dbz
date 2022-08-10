@@ -10,10 +10,17 @@
 		"template":"load_data.py", "substitutions":{}},
 	{"type":"generate", "task_id":"store", "context":[],
 		"template":"store_data.py", "substitutions":{}},
+		
 	{"type":"generate", "task_id":"add_column", "context":[],
 		"template":"add_column.py", "substitutions":{}},
+	
+	{"type":"generate", "task_id":"create_table", "context":[],
+		"template":"create_table.py", "substitutions":{}},	
 	{"type":"generate", "task_id":"get_column", "context":[],
 		"template":"get_column.py", "substitutions":{}},
+	{"type":"generate", "task_id":"set_column", "context":[],
+		"template":"set_column.py", "substitutions":{}},
+
 	{"type":"generate", "task_id":"nr_rows", "context":[],
 		"template":"nr_rows.py", "substitutions":{}},
 	{"type":"generate", "task_id":"multiplication", "context":[],

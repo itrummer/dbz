@@ -1,12 +1,12 @@
-def <JoinDefinition>_join(table_1, table_2, table_1_col, table_2_col):
+def <JoinDefinition>_join(table_1, table_2, key_cols_1, key_cols_2):
     """ Join two tables by <JoinDescription> join.
    
     Args:
-        table_1: a list of rows which are lists.
-        table_2: a list of rows which are lists.
-        table_1_col: index of column in first table.
-        table_2_col: index of column in second table.
+        table_1: <Table>.
+        table_2: <Table>.
+        key_cols_1: indexes of join key columns in table 1.
+        key_cols_2: indexes of join key columns in table 2.
    
     Returns:
-        Joined table with row combinations where table_1_col equals table_2_col.
+        Joined rows with matching join keys.
     """
