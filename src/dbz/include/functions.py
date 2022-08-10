@@ -64,6 +64,26 @@ def scale_to_table(column, table):
         raise ValueError('Cannot scale non-scalar column!')
 
 
+def smart_date_extract(from_date, field):
+    """ Extract a property from a date. 
+    
+    Args:
+        from_date: date column or constant (number of days since 1/1/1970)
+        field: which field to extract from date (e.g., year)
+    
+    Returns:
+        integer value representing extracted property
+    """
+    def scalar_extract(from_date, field):
+        """ Extracts property from a scalar date (i.e., no column). """
+        return getattr(
+            datetime.datetime(1970,1,1) +\
+            datetime.timedelta(days=from_date), 
+            field)
+        
+    return map_column(from_date, lambda d: scalar_extract(d, field))
+
+
 def smart_padding(operand, pad_to):
     """ Pad string operands (columns or constants) to given length.
     
@@ -75,3 +95,20 @@ def smart_padding(operand, pad_to):
         padded operand
     """
     return map_column(operand, lambda s:s.ljust(pad_to))
+
+
+def smart_substring(src, start, length):
+    """ Extracts substrings from columns or scalars.
+    
+    Args:
+        src: extract substrings from this column or scalar
+        start: start index of extracted substring
+        length: length of extracted substring
+    
+    Returns:
+        extracted substring(s) (column or scalar)
+    """
+    assert not is_scalar(src), 'Error - cannot extract from scalar source'
+    assert is_scalar(start), 'Error - only scalar start indexes supported'
+    assert is_scalar(length), 'Error - only scalar length values supported'
+    return substring(src, get_value(start, 0), get_value(length, 0))

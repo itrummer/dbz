@@ -90,8 +90,7 @@ class Coder():
             code assigning operation result to variable
         """
         result = self._result_name(step['id'])
-        return f'{result} = {op_code}\n' +\
-            f'last_result = {result}'
+        return f'{result} = {op_code}'
     
     def _binary_code(self, operation):
         """ Translates binary operation into code.
@@ -142,7 +141,7 @@ class Coder():
                 f'Unsupported types for binary operation: {op_types}; ' +\
                     f'operation: {operation}')
         
-        return f'{op_name}(*fix_rel([{left_op},{right_op}]))'
+        return f'{op_name}(*scale_columns([{left_op},{right_op}]))'
     
     def _case_code(self, operation):
         """ Generate code representing case statement.
@@ -156,7 +155,7 @@ class Coder():
         operands = operation['operands']
         op_codes = [self._operation_code(op) for op in operands]
         pred_code, if_code, else_code = op_codes
-        return f'if_else(*fix_rel([{pred_code},{if_code},{else_code}]))'
+        return f'if_else(*scale_columns([{pred_code},{if_code},{else_code}]))'
     
     def _cast_code(self, operation):
         """ Generate code for a casting operation.
@@ -206,7 +205,7 @@ class Coder():
             code retrieving specified column
         """
         column_nr = column_ref['input']
-        return f'input_rel[{column_nr}]'
+        return f'get_column(in_rel_1,{column_nr})'
     
     def _extract_code(self, operation):
         """ Generates code for extracting elements of a date.
@@ -467,28 +466,25 @@ class Coder():
         """
         step_id = step['id']
         result = self._result_name(step_id)
-        parts = [f'{result} = to_row_format(input_rel)']
+        parts = []
         
         if 'collation' in step:
-            parts += ['def comparator(row_1, row_2):']
             collation = step['collation']
+            sort_cols = []
+            ascending = []
             for d in collation:
-                field_idx = int(d['field'])
-                flag = True if d['direction'] == 'ASCENDING' else False
-                parts += [f'\tif row_1[{field_idx}] < row_2[{field_idx}]:']
-                parts += [f'\t\treturn {-1 if flag else 1}']
-                parts += [f'\telif row_1[{field_idx}] > row_2[{field_idx}]:']
-                parts += [f'\t\treturn {1 if flag else -1}']
-            parts += ['\treturn 0']
-            parts += [f'{result} = sort({result}, comparator)']
+                field_idx = str(d['field'])
+                flag = 'True' if d['direction'] == 'ASCENDING' else 'False'
+                sort_cols += [field_idx]
+                ascending += [flag]
+            parts += [f'sort_cols = [{",".join(sort_cols)}]']
+            parts += [f'ascending = [{",".join(ascending)}]']
+            parts += [f'{result} = sort({result}, sort_cols, ascending)']
         
         if 'fetch' in step:
             nr_rows = step['fetch']['literal']
-            parts += [f'{result} = {result}[:{nr_rows}]']
+            parts += [f'{result} = first_rows({result},{nr_rows})']
         
-        out_arity = len(step['outputType']['fields'])
-        parts += [f'{result} = rows_to_columns({result},{out_arity})']
-        parts += [f'last_result = {result}']
         return '\n'.join(parts)
 
     def _LogicalTableScan(self, step):
@@ -500,14 +496,10 @@ class Coder():
         Returns:
             code realizing scan
         """
-        # db = step['table'][0]
-        # table = step['table'][1]
-        # file_path = f'{self.data_dir}/{db}/{table}'
         table = step['table'][0]
         file_path = f'{self.paths.data_dir}/{table.lower()}.csv'
-        scan_code = f'new_table = load_from_csv("{file_path}")\n' +\
-            'new_table = to_columnar_format(new_table)'
-        return scan_code + '\n' + self._assignment(step, 'new_table')
+        scan_code = f'load_from_csv("{file_path}")'
+        return self._assignment(step, scan_code)
     
     def _LogicalValues(self, step):
         """ Uses rows specified as part of the query.
@@ -547,7 +539,7 @@ class Coder():
         op_name = {'AND':'logical_and', 'OR':'logical_or'}[op_kind]
         operands = operation['operands']
         params = [self._operation_code(operand) for operand in operands]
-        return f'{op_name}(fix_rel([{", ".join(params)}]))'
+        return f'{op_name}(scale_columns([{", ".join(params)}]))'
     
     def _operation_code(self, operation):
         """ Generate code realizing given operation. 
