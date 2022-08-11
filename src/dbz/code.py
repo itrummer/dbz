@@ -4,6 +4,7 @@ Created on Mar 10, 2022
 @author: immanueltrummer
 '''
 import dbz.util
+import pandas as pd
 
 class Coder():
     """ Translates query plans into code. """
@@ -522,7 +523,6 @@ class Coder():
             code generating given tuples
         """
         result = self._result_name(step['id'])
-        nr_columns = len(step['type'])
         in_rows = step['tuples']
         out_rows = []
         for in_row in in_rows:
@@ -532,9 +532,13 @@ class Coder():
                 out_row += [out_field]
             out_rows += [out_row]
         
+        to_path = f'{self.paths.tmp_dir}/{result}'
+        df = pd.DataFrame(out_rows)
+        df.to_csv(to_path, header=False)
+        
         parts = []
         parts += [f'out_rows = {str(out_rows)}']
-        parts += [f'{result} = rows_to_columns(out_rows, {nr_columns})']
+        parts += [f'{result} = load_from_csv("{to_path}")']
         return '\n'.join(parts)
     
     def _nary_boolean_code(self, operation):
