@@ -526,7 +526,7 @@ class Coder():
             parts += [f'col = {fct_name}(col)']
             parts += [f'set_column({result},{col_idx},col)']
         
-        return ','.join(parts)
+        return '\n'.join(parts)
     
     def _LogicalValues(self, step):
         """ Uses rows specified as part of the query.
