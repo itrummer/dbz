@@ -32,12 +32,28 @@
 		"template":"fill_column.py", "substitutions":{}},
 	{"type":"generate", "task_id":"map", "context":[],
 		"template":"map.py", "substitutions":{}},
+		
+	{"type":"generate", "task_id":"to_int", "context":[],
+		"template":"cast.py", "substitutions":{"<ToType>":"int"}},
+	{"type":"generate", "task_id":"to_float", "context":[],
+		"template":"cast.py", "substitutions":{"<ToType>":"float"}},
+	{"type":"generate", "task_id":"to_string", "context":[],
+		"template":"cast.py", "substitutions":{"<ToType>":"varchar"}},
+	
 	{"type":"check", "queries":[
 		"select * from lineitem",
 		"select l_shipinstruct like '%BACK%' from lineitem",
 		"select cast(l_extendedprice as int) from lineitem",
-		"select count(*) from lineitem"]
+		"select count(*) from lineitem",
+		"select cast(l_orderkey as int) from lineitem",
+		"select cast(l_extendedprice as float) from lineitem",
+		"select cast(l_extendedprice as varchar(100)) from lineitem"
+		]
 	},
+	
+	{"type":"generate", "task_id":"substring", "context":[],
+		"template":"substring.py", "substitutions":{}},
+	{"type":"check", "queries":["select substring(l_comment, 1, 3) from lineitem"]},
 		
 	{"type":"generate", "task_id":"addition", "context":[],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"addition"}},
@@ -53,20 +69,6 @@
 	{"type":"generate", "task_id":"division", "context":[],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"division"}},
 	{"type":"check", "queries":["select l_extendedprice / 0.1 from lineitem"]},
-	
-
-	
-	{"type":"generate", "task_id":"to_float", "context":[],
-		"template":"cast.py", "substitutions":{"<ToType>":"float"}},
-	{"type":"check", "queries":["select cast(l_extendedprice as float) from lineitem"]},
-	
-	{"type":"generate", "task_id":"to_string", "context":[],
-		"template":"cast.py", "substitutions":{"<ToType>":"varchar"}},
-	{"type":"check", "queries":["select cast(l_extendedprice as varchar(100)) from lineitem"]},
-	
-	{"type":"generate", "task_id":"substring", "context":[],
-		"template":"substring.py", "substitutions":{}},
-	{"type":"check", "queries":["select substring(l_comment, 1, 3) from lineitem"]},
 	
 	
 	

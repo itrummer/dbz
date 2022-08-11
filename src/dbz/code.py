@@ -509,9 +509,24 @@ class Coder():
             code realizing scan
         """
         table = step['table'][0]
+        col_types = step['outputType']['fields']
         file_path = f'{self.paths.data_dir}/{table.lower()}.csv'
         scan_code = f'load_from_csv("{file_path}")'
-        return self._assignment(step, scan_code)
+        result = self._result_name(step['id'])
+        parts = [f'{result} = {scan_code}']
+        
+        for col_idx, col_type in enumerate(col_types):
+            parts += [f'col = get_column({result},{col_idx})']
+            base_type = col_type['type']
+            sql_type = {
+                'DECIMAL':'int', 'NUMERIC':'float', 'FLOAT':'float', 
+                'INTEGER':'int', 'CHAR':'string', 'VARCHAR':'string',
+                'DATE':'int'}[base_type]
+            fct_name = f'cast_to_{sql_type}'
+            parts += [f'col = {fct_name}(col)']
+            parts += [f'set_column({result},{col_idx},col)']
+        
+        return ','.join(parts)
     
     def _LogicalValues(self, step):
         """ Uses rows specified as part of the query.
