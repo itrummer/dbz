@@ -519,9 +519,9 @@ class Coder():
             parts += [f'col = get_column({result},{col_idx})']
             sql_type = col_type['type']
             cast_type = {
-                'DECIMAL':'integer', 'NUMERIC':'float', 'FLOAT':'float', 
-                'INTEGER':'integer', 'CHAR':'string', 'VARCHAR':'string',
-                'DATE':'integer'}[sql_type]
+                'DECIMAL':'int', 'NUMERIC':'float', 'FLOAT':'float', 
+                'INTEGER':'int', 'CHAR':'string', 'VARCHAR':'string',
+                'DATE':'int'}[sql_type]
             fct_name = f'cast_to_{cast_type}'
             parts += [f'col = {fct_name}(col)']
             parts += [f'set_column({result},{col_idx},col)']
