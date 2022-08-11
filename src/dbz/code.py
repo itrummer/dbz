@@ -257,6 +257,17 @@ class Coder():
         """
         return node['type'].get('scale', None)
     
+    def _grouped_aggs_code(self, step):
+        """ Generate code for processing grouped aggregates. 
+        
+        Args:
+            step: processing step representing grouped aggregates
+        
+        Returns:
+            code for processing aggregates with grouping
+        """
+        pass
+    
     def _like_code(self, node):
         """ Generate code for evaluating LIKE expression.
         
@@ -302,14 +313,21 @@ class Coder():
         Returns:
             code realizing aggregates
         """
+        groups = step['group']
+        if groups:
+            return self._grouped_aggs_code(step)
+        else:
+            return self._ungrouped_aggs_code(step)
+        
+        
         step_id = step['id']
         aggs = step['aggs']
-        groups = step['group']
+        
         result = self._result_name(step_id)
         
         parts = ['']
         parts += [f'# LogicalAggregate: aggs: {aggs}; groups {groups}']
-        parts += [f'{result} = []']
+        parts += [f'result_cols = []']
         
         grouping = True if groups else False
         if grouping:
@@ -341,7 +359,7 @@ class Coder():
         else:
         
             for agg in aggs:
-                parts += [f'if input_rel and nr_rows(input_rel[0]):']
+                parts += [f'if not is_empty(in_rel_1) and nr_rows(input_rel[0]):']
                 parts += [self._agg_code(agg, groups, 1)]
                 parts += ['else:']
                 def_val = 'fill_column(0,1)' \
@@ -719,3 +737,45 @@ class Coder():
             return f'logical_not({op_code})'
         else:
             return op_code
+    
+    def _ungrouped_aggs_code(self, step):
+        """ Generate code for processing aggregates without grouping. 
+        
+        Args:
+            step: processing step representing aggregation
+        
+        Returns:
+            code for generating corresponding aggregates
+        """
+        step_id = step['id']
+        aggs = step['aggs']
+        result = self._result_name(step_id)
+        parts = [f'result_cols = []']
+
+        for agg in aggs:
+            check_1 = 'not is_empty(in_rel_1)'
+            check_2 = 'nr_rows(get_column(in_rel_1, 0))'
+            parts += [f'if {check_1} and {check_2}:']
+            
+            kind = agg['agg']['kind']
+            if kind in ['SUM', 'AVG', 'MIN', 'MAX']:
+                operands = agg['operands']
+                assert len(operands) == 1
+                operand = operands[0]
+                parts += [f'\tin_col = get_column(in_rel_1,{operand})']
+                parts += [f'\tval = calculate_{kind.lower()}(in_col)']
+                parts += [f'\tagg_result = fill_column(val, 1)']
+            else:
+                distinct = agg['distinct']
+                
+                pass
+                
+            parts += ['else:']
+            def_val = 'fill_column(0,1)' \
+                if agg['agg']['kind'] == 'COUNT' \
+                else 'fill_column(None,1)'
+            parts += [f'\tagg_result = {def_val}']
+            parts += [f'result_cols += [agg_result]']
+        
+        parts += [f'{result} = create_table(result_cols)']
+        return '\n'.join(parts)

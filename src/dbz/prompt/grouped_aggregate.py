@@ -1,10 +1,11 @@
-def group_by_<aggregate>(table, group_by_col):
-    """ Calculate <aggregate> per value in the group-by column.
+def group_by_<aggregate>(table, agg_column, group_columns):
+    """ Calculate <aggregate> for each group.
    
     Args:
         table: <Table>.
-        group_by_col: index of column with values to group by.
+        agg_column: index of column for which to calculate <aggregate>.
+        group_by_cols: indexes of columns to group by.
    
     Returns:
-        A table (<Table>) containing two columns: the group ID and the <aggregate>.
+        <Table> with group columns and one <aggregate> column.
     """

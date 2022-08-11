@@ -134,7 +134,8 @@
 		"select null is not true", "select null is not false", "select null is not null"]},		
 	
 	
-	
+	{"type":"generate", "task_id":"is_empty", "context":[], 
+		"template":"is_empty.py", "substitutions":{}},	
 	{"type":"generate", "task_id":"sum", "context":[], 
 		"template":"aggregate.py", "substitutions":{"<aggregate>":"sum"}},
 	{"type":"check", "queries":["select sum(l_extendedprice) from lineitem"]},
@@ -150,6 +151,8 @@
 	{"type":"generate", "task_id":"avg", "context":[], 
 		"template":"aggregate.py", "substitutions":{"<aggregate>":"avg"}},
 	{"type":"check", "queries":["select avg(l_extendedprice) from lineitem"]},
+
+
 	
 	{"type":"generate", "task_id":"case", "context":[],
 		"template":"case.py", "substitutions":{}},
@@ -180,7 +183,7 @@
 	{"type":"check", 
 	"queries":["select avg(l_extendedprice) from lineitem group by l_shipmode"]},
 	
-	{"type":"generate", "task_id":"grouped_avg", "context":[], 
+	{"type":"generate", "task_id":"grouped_count", "context":[], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"count"}},
 	{"type":"check", 
 	"queries":["select count(*) from lineitem group by l_shipmode"]},
