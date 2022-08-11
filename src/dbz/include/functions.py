@@ -180,9 +180,10 @@ def ungrouped_count(table, operands, distinct):
     Returns:
         a count value
     """
-    keep_row = logical_not(logical_or([is_null(op) for op in operands]))
-    filtered = filter_table(table, keep_row)
+    if operands:
+        keep_row = logical_not(logical_or([is_null(op) for op in operands]))
+        table = filter_table(table, keep_row)
     if distinct:
-        return count_distinct(filtered, operands)
+        return count_distinct(table, operands)
     else:
-        return table_cardinality(filtered)
+        return table_cardinality(table)
