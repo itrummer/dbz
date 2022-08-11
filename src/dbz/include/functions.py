@@ -152,23 +152,6 @@ def table_cardinality(table):
         return nr_rows(get_column(table, 0))
 
 
-def smart_substring(src, start, length):
-    """ Extracts substrings from columns or scalars.
-    
-    Args:
-        src: extract substrings from this column or scalar
-        start: start index of extracted substring
-        length: length of extracted substring
-    
-    Returns:
-        extracted substring(s) (column or scalar)
-    """
-    assert not is_scalar(src), 'Error - cannot extract from scalar source'
-    assert is_scalar(start), 'Error - only scalar start indexes supported'
-    assert is_scalar(length), 'Error - only scalar length values supported'
-    return substring(src, get_value(start, 0), get_value(length, 0))
-
-
 def ungrouped_count(table, operands, distinct):
     """ Performs count operation without grouping.
     

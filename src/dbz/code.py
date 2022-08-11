@@ -722,7 +722,7 @@ class Coder():
         operands = operation['operands']
         op_codes = [self._operation_code(op) for op in operands]
         src, start, length = op_codes
-        return f'smart_substring({src},{start},{length})'
+        return f'substring({src},get_value({start},0),get_value({length},0))'
     
     def _unary_code(self, operation):
         """ Translates unary operation into code.
