@@ -39,6 +39,9 @@
 		"template":"cast.py", "substitutions":{"<ToType>":"float"}},
 	{"type":"generate", "task_id":"to_string", "context":[],
 		"template":"cast.py", "substitutions":{"<ToType>":"string"}},
+	{"type":"generate", "task_id":"is_empty", "context":[], 
+		"template":"is_empty.py", "substitutions":{}},	
+
 	
 	{"type":"check", "queries":[
 		"select * from lineitem",
@@ -136,8 +139,6 @@
 		"select null is not true", "select null is not false", "select null is not null"]},		
 	
 	
-	{"type":"generate", "task_id":"is_empty", "context":[], 
-		"template":"is_empty.py", "substitutions":{}},	
 	{"type":"generate", "task_id":"sum", "context":[], 
 		"template":"aggregate.py", "substitutions":{"<aggregate>":"sum"}},
 	{"type":"check", "queries":["select sum(l_extendedprice) from lineitem"]},
