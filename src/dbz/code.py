@@ -549,10 +549,9 @@ class Coder():
         
         to_path = f'{self.paths.tmp_dir}/{result}'
         df = pd.DataFrame(out_rows)
-        df.to_csv(to_path, header=False)
+        df.to_csv(to_path, header=False, index=False)
         
         parts = []
-        parts += [f'out_rows = {str(out_rows)}']
         parts += [f'{result} = load_from_csv("{to_path}")']
         return '\n'.join(parts)
     
