@@ -70,15 +70,15 @@ def scale_columns(columns):
     max_rows = max([nr_rows(c) for c in columns])
     scaled_cols = []
     for col in columns:
-        nr_rows = nr_rows(col)
-        if nr_rows == max_rows:
+        cur_size = nr_rows(col)
+        if cur_size == max_rows:
             scaled_cols += [col]
-        elif nr_rows < max_rows and nr_rows == 1:
+        elif cur_size < max_rows and cur_size == 1:
             value = get_value(col, 0)
             scaled_col = fill_column(value, max_rows)
             scaled_cols += [scaled_col]
         else:
-            raise ValueError(f'Cannot scale size {nr_rows} to {max_rows}')
+            raise ValueError(f'Cannot scale size {cur_size} to {max_rows}')
     return scaled_cols
 
 
