@@ -517,12 +517,12 @@ class Coder():
         
         for col_idx, col_type in enumerate(col_types):
             parts += [f'col = get_column({result},{col_idx})']
-            base_type = col_type['type']
-            sql_type = {
-                'DECIMAL':'int', 'NUMERIC':'float', 'FLOAT':'float', 
-                'INTEGER':'int', 'CHAR':'string', 'VARCHAR':'string',
-                'DATE':'int'}[base_type]
-            fct_name = f'cast_to_{sql_type}'
+            sql_type = col_type['type']
+            cast_type = {
+                'DECIMAL':'integer', 'NUMERIC':'float', 'FLOAT':'float', 
+                'INTEGER':'integer', 'CHAR':'string', 'VARCHAR':'string',
+                'DATE':'integer'}[sql_type]
+            fct_name = f'cast_to_{cast_type}'
             parts += [f'col = {fct_name}(col)']
             parts += [f'set_column({result},{col_idx},col)']
         

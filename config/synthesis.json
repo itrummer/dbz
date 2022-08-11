@@ -38,7 +38,7 @@
 	{"type":"generate", "task_id":"to_float", "context":[],
 		"template":"cast.py", "substitutions":{"<ToType>":"float"}},
 	{"type":"generate", "task_id":"to_string", "context":[],
-		"template":"cast.py", "substitutions":{"<ToType>":"varchar"}},
+		"template":"cast.py", "substitutions":{"<ToType>":"string"}},
 	
 	{"type":"check", "queries":[
 		"select * from lineitem",
