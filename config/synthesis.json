@@ -152,6 +152,10 @@
 		"template":"aggregate.py", "substitutions":{"<aggregate>":"avg"}},
 	{"type":"check", "queries":["select avg(l_extendedprice) from lineitem"]},
 
+	{"type":"generate", "task_id":"count_distinct", "context":[], 
+		"template":"count_distinct.py", "substitutions":{}},
+	{"type":"check", "queries":["select count(distinct l_shipmode) from lineitem"]},
+
 
 	
 	{"type":"generate", "task_id":"case", "context":[],

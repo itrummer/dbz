@@ -42,43 +42,6 @@ class Coder():
 
         return '\n'.join(lines)
     
-    def _agg_code(self, agg, groups, indent=0):
-        """ Generates code for processing aggregates.
-        
-        Args:
-            agg: produce code for this aggregate
-            groups: column indices for grouping
-            indent: number of tabs before each line
-        
-        Returns:
-            code processing given aggregate
-        """
-        operands = agg['operands']
-        distinct = agg['distinct']
-        kind = agg['agg']['kind']
-        row_id_column = 'row_id_column' if groups else 'None'
-        
-        parts = []
-        parts += [
-            f'params = prepare_aggregate(' +\
-            f'input_rel,{str(operands)},' +\
-            f'{row_id_column},{distinct})']
-        
-        name = {
-            'SUM':'sum', 'AVG':'avg', 'MIN':'min', 
-            'MAX':'max', 'COUNT':'count'}[kind]
-        if groups:
-            name = 'per_group_' + name
-        else:
-            name = 'calculate_' + name
-        parts += [f'agg_result = {name}(*params)']
-        
-        if not groups:
-            parts += [f'agg_result = fill_column(agg_result,1)']
-
-        prefix = '\t' * indent
-        return '\n'.join([prefix + p for p in parts])
-    
     def _assignment(self, step, op_code):
         """ Returns code for assigning operation result to variable.
         
@@ -266,7 +229,37 @@ class Coder():
         Returns:
             code for processing aggregates with grouping
         """
-        pass
+        step_id = step['id']
+        aggs = step['aggs']
+        groups = step['group']
+        result = self._result_name(step_id)
+        
+        parts = [f'# LogicalAggregate: aggs: {aggs}; groups {groups}']
+        parts += [f'result_cols = []']
+        
+        nr_group_cols = len(groups)
+        result_idx = nr_group_cols
+        for agg in aggs:
+            distinct = agg['distinct']
+            kind = agg['agg']['kind']
+            operands = agg['operands']
+            if kind in ['SUM', 'AVG', 'MIN', 'MAX']:
+                assert len(operands) == 1
+                operand = operands[0]
+                fct_name = f'group_by_{kind.lower()}'
+                params = f'in_rel_1, {operand}, {str(groups)}'
+                parts += [f'agg_tbl = {fct_name}({params})']
+            else:
+                assert kind == 'COUNT'
+                params = f'in_rel_1, {str(groups)}, {str(operands)}, {distinct}'
+                parts += [f'agg_tbl = grouped_count({params})']
+
+            params = f'agg_tbl, {str(groups)}, [True] * {nr_group_cols}'
+            parts += [f'agg_tbl = sort_rows({params})']
+            parts += [f'result_col = get_column(agg_tbl, {result_idx})']
+            parts += ['result_cols += [result_col]']
+        
+        parts += [f'{result} = create_table(result_cols)']
     
     def _like_code(self, node):
         """ Generate code for evaluating LIKE expression.
@@ -758,23 +751,21 @@ class Coder():
             parts += [f'if {check_1} and {check_2}:']
             
             kind = agg['agg']['kind']
+            operands = agg['operands']
             if kind in ['SUM', 'AVG', 'MIN', 'MAX']:
-                operands = agg['operands']
                 assert len(operands) == 1
                 operand = operands[0]
                 parts += [f'\tin_col = get_column(in_rel_1,{operand})']
                 parts += [f'\tval = calculate_{kind.lower()}(in_col)']
-                parts += [f'\tagg_result = fill_column(val, 1)']
             else:
                 distinct = agg['distinct']
-                
-                pass
+                params = f'in_rel_1, {str(operands)}, {distinct}'
+                parts += [f'\tval = ungrouped_count({params})']
                 
             parts += ['else:']
-            def_val = 'fill_column(0,1)' \
-                if agg['agg']['kind'] == 'COUNT' \
-                else 'fill_column(None,1)'
-            parts += [f'\tagg_result = {def_val}']
+            def_val = '0' if agg['agg']['kind'] == 'COUNT' else 'None'
+            parts += [f'\tval = {def_val}']
+            parts += [f'agg_result = fill_column(val, 1)']
             parts += [f'result_cols += [agg_result]']
         
         parts += [f'{result} = create_table(result_cols)']

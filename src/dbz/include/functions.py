@@ -3,6 +3,46 @@ Created on Aug 9, 2022
 
 @author: immanueltrummer
 '''
+def grouped_count(table, groups, operands, distinct):
+    """ Calculate count with group-by clause.
+    
+    Args:
+        table: count rows of this table
+        groups: indexes of group-by columns
+        operands: indexes of operand columns
+        distinct: whether to count distinct rows only
+    
+    Returns:
+        a column containing the result of aggregation
+    """
+    in_cols = [get_column(table, g) for g in groups]
+    in_cols += [get_column(table, o) for o in operands]
+    if operands:
+        do_count = logical_not(logical_or([is_null(op) for op in operands]))
+        count_nr = map_column(do_count, lambda d:1 if d else 0)
+    else:
+        in_card = table_cardinality(table)
+        count_nr = fill_column(1, in_card)
+    in_cols += [count_nr]
+    in_table = create_table(in_cols)
+    
+    nr_groups = len(groups)
+    nr_ops = len(operands)
+    in_groups = list(range(nr_groups))
+    in_ops = list(range(nr_groups, nr_groups + nr_ops))
+    count_nr_idx = len(in_cols)
+    
+    if distinct:
+        grouped_tbl = group_by_sum(in_table, count_nr_idx, in_groups + in_ops)
+        dup_cnt = get_column(grouped_tbl, count_nr_idx)
+        ones = fill_column(1, nr_rows(dup_cnt))
+        no_dup_cnt = min(dup_cnt, ones)
+        set_column(grouped_tbl, count_nr_idx, no_dup_cnt)
+        return group_by_sum(grouped_tbl, count_nr_idx, in_groups)
+    else:
+        return group_by_sum(in_table, count_nr_idx, in_groups)
+
+
 def multiply_by_scalar(column, scalar):
     """ Multiplies column by a scalar.
     
@@ -97,6 +137,21 @@ def smart_padding(operand, pad_to):
     return map_column(operand, lambda s:s.ljust(pad_to))
 
 
+def table_cardinality(table):
+    """ Returns the number of rows in table.
+    
+    Args:
+        table: a table to count rows for
+    
+    Returns:
+        number of rows in table
+    """
+    if is_empty(table):
+        return 0
+    else:
+        return nr_rows(get_column(table, 0))
+
+
 def smart_substring(src, start, length):
     """ Extracts substrings from columns or scalars.
     
@@ -112,3 +167,22 @@ def smart_substring(src, start, length):
     assert is_scalar(start), 'Error - only scalar start indexes supported'
     assert is_scalar(length), 'Error - only scalar length values supported'
     return substring(src, get_value(start, 0), get_value(length, 0))
+
+
+def ungrouped_count(table, operands, distinct):
+    """ Performs count operation without grouping.
+    
+    Args:
+        table: count rows from this table
+        operands: indexes of count columns
+        distinct: whether distinct keyword is present
+    
+    Returns:
+        a count value
+    """
+    keep_row = logical_not(logical_or([is_null(op) for op in operands]))
+    filtered = filter_table(table, keep_row)
+    if distinct:
+        return count_distinct(filtered, operands)
+    else:
+        return table_cardinality(filtered)
