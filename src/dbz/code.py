@@ -156,6 +156,8 @@ class Coder():
         elif old_type_name == 'char' and new_type_name == 'char':
             pad_to = new_type['precision']
             return f'smart_padding({operand_code},{pad_to})'
+        elif new_type_name == 'varchar':
+            return f'cast_to_string({operand_code})'
         else:
             return f'cast_to_{new_type_name}({operand_code})'
     
