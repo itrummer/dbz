@@ -461,11 +461,9 @@ class Coder():
         exprs = step['exprs']
         for expr in exprs:
             expr_code = self._operation_code(expr)
-            col_code = f'column = {expr_code}'
-            add_code = f'result_cols += [column]'
-            parts += [col_code]
-            parts += [add_code]
-        parts += ['result_cols = scale_columns(result_cols)']
+            parts += [f'column = {expr_code}']
+            parts += [f'column = scale_to_table(column, in_rel_1)']
+            parts += ['result_cols += [column]']
         parts += [f'{result} = create_table(result_cols)']
         return '\n'.join(parts)
     
