@@ -257,7 +257,7 @@ class Coder():
                 params = f'in_rel_1, {str(groups)}, {str(operands)}, {distinct}'
                 parts += [f'agg_tbl = grouped_count({params})']
 
-            params = f'agg_tbl, {str(groups)}, [True] * {nr_group_cols}'
+            params = f'agg_tbl, {str(groups)}'
             parts += [f'agg_tbl = sort_rows({params})']
             parts += [f'result_col = get_column(agg_tbl, {result_idx})']
             parts += ['result_cols += [result_col]']
