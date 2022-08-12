@@ -263,6 +263,7 @@ class Coder():
             parts += ['result_cols += [result_col]']
         
         parts += [f'{result} = create_table(result_cols)']
+        return '\n'.join(parts)
     
     def _like_code(self, node):
         """ Generate code for evaluating LIKE expression.
