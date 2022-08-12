@@ -492,7 +492,7 @@ class Coder():
                 ascending += [flag]
             parts += [f'sort_cols = [{",".join(sort_cols)}]']
             parts += [f'ascending = [{",".join(ascending)}]']
-            parts += [f'{result} = sort({result}, sort_cols, ascending)']
+            parts += [f'{result} = sort_rows({result}, sort_cols, ascending)']
         
         if 'fetch' in step:
             nr_rows = step['fetch']['literal']
