@@ -145,7 +145,7 @@
 	{"type":"generate", "task_id":"first_rows", "context":[],
 		"template":"first_rows.py", "substitutions":{}},
 	{"type":"check", 
-		"queries":["select * from lineitem order by l_extendedprice DESC limit 5"]},
+		"queries":["select * from lineitem order by l_orderkey, l_linenumber DESC limit 5"]},
 	
 	
 	
