@@ -164,7 +164,8 @@ def ungrouped_count(table, operands, distinct):
         a count value
     """
     if operands:
-        keep_row = logical_not(logical_or([is_null(op) for op in operands]))
+        op_cols = [get_column(table, op) for op in operands]
+        keep_row = logical_not(logical_or([is_null(col) for col in op_cols]))
         table = filter_table(table, keep_row)
     if distinct:
         return count_distinct(table, operands)
