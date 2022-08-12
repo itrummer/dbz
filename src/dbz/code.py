@@ -479,7 +479,7 @@ class Coder():
         """
         step_id = step['id']
         result = self._result_name(step_id)
-        parts = []
+        parts = [f'{result} = in_rel_1']
         
         if 'collation' in step:
             collation = step['collation']
