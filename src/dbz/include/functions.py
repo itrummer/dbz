@@ -137,6 +137,37 @@ def smart_padding(operand, pad_to):
     return map_column(operand, lambda s:s.ljust(pad_to))
 
 
+def sort_wrapper(table, key_cols, ascending):
+    """ Resolves sort direction before calling generated sort function.
+    
+    Args:
+        table: a table to sort
+        key_cols: key columns to sort by
+        ascending: flag indicating direction for each column
+    
+    Returns:
+        sorted table
+    """
+    def change_sign(table, key_cols, ascending):
+        """ Changes signs of all columns marked as descending.
+        
+        Args:
+            table: change signum for column in this table
+            key_cols: key columns for sorting
+            ascending: list of flags for each column
+        """
+        for col_idx, asc in zip(key_cols, ascending):
+            if not asc:
+                col = get_column(table, col_idx)
+                col = multiply_by_scalar(col, -1)
+                set_column(table, col_idx, col)
+    
+    change_sign(table, key_cols, ascending)
+    table = sort_rows(table, key_cols)
+    change_sign(table, key_cols, ascending)
+    return table
+    
+
 def table_cardinality(table):
     """ Returns the number of rows in table.
     

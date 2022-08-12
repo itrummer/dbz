@@ -1,11 +1,10 @@
-def sort_rows(table, sort_columns, ascending):
-    """ Sort table rows by specified columns.
+def sort_rows(table, key_columns):
+    """ Sort rows by key columns.
     
     Args:
         table: <Table>.
-        sort_columns: indexes of columns to sort by.
-        ascending: flags for each sort column.
+        key_columns: list of column indexes.
     
     Returns:
-        sorted rows.
+        rows sorted by key columns.
     """
