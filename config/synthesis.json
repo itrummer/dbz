@@ -137,6 +137,16 @@
 		"select l_extendedprice is null from lineitem",
 		"select null is true", "select null is false", "select null is null", 
 		"select null is not true", "select null is not false", "select null is not null"]},
+
+
+
+	{"type":"generate", "task_id":"sort", "context":[], 
+		"template":"sort.py", "substitutions":{}},
+	{"type":"generate", "task_id":"first_rows", "context":[],
+		"template":"first_rows.py", "substitutions":{}},
+	{"type":"check", 
+		"queries":["select * from lineitem order by l_extendedprice DESC limit 5"]},
+	
 	
 	
 	{"type":"generate", "task_id":"sum", "context":[], 
@@ -211,15 +221,6 @@
 	
 	{"type":"generate", "task_id":"full_join", "context":[], "template":"join.py", 
 		"substitutions":{"<JoinDefinition>":"full_outer", "JoinDescription":"full outer"}},
-	{"type":"check", "queries":["select * from customer full outer join orders on c_custkey = o_custkey"]},
-
-
-
-	{"type":"generate", "task_id":"sort", "context":[], 
-		"template":"sort.py", "substitutions":{}},
-	{"type":"generate", "task_id":"first_rows", "context":[],
-		"template":"first_rows.py", "substitutions":{}},
-	{"type":"check", 
-		"queries":["select * from lineitem order by l_extendedprice DESC limit 5"]}
+	{"type":"check", "queries":["select * from customer full outer join orders on c_custkey = o_custkey"]}
 	]
 }
