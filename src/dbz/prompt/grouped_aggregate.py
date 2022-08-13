@@ -7,5 +7,5 @@ def group_by_<aggregate>(table, agg_column, group_columns):
         group_columns: indexes of columns to group by.
    
     Returns:
-        group columns and associated <aggregate>.
+        group columns and associated <aggregate>: <Table>.
     """
