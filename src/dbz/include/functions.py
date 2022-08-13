@@ -30,7 +30,7 @@ def grouped_count(table, groups, operands, distinct):
     nr_ops = len(operands)
     in_groups = list(range(nr_groups))
     in_ops = list(range(nr_groups, nr_groups + nr_ops))
-    count_nr_idx = len(in_cols)
+    count_nr_idx = len(in_cols)-1
     
     if distinct:
         grouped_tbl = group_by_sum(in_table, count_nr_idx, in_groups + in_ops)
