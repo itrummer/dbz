@@ -106,7 +106,8 @@ class Synthesizer():
                 response = openai.Completion.create(
                     prompt=prompt, stop=stop,
                     temperature=temperature,
-                    engine='davinci-codex',
+                    #engine='davinci-codex',
+                    engine='code-davinci-002',
                     max_tokens=600)
                 completion = response['choices'][0]['text']
                 print(f'--- COMPLETION ---\n{completion}')
