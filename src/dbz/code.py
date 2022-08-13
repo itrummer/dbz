@@ -238,11 +238,10 @@ class Coder():
         result = self._result_name(step_id)
         
         parts = [f'# LogicalAggregate: aggs: {aggs}; groups {groups}']
-        parts += [f'result_cols = []']
         
         nr_group_cols = len(groups)
         result_idx = nr_group_cols
-        for agg in aggs:
+        for agg_idx, agg in enumerate(aggs):
             distinct = agg['distinct']
             kind = agg['agg']['kind']
             operands = agg['operands']
@@ -259,6 +258,10 @@ class Coder():
 
             params = f'agg_tbl, {str(groups)}'
             parts += [f'agg_tbl = sort_rows({params})']
+            if not agg_idx:
+                parts += ['result_cols = [get_column(agg_tbl, i)' +\
+                          f' for i in range({result_idx})]']
+
             parts += [f'result_col = get_column(agg_tbl, {result_idx})']
             parts += ['result_cols += [result_col]']
         
