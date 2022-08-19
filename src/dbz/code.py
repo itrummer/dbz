@@ -434,7 +434,8 @@ class Coder():
             'right':'right_outer_join', 
             'full':'full_outer_join'}
         join_def = type_to_def.get(join_type, 'equality_join')
-        op_code = f'{join_def}(in_rel_1, in_rel_2)'        
+        op_code = f'{join_def}(in_rel_1, in_rel_2, ' +\
+            f'{str(key_cols_1)}, {str(key_cols_2)})'
         parts = [f'{result} = {op_code}']
         
         filter_preds = [c for c in conjuncts if not is_eq_col_pred(c)]
