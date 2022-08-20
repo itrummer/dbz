@@ -211,15 +211,15 @@
 		"substitutions":{"<JoinDefinition>":"equality", "<JoinDescription>":"equality"}},
 	{"type":"check", "queries":["select * from customer, orders where c_custkey = o_custkey"]},
 	
-	{"type":"generate", "task_id":"left_join", "context":[], "template":"join.py", 
+	{"type":"generate", "task_id":"left_join", "context":["equi_join"], "template":"join.py", 
 		"substitutions":{"<JoinDefinition>":"left_outer", "<JoinDescription>":"left outer"}},
 	{"type":"check", "queries":["select * from customer left join orders on c_custkey = o_custkey"]},
 
-	{"type":"generate", "task_id":"right_join", "context":[], "template":"join.py", 
+	{"type":"generate", "task_id":"right_join", "context":["equi_join"], "template":"join.py", 
 		"substitutions":{"<JoinDefinition>":"right_outer", "<JoinDescription>":"right outer"}},
 	{"type":"check", "queries":["select * from customer right join orders on c_custkey = o_custkey"]},
 	
-	{"type":"generate", "task_id":"full_join", "context":[], "template":"join.py", 
+	{"type":"generate", "task_id":"full_join", "context":["equi_join"], "template":"join.py", 
 		"substitutions":{"<JoinDefinition>":"full_outer", "<JoinDescription>":"full outer"}},
 	{"type":"check", "queries":["select * from customer full outer join orders on c_custkey = o_custkey"]}
 	]
