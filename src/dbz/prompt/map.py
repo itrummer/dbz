@@ -6,5 +6,5 @@ def map_column(column, map_fct):
         map_fct: apply to each element in column.
     
     Returns:
-        <Column> with the result of function.
+        <Column> with the result of function (NULL if input is NULL).
     """
