@@ -167,7 +167,7 @@ class Synthesizer():
         prompt_end = self._substitute(prompt_end, substitutions)
         parts += [prompt_end]
         
-        prompt = '\n\n\n'.join(parts)
+        prompt = '\n'.join(parts)
         stop = '\n\n'
         if 'stop' in task:
             stop = task['stop']
