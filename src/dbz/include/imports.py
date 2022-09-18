@@ -5,5 +5,6 @@ Created on Mar 29, 2022
 '''
 import csv
 import datetime
+import numpy as np
 import pandas as pd
 import re
