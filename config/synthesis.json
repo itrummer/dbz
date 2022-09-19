@@ -23,7 +23,9 @@
 
 	{"type":"generate", "task_id":"nr_rows", "context":[],
 		"template":"nr_rows.py", "substitutions":{}},
-	{"type":"generate", "task_id":"multiplication", "context":[],
+	{"type":"generate", "task_id":"is_null", "context":[],
+		"template":"is_null.py", "substitutions":{}},
+	{"type":"generate", "task_id":"multiplication", "context":["is_null"],
 		"template":"binary_expression.py", 
 		"substitutions":{"<binary_op>":"multiplication"}},
 	{"type":"generate", "task_id":"get", "context":[],
@@ -49,16 +51,12 @@
 		"select count(*) from lineitem",
 		"select cast(l_orderkey as int) from lineitem",
 		"select cast(l_extendedprice as float) from lineitem",
-		"select cast(l_extendedprice as varchar(100)) from lineitem"
+		"select cast(l_extendedprice as varchar(100)) from lineitem",
+		"select l_extendedprice is null from lineitem", "select null is null"
 		]
 	},
-	
-	
-	
-	{"type":"generate", "task_id":"is_null", "context":[],
-		"template":"is_null.py", "substitutions":{}},
-	{"type":"check", 
-		"queries":["select l_extendedprice is null from lineitem", "select null is null"]},
+
+
 	
 	{"type":"generate", "task_id":"substring", "context":["is_null"],
 		"template":"substring.py", "substitutions":{}},
