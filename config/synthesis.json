@@ -41,7 +41,6 @@
 		"template":"cast.py", "substitutions":{"<ToType>":"string"}},
 	{"type":"generate", "task_id":"is_empty", "context":[], 
 		"template":"is_empty.py", "substitutions":{}},	
-
 	
 	{"type":"check", "queries":[
 		"select * from lineitem",
@@ -54,22 +53,29 @@
 		]
 	},
 	
-	{"type":"generate", "task_id":"substring", "context":[],
+	
+	
+	{"type":"generate", "task_id":"is_null", "context":[],
+		"template":"is_null.py", "substitutions":{}},
+	{"type":"check", 
+		"queries":["select l_extendedprice is null from lineitem", "select null is null"]},
+	
+	{"type":"generate", "task_id":"substring", "context":["is_null"],
 		"template":"substring.py", "substitutions":{}},
 	{"type":"check", "queries":["select substring(l_comment, 1, 3) from lineitem"]},
 		
-	{"type":"generate", "task_id":"addition", "context":[],
+	{"type":"generate", "task_id":"addition", "context":["is_null"],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"addition"}},
 	{"type":"check", "queries":[
 		"select l_extendedprice + 0.1 from lineitem",
 		"select l_extendedprice * 10 from lineitem",
 		"select l_extendedprice + NULL from lineitem"]},
 	
-	{"type":"generate", "task_id":"subtraction", "context":[],
+	{"type":"generate", "task_id":"subtraction", "context":["is_null"],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"subtraction"}},
 	{"type":"check", "queries":["select l_extendedprice - 0.1 from lineitem"]},
 	
-	{"type":"generate", "task_id":"division", "context":[],
+	{"type":"generate", "task_id":"division", "context":["is_null"],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"division"}},
 	{"type":"check", "queries":["select l_extendedprice / 0.1 from lineitem"]},
 	
@@ -128,12 +134,7 @@
 	{"type":"generate", "task_id":"not", "context":[], "template":"unary.py", 
 		"substitutions":{"<operator>":"logical_not", "<InputDescription>":"with Boolean values"}},
 	{"type":"check", 
-		"queries":["select * from lineitem where not (l_extendedprice < 13000)"]},
-	
-	{"type":"generate", "task_id":"is_null", "context":[],
-		"template":"is_null.py", "substitutions":{}},
-	{"type":"check", 
-		"queries":[
+		"queries":["select * from lineitem where not (l_extendedprice < 13000)",
 		"select l_extendedprice is null from lineitem",
 		"select null is true", "select null is false", "select null is null", 
 		"select null is not true", "select null is not false", "select null is not null"]},
