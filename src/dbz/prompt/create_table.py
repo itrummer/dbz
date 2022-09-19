@@ -1,8 +1,8 @@
-def create_table(columns):
+def create_table(column_data):
     """ Create table from given columns.
    
     Args:
-        columns: a list of columns where each column is <Column>.
+        column_data: a list of columns where each column is <Column>.
    
     Returns:
         <Table>.
