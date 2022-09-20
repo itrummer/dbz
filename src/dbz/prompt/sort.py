@@ -6,5 +6,5 @@ def sort_rows(table, key_columns):
         key_columns: list of column indexes.
     
     Returns:
-        rows sorted by key columns.
+        <Table> (without index) containing rows sorted by key columns.
     """
