@@ -15,7 +15,7 @@ def multiway_or(operands):
     scale_to = nr_rows(operands[0])
     result = fill_column(True, scale_to)
     for op in operands:
-        result = logical_or(result, op)
+        result = logical_or([result, op])
     return result
 
 
