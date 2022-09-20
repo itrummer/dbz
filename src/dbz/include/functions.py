@@ -3,6 +3,22 @@ Created on Aug 9, 2022
 
 @author: immanueltrummer
 '''
+def multiway_or(operands):
+    """ Calculates a logical or between multiple operands.
+    
+    Args:
+        operands: list of Boolean columns
+    
+    Returns:
+        column containing logical or
+    """
+    scale_to = nr_rows(operands[0])
+    result = fill_column(True, scale_to)
+    for op in operands:
+        result = logical_or(result, op)
+    return result
+
+
 def grouped_count(table, groups, operands, distinct):
     """ Calculate count with group-by clause.
     
@@ -18,7 +34,7 @@ def grouped_count(table, groups, operands, distinct):
     in_cols = [get_column(table, g) for g in groups]
     in_cols += [get_column(table, o) for o in operands]
     if operands:
-        do_count = logical_not(logical_or([is_null(op) for op in operands]))
+        do_count = logical_not(multiway_or([is_null(op) for op in operands]))
         count_nr = map_column(do_count, lambda d:1 if d else 0)
     else:
         in_card = table_cardinality(table)
@@ -196,7 +212,7 @@ def ungrouped_count(table, operands, distinct):
     """
     if operands:
         op_cols = [get_column(table, op) for op in operands]
-        keep_row = logical_not(logical_or([is_null(col) for col in op_cols]))
+        keep_row = logical_not(multiway_or([is_null(col) for col in op_cols]))
         table = filter_table(table, keep_row)
     if distinct:
         return count_distinct(table, operands)
