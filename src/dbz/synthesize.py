@@ -56,6 +56,7 @@ class Synthesizer():
             
             start_s = time.time()
             if task_type == 'generate':
+                print(f'Generating with Temperature: {temperature}')
                 solution = self._generate(cur_task, temperature)
                 task_id = cur_task['task_id']
                 self.solutions[task_id] = solution
