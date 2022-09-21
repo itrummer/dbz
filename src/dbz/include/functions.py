@@ -12,8 +12,8 @@ def multiway_or(operands):
     Returns:
         column containing logical or
     """
-    scale_to = nr_rows(operands[0])
-    result = fill_column(True, scale_to)
+    max_rows = max([nr_rows(op) for op in operands])
+    result = fill_column(False, max_rows)
     for op in operands:
         result = logical_or([result, op])
     return result
