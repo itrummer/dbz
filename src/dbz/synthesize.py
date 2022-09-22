@@ -14,18 +14,20 @@ import time
 class Synthesizer():
     """ Synthesizes code for a DBMS engine. """
     
-    def __init__(self, config_path, table_nl, column_nl):
+    def __init__(self, config_path, table_nl, column_nl, tbl_post_nl):
         """ Initialize for given natural language instructions.
         
         Args:
             config_path: path to configuration file
             table_nl: natural language description of table representation
             column_nl: natural language description of column representation
+            tbl_post_nl: natural language description of table post-processing
         """
         with open(config_path) as file:
             self.config = json.load(file)
         self.table_nl = table_nl
         self.column_nl = column_nl
+        self.tbl_post_nl = tbl_post_nl
         self.solutions = {}
         self.solved_tasks = []
     
@@ -224,6 +226,7 @@ class Synthesizer():
         text = raw_text
         substitutions['<Table>'] = self.table_nl
         substitutions['<Column>'] = self.column_nl
+        substitutions['<TablePost>'] = self.tbl_post_nl
         for placeholder, value in substitutions.items():
             text = text.replace(placeholder, value)
         return text

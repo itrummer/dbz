@@ -15,11 +15,12 @@ if __name__ == '__main__':
     parser.add_argument('ai_key', type=str, help='Access key to OpenAI')
     parser.add_argument('table_nl', type=str, help='Table representation')
     parser.add_argument('column_nl', type=str, help='Column representation')
+    parser.add_argument('tbl_post_nl', type=str, help='Table post-processing')
     args = parser.parse_args()
     
     openai.api_key = args.ai_key
     synthesizer = dbz.synthesize.Synthesizer(
-        args.config, args.table_nl, args.column_nl)
+        args.config, args.table_nl, args.column_nl, args.tbl_post_nl)
     library, stats = synthesizer.synthesize()
     print('*** GENERATED LIBRARY ***')
     print(library)

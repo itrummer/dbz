@@ -1,5 +1,5 @@
 def filter_table(table, row_idx):
-    """ Filter rows in table.
+    """ Filter rows in table.<TablePost>
     
     Args:
         table: <Table>.
