@@ -3,6 +3,22 @@ Created on Aug 9, 2022
 
 @author: immanueltrummer
 '''
+def multiway_and(operands):
+    """ Calculates a logical and between multiple operands.
+    
+    Args:
+        operands: list of Boolean columns
+    
+    Returns:
+        column containing logical and
+    """
+    max_rows = max([nr_rows(op) for op in operands])
+    result = fill_column(True, max_rows)
+    for op in operands:
+        result = logical_and(result, op)
+    return result
+
+
 def multiway_or(operands):
     """ Calculates a logical or between multiple operands.
     
@@ -15,7 +31,7 @@ def multiway_or(operands):
     max_rows = max([nr_rows(op) for op in operands])
     result = fill_column(False, max_rows)
     for op in operands:
-        result = logical_or([result, op])
+        result = logical_or(result, op)
     return result
 
 

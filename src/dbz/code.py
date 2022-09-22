@@ -445,7 +445,7 @@ class Coder():
             for filter_pred in filter_preds:
                 filter_code = self._operation_code(filter_pred)
                 filter_codes += [filter_code]
-            parts += [f'p_idx = logical_and([{", ".join(filter_codes)}])']
+            parts += [f'p_idx = multiway_and([{", ".join(filter_codes)}])']
             parts += [f'{result} = filter_table({result}, p_idx)']
         
         return '\n'.join(parts)
@@ -570,7 +570,7 @@ class Coder():
             code realizing operation
         """
         op_kind = operation['op']['kind']
-        op_name = {'AND':'logical_and', 'OR':'logical_or'}[op_kind]
+        op_name = {'AND':'multiway_and', 'OR':'multiway_or'}[op_kind]
         operands = operation['operands']
         params = [self._operation_code(operand) for operand in operands]
         return f'{op_name}(scale_columns([{", ".join(params)}]))'
@@ -742,11 +742,11 @@ class Coder():
         if kind in ['IS_NULL', 'IS_NOT_NULL']:
             op_code = f'is_null({op_code})'
         elif kind in ['IS_TRUE', 'IS_NOT_TRUE']:
-            op_code = f'logical_and([' +\
+            op_code = f'multiway_and([' +\
                 f'logical_not(is_null({op_code})),' +\
                     f'{op_code}])'
         if kind in ['IS_FALSE', 'IS_NOT_FALSE']:
-            op_code = f'logical_and([' +\
+            op_code = f'multiway_and([' +\
                 f'logical_not(is_null({op_code})),' +\
                     f'logical_not({op_code})])'
         if 'NOT' in kind:

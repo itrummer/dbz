@@ -1,8 +1,9 @@
-def logical_<operator>(columns):
+def logical_<operator>(column_1, column_2):
     """ Performs logical <operator>.
     
     Args:
-        columns: list of columns with Boolean values where each column is <Column>.
+        column_1: <Column>.
+        column_2: <Column>.
     
     Returns:
         <Column> containing result of <operator>.
