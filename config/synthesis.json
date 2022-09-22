@@ -181,22 +181,22 @@
 		"select sum(1) from lineitem group by l_shipdate",
 		"select sum(l_extendedprice) from lineitem group by l_shipmode"]},
 	
-	{"type":"generate", "task_id":"grouped_min", "context":[], 
+	{"type":"generate", "task_id":"grouped_min", "context":["grouped_sum"], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"min"}},
 	{"type":"check", 
 	"queries":["select min(l_extendedprice) from lineitem group by l_shipmode"]},
 	
-	{"type":"generate", "task_id":"grouped_max", "context":[], 
+	{"type":"generate", "task_id":"grouped_max", "context":["grouped_sum"], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"max"}},
 	{"type":"check", 
 	"queries":["select max(l_extendedprice) from lineitem group by l_shipmode"]},
 	
-	{"type":"generate", "task_id":"grouped_avg", "context":[], 
+	{"type":"generate", "task_id":"grouped_avg", "context":["grouped_sum"], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"avg"}},
 	{"type":"check", 
 	"queries":["select avg(l_extendedprice) from lineitem group by l_shipmode"]},
 	
-	{"type":"generate", "task_id":"grouped_count", "context":[], 
+	{"type":"generate", "task_id":"grouped_count", "context":["grouped_sum"], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"count"}},
 	{"type":"check", 
 	"queries":["select count(*) from lineitem group by l_shipmode"]},
