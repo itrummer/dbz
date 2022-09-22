@@ -1,5 +1,5 @@
 def group_by_<aggregate>(table, agg_column, group_columns):
-    """ Calculate <aggregate> for each value combination in group columns.
+    """ Calculate <aggregate> for each value combination in group columns.<TablePost>
    
     Args:
         table: <Table>.

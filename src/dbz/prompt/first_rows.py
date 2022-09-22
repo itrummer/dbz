@@ -1,5 +1,5 @@
 def first_rows(table, n):
-    """ Returns first n rows of table.
+    """ Returns first n rows of table.<TablePost>
    
     Args:
         table: <Table>.
