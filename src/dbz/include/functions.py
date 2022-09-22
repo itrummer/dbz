@@ -150,7 +150,8 @@ def smart_padding(operand, pad_to):
     Returns:
         padded operand
     """
-    return map_column(operand, lambda s:s.ljust(pad_to))
+    return map_column(
+        operand, lambda s:s.ljust(pad_to) if isinstance(x,str) else x)
 
 
 def sort_wrapper(table, key_cols, ascending):
