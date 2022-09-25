@@ -58,8 +58,8 @@ class Tasks():
             if t['type'] == 'check':
                 for sql in t['queries']:
                     check_task = {'query':sql}
+                    requirements = set(t['context'])
                     code = engine.code(sql, 'dummy_path')
-                    requirements = set()
                     exec(code, {'requirements':requirements})
                     check_task['requirements'] = requirements
                     check_tasks += [check_task]
@@ -119,3 +119,4 @@ if __name__ == '__main__':
     
     tasks = Tasks(config)
     print(tasks.gen_tasks)
+    print(tasks.check_tasks)
