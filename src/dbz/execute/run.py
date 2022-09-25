@@ -4,7 +4,7 @@ Created on Mar 6, 2022
 @author: immanueltrummer
 '''
 import argparse
-import dbz.engine
+import dbz.execute.engine
 import dbz.util
 import os
 import prompt_toolkit
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     paths = dbz.util.DbzPaths(args.data_dir)
     with open(args.lib_path) as file:
         library = file.read()
-    engine = dbz.engine.DbzEngine(paths, library, args.python)
+    engine = dbz.execute.engine.DbzEngine(paths, library, args.python)
     
     terminated = False
     while not terminated:

@@ -4,7 +4,7 @@ Created on Mar 9, 2022
 @author: immanueltrummer
 '''
 import argparse
-import dbz.synthesize
+import dbz.generate.synthesize
 import json
 import openai
 
@@ -19,7 +19,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     openai.api_key = args.ai_key
-    synthesizer = dbz.synthesize.Synthesizer(
+    synthesizer = dbz.generate.synthesize.Synthesizer(
         args.config, args.table_nl, args.column_nl, args.tbl_post_nl)
     library, stats = synthesizer.synthesize()
     print('*** GENERATED LIBRARY ***')

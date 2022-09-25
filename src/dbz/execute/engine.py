@@ -4,9 +4,9 @@ Created on Mar 6, 2022
 @author: immanueltrummer
 '''
 import abc
-import dbz.code
-import dbz.query
-import dbz.plan
+import dbz.execute.code
+import dbz.execute.query
+import dbz.execute.plan
 import pandas as pd
 import psycopg2
 import subprocess
@@ -43,22 +43,22 @@ class DbzEngine(Engine):
         self.paths = paths
         self.library = library
         self.python_path = python_path
-        self.planner = dbz.plan.Planner(
+        self.planner = dbz.execute.plan.Planner(
             paths.schema, paths.planner, 
             paths.tmp_dir)
-        self.coder = dbz.code.Coder(paths, True)
+        self.coder = dbz.execute.code.Coder(paths, True)
     
-    def execute(self, sql, out):
-        """ Execute given query and write out result.
+    def code(self, sql, out):
+        """ Generate Python code for processing SQL query.
         
         Args:
-            sql: an SQL query to answer
-            out: name of file for query result
+            sql: an SQL query to process
+            out: name of query result file
         
         Returns:
-            true iff execution succeeds
+            a piece of code processing the query
         """
-        sql = dbz.query.simplify(sql)
+        sql = dbz.execute.query.simplify(sql)
         print(f'Simplified query: {sql}')
         plan = self.planner.plan(sql)
         print(f'Plan: {plan}')
@@ -70,8 +70,19 @@ class DbzEngine(Engine):
         code_parts += self._include(fct_path)
         code_parts += [self.coder.plan_code(plan)]
         code_parts += [f'write_to_csv(last_result, "{out}")']
-        code = '\n'.join(code_parts)
-        #print(f'Code: {code}')
+        return '\n'.join(code_parts)
+    
+    def execute(self, sql, out):
+        """ Execute given query and write out result.
+        
+        Args:
+            sql: an SQL query to answer
+            out: name of file for query result
+        
+        Returns:
+            true iff execution succeeds
+        """
+        code = self.code(sql, out)
         return self._run(code)
     
     def _include(self, path):

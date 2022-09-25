@@ -3,8 +3,8 @@ Created on Mar 6, 2022
 
 @author: immanueltrummer
 '''
-import dbz.check
-import dbz.engine
+import dbz.execute.check
+import dbz.execute.engine
 import dbz.util
 import json
 import openai
@@ -25,11 +25,34 @@ class Synthesizer():
         """
         with open(config_path) as file:
             self.config = json.load(file)
-        self.table_nl = table_nl
-        self.column_nl = column_nl
-        self.tbl_post_nl = tbl_post_nl
+        
+        self.def_substitutions = {
+            '<Table>':table_nl, 
+            '<Column>':column_nl, 
+            '<TablePost':tbl_post_nl}
+        
         self.solutions = {}
         self.solved_tasks = []
+
+    @staticmethod    
+    def load_prompt(file_name, substitutions):
+        """ Load prompt from file and substitute placeholders. 
+        
+        Args:
+            file_name: name of file containing prompt template
+            substitutions: dictionary mapping placeholders to values
+        
+        Returns:
+            text prompt after substitutions
+        """
+        in_path = f'src/dbz/prompt/{file_name}'
+        with open(in_path) as file:
+            text = file.read()
+
+        for placeholder, value in substitutions.items():
+            text = text.replace(placeholder, value)
+        
+        return text
     
     def synthesize(self):
         """ Synthesize code for DBMS engine. 
@@ -136,7 +159,7 @@ class Synthesizer():
         pg_user = ref_access['pg_user']
         pg_pwd = ref_access['pg_pwd']
         pg_host = ref_access['host']
-        ref_engine = dbz.engine.PgEngine(pg_db, pg_user, pg_pwd, pg_host)
+        ref_engine = dbz.execute.engine.PgEngine(pg_db, pg_user, pg_pwd, pg_host)
         
         test_access = self.config['test_access']
         data_dir = test_access['data_dir']
@@ -145,8 +168,8 @@ class Synthesizer():
         self.python_path = python
         queries = task['queries']
         
-        test_engine = dbz.engine.DbzEngine(paths, self._library(), python)
-        validator = dbz.check.Validator(paths, queries, ref_engine)
+        test_engine = dbz.execute.engine.DbzEngine(paths, self._library(), python)
+        validator = dbz.execute.check.Validator(paths, queries, ref_engine)
         return validator.validate(test_engine)
     
     def _generate(self, task, temperature):
@@ -165,9 +188,8 @@ class Synthesizer():
             parts += [self.solutions[c]]
         
         file = task['template']
-        prompt_end = self._load_prompt(file)
-        substitutions = task['substitutions']
-        prompt_end = self._substitute(prompt_end, substitutions)
+        substitutions = task['substitutions'] + self.def_substitutions
+        prompt_end = Synthesizer.load_prompt(file, substitutions)
         parts += [prompt_end]
         
         prompt = '\n'.join(parts)
@@ -189,44 +211,3 @@ class Synthesizer():
             solution = self.solutions[task_id]
             parts += [solution]
         return '\n'.join(parts)
-
-    def _load_prompt(self, file_name):
-        """ Load prompt (potentially with placeholders) from given file. """
-        in_path = f'src/dbz/prompt/{file_name}'
-        with open(in_path) as file:
-            return file.read()
-    
-    def _operators(self):
-        """ Generate code for relational operators. 
-        
-        Returns:
-            code for relational operators
-        """
-        operators = []
-        op_configs = self.config['operators']
-        for op_file, op_instances in op_configs.items():
-            for substitutions in op_instances:
-                context = self.imports + '\n' + self.table + ('\n'*3)
-                prompt = self._load_prompt(op_file)
-                prompt = self._substitute(prompt, substitutions)
-                completion = self._complete(context+prompt, 0, '\n'*2)
-                operators += [prompt + '\n' + completion + ('\n'*2)]
-        return operators
-    
-    def _substitute(self, raw_text, substitutions):
-        """ Substitute placeholders by values.
-        
-        Args:
-            raw_text: text with placeholders to substitute
-            substitutions: list of dictionaries mapping placeholders to values
-        
-        Returns:
-            text after replacements
-        """
-        text = raw_text
-        substitutions['<Table>'] = self.table_nl
-        substitutions['<Column>'] = self.column_nl
-        substitutions['<TablePost>'] = self.tbl_post_nl
-        for placeholder, value in substitutions.items():
-            text = text.replace(placeholder, value)
-        return text

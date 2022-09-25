@@ -4,8 +4,8 @@ Created on Mar 9, 2022
 @author: immanueltrummer
 '''
 import argparse
-import dbz.engine
-import dbz.query
+import dbz.execute.engine
+import dbz.execute.query
 import dbz.util
 import filecmp
 import os
@@ -142,14 +142,14 @@ if __name__ == '__main__':
     paths = dbz.util.DbzPaths(args.data_dir)
     with open(args.lib_path) as file:
         library = file.read()
-    dbz_engine = dbz.engine.DbzEngine(
+    dbz_engine = dbz.execute.engine.DbzEngine(
         paths, library, args.python)
-    pg_engine = dbz.engine.PgEngine(
+    pg_engine = dbz.execute.engine.PgEngine(
         args.pg_db, args.pg_user, 
         args.pg_pwd, args.pg_host)
     
-    queries = dbz.query.load_queries(args.queries)
-    queries = [dbz.query.simplify(q) for q in queries]
+    queries = dbz.execute.query.load_queries(args.queries)
+    queries = [dbz.execute.query.simplify(q) for q in queries]
     
     validator = Validator(paths, queries, pg_engine)
     success = validator.validate(dbz_engine)
