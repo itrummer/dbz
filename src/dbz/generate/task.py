@@ -58,7 +58,7 @@ class Tasks():
             if t['type'] == 'check':
                 for sql in t['queries']:
                     check_task = {'query':sql}
-                    requirements = set(t['context'])
+                    requirements = set()
                     code = engine.code(sql, 'dummy_path')
                     exec(code, {'requirements':requirements})
                     check_task['requirements'] = requirements
