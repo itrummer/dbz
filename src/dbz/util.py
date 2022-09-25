@@ -6,7 +6,10 @@ Created on Mar 9, 2022
 class DbzPaths():
     """ Stores relevant paths in DB-Zero data directory. """
     
-    def __init__(self, data_dir):
+    def __init__(
+            self, data_dir, 
+            planner='jars/Planner.jar', 
+            includes='src/dbz/include/run'):
         """ Initializes all paths. 
         
         Args:
@@ -15,8 +18,8 @@ class DbzPaths():
         self.data_dir = data_dir
         self.schema = f'{data_dir}/schema.sql'
         self.tmp_dir = f'{data_dir}/tmp'
-        self.planner = 'jars/Planner.jar'
-        self.includes = 'src/dbz/include'
+        self.planner = planner
+        self.includes = includes
         self.code = f'{self.tmp_dir}/run_query.py'
         
 

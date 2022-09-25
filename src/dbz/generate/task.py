@@ -115,5 +115,5 @@ if __name__ == '__main__':
     with open('config/synthesis.json') as file:
         config = json.load(file)
     
-    tasks = Tasks(config)
+    tasks = Tasks(config, includes='src/dbz/include/trace')
     print(tasks.gen_tasks)
