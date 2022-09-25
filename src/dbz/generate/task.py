@@ -94,7 +94,8 @@ class Tasks():
             code recording task ID upon invocation
         """
         return f'def {fct_name}(*args):\n' +\
-            f'\trequirements.add("{task_id}")'
+            f'\trequirements.add("{task_id}")' +\
+            '\treturn []'
     
     def _tracer_lib(self):
         """ Write code for tracing required tasks.
