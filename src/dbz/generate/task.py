@@ -21,7 +21,8 @@ class Tasks():
         self.config = config
         test_access = self.config['test_access']
         data_dir = test_access['data_dir']
-        self.paths = dbz.util.DbzPaths(data_dir)
+        self.paths = dbz.util.DbzPaths(
+            data_dir, includes='src/dbz/include/trace')
         
         tasks = config['tasks']
         self.gen_tasks = [t for t in tasks if t['type'] == 'generate']
@@ -115,5 +116,5 @@ if __name__ == '__main__':
     with open('config/synthesis.json') as file:
         config = json.load(file)
     
-    tasks = Tasks(config, includes='src/dbz/include/trace')
+    tasks = Tasks(config)
     print(tasks.gen_tasks)
