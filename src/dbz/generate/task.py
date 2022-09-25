@@ -59,7 +59,7 @@ class Tasks():
                     check_task = {'query':sql}
                     code = engine.code(sql, 'dummy_path')
                     requirements = set()
-                    exec(code)
+                    exec(code, {'requirements':requirements})
                     check_task['requirements'] = requirements
                     check_tasks += [check_task]
                     
