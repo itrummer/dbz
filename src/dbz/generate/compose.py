@@ -23,6 +23,7 @@ class Composer():
         self.tasks = tasks
         self.task_order = [t['task_id'] for t in tasks.gen_tasks]
         self.nr_tasks = len(self.task_order)
+        self.last_task_idx = self.nr_tasks - 1
         self.idx2checks = self._schedule_checks()
         self.compositions = defaultdict(lambda:[])
         self.compositions[-1] = [{}]
@@ -59,7 +60,7 @@ class Composer():
         Returns:
             True if a working SQL engine was generated
         """
-        return self.compositions[self.nr_tasks-1]
+        return self.compositions[self.last_task_idx]
     
     def final_code(self):
         """ Retrieves code for complete SQL engine. 
@@ -69,7 +70,7 @@ class Composer():
         Returns:
             Code implementing operators of SQL execution engine
         """
-        final_compositions = self.compositions[-1]
+        final_compositions = self.compositions[self.last_task_idx]
         final_composition = final_compositions[0]
         return self._composition_code(final_composition)
     
