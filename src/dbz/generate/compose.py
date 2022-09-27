@@ -181,7 +181,7 @@ class Composer():
         idx2checks = {}
         for task_idx in range(self.nr_tasks):
             prior_tasks = [self.task_order[i] for i in range(task_idx)]
-            next_tasks = prior_tasks + [task_idx]
+            next_tasks = [self.task_order[i] for i in range(task_idx+1)]
             prior_check_ids = self._applicable_checks(prior_tasks)
             next_check_ids = self._applicable_checks(next_tasks)
             new_check_ids = next_check_ids - prior_check_ids
