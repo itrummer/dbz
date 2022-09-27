@@ -4,22 +4,23 @@ Created on Mar 6, 2022
 @author: immanueltrummer
 '''
 import openai
+import random
 import time
 
 
 class Synthesizer():
     """ Synthesizes code for a DBMS engine. """
     
-    def __init__(self, config, table_nl, column_nl, tbl_post_nl):
+    def __init__(self, operators, table_nl, column_nl, tbl_post_nl):
         """ Initialize for given natural language instructions.
         
         Args:
-            config: JSON configuration file
+            operators: manages operator implementations
             table_nl: natural language description of table representation
             column_nl: natural language description of column representation
             tbl_post_nl: natural language description of table post-processing
         """
-        self.config = config
+        self.operators = operators
         self.def_substitutions = {
             '<Table>':table_nl, 
             '<Column>':column_nl, 
@@ -58,7 +59,9 @@ class Synthesizer():
         parts = []
         context = task['context']
         for c in context:
-            parts += [self.solutions[c]]
+            ops_tmp = self.operators.get(c)
+            op_tmp = random.choice(ops_tmp)
+            parts += [op_tmp[0]]
         
         file = task['template']
         substitutions = {**task['substitutions'], **self.def_substitutions}

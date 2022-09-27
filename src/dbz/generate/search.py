@@ -26,12 +26,11 @@ if __name__ == '__main__':
     openai.api_key = args.ai_key
     with open(args.config) as file:
         config = json.load(file)
-    synthesizer = dbz.generate.synthesize.Synthesizer(
-        args.config, args.table_nl, 
-        args.column_nl, args.tbl_post_nl)
     
     tasks = dbz.generate.task.Tasks(config)
     operators = dbz.generate.operator.Operators()
+    synthesizer = dbz.generate.synthesize.Synthesizer(
+        operators, args.table_nl, args.column_nl, args.tbl_post_nl)
     miner = dbz.generate.mine.CodeMiner(operators, synthesizer)
     composer = dbz.generate.compose.Composer(config, operators, tasks)
     debugger = dbz.generate.debug.Debugger(composer)
