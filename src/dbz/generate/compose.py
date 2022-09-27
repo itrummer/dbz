@@ -109,9 +109,11 @@ class Composer():
             set of applicable check IDs
         """
         tasks_set = set(tasks)
+        print(f'Applicable checks? Tasks: {tasks_set}')
         applicable = set()
         for check_idx, check in enumerate(self.tasks.check_tasks):
             required_set = set(check['requirements'])
+            print(f'Required set: {required_set}')
             if tasks_set.issubset(required_set):
                 applicable.add(check_idx)
         return applicable
