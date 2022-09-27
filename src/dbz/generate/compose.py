@@ -83,7 +83,7 @@ class Composer():
         for task_idx in range(updated_idx, self.nr_tasks):
             updated = (task_idx == updated_idx)
             task = self.task_order[task_idx]
-            cur_code_ids = [new_code_id] if updated else self.ops.get(task)
+            cur_code_ids = [new_code_id] if updated else self.ops.get_ops(task)
             
             next_result = []
             for last_row in last_result:
