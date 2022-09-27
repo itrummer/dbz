@@ -24,6 +24,7 @@ class Composer():
         self.nr_tasks = len(self.task_order)
         self.idx2checks = self._schedule_checks()
         self.compositions = defaultdict(lambda:[])
+        self.compositions[-1] = [{}]
         
         ref_access = config['ref_access']
         pg_db = ref_access['pg_db']
