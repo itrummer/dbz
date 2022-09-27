@@ -33,7 +33,7 @@ class Composer():
         self.ref_engine = dbz.execute.engine.PgEngine(
             pg_db, pg_user, pg_pwd, pg_host)
         
-        test_access = self.config['test_access']
+        test_access = config['test_access']
         data_dir = test_access['data_dir']
         self.paths = dbz.util.DbzPaths(data_dir)
         self.python_path = test_access['python']
