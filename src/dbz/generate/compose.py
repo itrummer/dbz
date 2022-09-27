@@ -58,6 +58,18 @@ class Composer():
         """
         return self.compositions[self.nr_tasks-1]
     
+    def final_code(self):
+        """ Retrieves code for complete SQL engine. 
+        
+        Call only after composition is finished!
+        
+        Returns:
+            Code implementing operators of SQL execution engine
+        """
+        final_compositions = self.compositions[-1]
+        final_composition = final_compositions[0]
+        return self._composition_code(final_composition)
+    
     def update(self, updated_task, new_code_id):
         """ Update compositions using new implementation. 
         

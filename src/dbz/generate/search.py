@@ -52,14 +52,6 @@ if __name__ == '__main__':
         print('Composer update completed.')
     
     print('Process complete.')
-    #
-    # library, stats = synthesizer.synthesize()
-    # print('*** GENERATED LIBRARY ***')
-    # print(library)
-    # print('*** SYNTHESIS STATISTICS ***')
-    # print(stats)
-    #
-    # with open('library.py', 'w') as file:
-        # file.write(library)
-    # with open('synthesis_stats.json', 'w') as file:
-        # json.dump(stats, file)
+    sql_engine = composer.final_code()
+    with open('sql_engine.py', 'w') as file:
+        file.write(sql_engine)
