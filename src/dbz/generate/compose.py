@@ -46,6 +46,7 @@ class Composer():
         """
         for task_idx in range(self.nr_tasks):
             if not self.compositions[task_idx]:
+                print(f'Failed until step {task_idx}')
                 return self.idx2checks[task_idx]
         
         return []
