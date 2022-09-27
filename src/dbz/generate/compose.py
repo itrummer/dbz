@@ -187,4 +187,6 @@ class Composer():
             new_check_ids = next_check_ids - prior_check_ids
             new_checks = [self.tasks.check_tasks[i] for i in new_check_ids]
             idx2checks[task_idx] = new_checks
+        
+        print(f'Scheduled checks: {idx2checks}')
         return idx2checks
