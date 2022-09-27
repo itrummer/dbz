@@ -147,7 +147,7 @@ class Composer():
         """
         parts = []
         for task, code_id in composition.items():
-            code = self.ops.get_ops(task)[code_id]
+            code = self.ops.get_ops(task)[code_id][0]
             parts += [code]
         return '\n\n'.join(parts)
     
