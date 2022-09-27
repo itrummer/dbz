@@ -93,7 +93,9 @@ class Composer():
                     next_row[task] = cur_code_id
                     next_result += [next_row]
         
+            print(f'Updating at {task_idx}, next result: {next_result}')
             last_result = self._filter(next_result, task_idx)
+            print(f'Updating at {task_idx}, last result: {last_result}')
             self.compositions[task_idx] += last_result
     
     def _applicable_checks(self, tasks):
