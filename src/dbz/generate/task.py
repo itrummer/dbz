@@ -26,6 +26,7 @@ class Tasks():
         
         tasks = config['tasks']
         self.gen_tasks = [t for t in tasks if t['type'] == 'generate']
+        self.id2task = {t['task_id']:t for t in self.gen_tasks}
         self._add_fct_names()
         self.check_tasks = self._check_tasks(tasks)        
     

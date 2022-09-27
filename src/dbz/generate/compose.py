@@ -20,8 +20,7 @@ class Composer():
         """
         self.ops = operators
         self.tasks = tasks
-        self.gen_tasks = tasks.gen_tasks
-        self.task_order = [t['task_id'] for t in self.gen_tasks]
+        self.task_order = [t['task_id'] for t in tasks.gen_tasks]
         self.nr_tasks = len(self.task_order)
         self.idx2checks = self._schedule_checks()
         self.compositions = defaultdict(lambda:[])
@@ -38,6 +37,18 @@ class Composer():
         data_dir = test_access['data_dir']
         self.paths = dbz.util.DbzPaths(data_dir)
         self.python_path = test_access['python']
+    
+    def failed_checks(self):
+        """ Returns checks that no composition passed. 
+        
+        Returns:
+            list of unsolved checks
+        """
+        for task_idx in range(self.nr_tasks):
+            if not self.compositions[task_idx]:
+                return self.idx2checks[task_idx]
+        
+        return []
     
     def finished(self):
         """ Checks whether a complete engine was generated. 

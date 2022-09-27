@@ -22,17 +22,17 @@ class Operators():
             temperature: generation temperature
         
         Returns:
-            True if code was added (i.e., formerly unknown)
+            Code index if code was added (otherwise None)
         """
         if code in self.code_temp:
             prior_temp = self.code_temp[code]
             next_temp = min(prior_temp, temperature)
             self.code_temp[code] = next_temp
-            return False
+            return None
         else:
             self.code_temp[code] = temperature
             self.ops_by_task[task_id] += [code]
-            return True
+            return len(self.ops_by_task[task_id])-1
     
     def get_ops(self, task_id):
         """ Retrieves operator implementations with temperatures.
