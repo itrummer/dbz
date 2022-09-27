@@ -4,6 +4,7 @@ Created on Sep 25, 2022
 @author: immanueltrummer
 '''
 from collections import defaultdict
+import dbz.execute.check
 import dbz.execute.engine
 
 
