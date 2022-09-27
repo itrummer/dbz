@@ -59,7 +59,7 @@ class Synthesizer():
         parts = []
         context = task['context']
         for c in context:
-            ops_tmp = self.operators.get(c)
+            ops_tmp = self.operators.get_ops(c)
             op_tmp = random.choice(ops_tmp)
             parts += [op_tmp[0]]
         
