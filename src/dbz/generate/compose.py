@@ -37,7 +37,7 @@ class Composer():
         test_access = config['test_access']
         data_dir = test_access['data_dir']
         self.paths = dbz.util.DbzPaths(data_dir)
-        self.python_path = test_access['python']
+        self.python = test_access['python']
     
     def failed_checks(self):
         """ Returns checks that no composition passed. 
