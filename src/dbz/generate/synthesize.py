@@ -61,7 +61,7 @@ class Synthesizer():
             parts += [self.solutions[c]]
         
         file = task['template']
-        substitutions = task['substitutions'] + self.def_substitutions
+        substitutions = {**task['substitutions'], **self.def_substitutions}
         prompt_end = Synthesizer.load_prompt(file, substitutions)
         parts += [prompt_end]
         
