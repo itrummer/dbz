@@ -34,6 +34,19 @@ class Operators():
             self.ops_by_task[task_id] += [code]
             return len(self.ops_by_task[task_id])-1
     
+    def get_ids(self, task_id):
+        """ Retrieves IDs of operator implementations.
+        
+        Args:
+            task_id: the ID of the generation task
+        
+        Returns:
+            list of operator code IDs
+        """
+        ops = self.ops_by_task[task_id]
+        nr_ops = len(ops)
+        return list(range(nr_ops))
+    
     def get_ops(self, task_id):
         """ Retrieves operator implementations with temperatures.
         
