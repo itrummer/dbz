@@ -114,7 +114,7 @@ class Composer():
         for check_idx, check in enumerate(self.tasks.check_tasks):
             required_set = set(check['requirements'])
             print(f'Required set: {required_set}')
-            if tasks_set.issubset(required_set):
+            if required_set.issubset(tasks_set):
                 applicable.add(check_idx)
         return applicable
     
