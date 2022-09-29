@@ -62,7 +62,7 @@ class Composer():
             if not self.compositions[task_idx]:
                 print(f'Failed until step {task_idx}')
                 failed_checks = self.idx2checks[task_idx]
-                failed_passes = self.idx2passed[task_idx]
+                failed_passes = self.idx2passes[task_idx]
                 prior_comps = self.compositions[task_idx-1]
                 prior_checks = [
                     c for i in range(task_idx) 
