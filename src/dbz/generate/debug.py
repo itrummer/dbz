@@ -26,8 +26,9 @@ class Debugger():
             ID of task to redo
         """
         failure_info = self.composer.failure_info()
+        print(f'Failure Info: {failure_info}')
         groups = self._group_checks(
-            failure_info.failed_checks, 
+            failure_info.failed_checks,
             failure_info.failed_passes)
         group_reqs = []
         for group in groups:
