@@ -60,7 +60,7 @@ class Debugger():
         
         choices = list(task2p_unsolved.keys())
         weights = task2p_unsolved.values()
-        todo_id = random.choices(choices, weights=weights, k=1)
+        todo_id = random.choices(choices, weights=weights, k=1)[0]
         # todo_id = max(task2p_unsolved, key=task2p_unsolved.get)
         print(f'Selected task to redo: {todo_id}')
         return todo_id
