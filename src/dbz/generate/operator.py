@@ -24,7 +24,7 @@ class Operators():
         Returns:
             Code index if code was added (otherwise None)
         """
-        if code in self.code_temp:
+        if self.is_known(task_id, code):
             prior_temp = self.code_temp[code]
             next_temp = min(prior_temp, temperature)
             self.code_temp[code] = next_temp
@@ -58,7 +58,17 @@ class Operators():
         """
         ops = self.ops_by_task[task_id]
         return [(op, self.code_temp[op]) for op in ops]
-
+    
+    def is_known(self, code):
+        """ Checks if operator code is known.
+        
+        Args:
+            code: possibly new code for this task
+        
+        Returns:
+            True iff the code is new
+        """
+        return code in self.code_temp
 
 if __name__ == '__main__':
     
