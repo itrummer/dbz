@@ -58,6 +58,7 @@ class Debugger():
                 task_id)
             task2p_unsolved[task_id] = p_passes * p_unsolved
         
+        print(f'Tasks and redo weights: {task2p_unsolved}')
         choices = list(task2p_unsolved.keys())
         weights = task2p_unsolved.values()
         todo_id = random.choices(choices, weights=weights, k=1)[0]
