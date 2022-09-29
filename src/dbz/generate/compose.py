@@ -194,7 +194,7 @@ class Composer():
             if all(comp_passes):
                 filter_out += [comp]
             
-            passes += comp_passes
+            passes += [comp_passes]
         
         self.idx2passes[task_idx] += passes
         return filter_out
