@@ -32,7 +32,7 @@ class Debugger():
             failure_info.failed_passes)
         group_reqs = []
         for group in groups:
-            group_req = set([g['requirement'] for g in group])
+            group_req = set([g['requirements'] for g in group])
             group_reqs += group_req
         
         group_reqs.sort(key=lambda r:len(r))
