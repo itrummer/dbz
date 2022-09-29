@@ -98,6 +98,9 @@ class Debugger():
         for check in failure_info.prior_checks:
             task2nr.update(check['requirements'])
         
+        failed_task_id = failure_info.failed_task_id
+        task2nr[failed_task_id] = 0
+        
         return task2nr
     
     def _nr_implementations(self, failure_info):
@@ -114,7 +117,12 @@ class Debugger():
             for task_id, code_id in comp.items():
                 task2code[task_id].add(code_id)
         
-        return {t:len(c) for t, c in task2code.items()}
+        task2nr = {t:len(c) for t, c in task2code.items()}
+        failed_task_id = failure_info.failed_task_id
+        nr_failed_ops = failure_info.nr_failed_ops
+        task2nr[failed_task_id] = nr_failed_ops
+        
+        return task2nr
     
     def _p_passes(self, disjunct_reqs, unsolved_task_id):
         """ Calculates probability to fail checks, given unsolved task.

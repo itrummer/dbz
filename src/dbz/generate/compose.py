@@ -12,8 +12,10 @@ import dbz.execute.engine
 @dataclass
 class FailureInfo():
     """ Contains helpful information for debugging. """
+    failed_task_id: str
     failed_checks: list
     failed_passes: list
+    nr_failed_ops: int
     prior_comps: list
     prior_checks: list
 
@@ -60,15 +62,18 @@ class Composer():
         """
         for task_idx in range(self.nr_tasks):
             if not self.compositions[task_idx]:
-                print(f'Failed until step {task_idx}')
+                task_id = self.task_order[task_idx]
+                print(f'Failed until step {task_idx} (task: {task_id})')
                 failed_checks = self.idx2checks[task_idx]
                 failed_passes = self.idx2passes[task_idx]
+                nr_failed_ops = self.ops.get_ids(task_id)
                 prior_comps = self.compositions[task_idx-1]
                 prior_checks = [
                     c for i in range(task_idx) 
                     for c in self.idx2checks[i]]
                 return FailureInfo(
-                    failed_checks, failed_passes, 
+                    task_id, failed_checks, 
+                    failed_passes, nr_failed_ops, 
                     prior_comps, prior_checks)
         
         return None
