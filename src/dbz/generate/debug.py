@@ -142,6 +142,8 @@ class Debugger():
                     p_solved = 1.0 - self._p_unsolved(task_id)
                     p_pass *= p_solved
                 prob *= 1.0 - p_pass
+        
+        print(f'Task_ID: {unsolved_task_id}; prob: {prob}')
         return prob
     
     def _p_unsolved(self, nr_checks, nr_implementations, task_id):
@@ -157,4 +159,8 @@ class Debugger():
         """
         p_incorrect_code = 0.5 ** nr_checks[task_id]
         p_solved = 1.0 - p_incorrect_code ** nr_implementations[task_id]
-        return 1.0 - p_solved
+        p_unsolved = 1.0 - p_solved
+        print(f'Task_ID: {task_id} - P_unsolved: {p_unsolved};')
+        print(f'nr_checks: {nr_checks[task_id]};')
+        print(f'nr_implementations: {nr_implementations[task_id]}')
+        return p_unsolved
