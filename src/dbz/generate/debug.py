@@ -158,9 +158,9 @@ class Debugger():
             probability that no correct code is available for task
         """
         p_incorrect_code = 0.5 ** nr_checks[task_id]
-        p_solved = 1.0 - p_incorrect_code ** nr_implementations[task_id]
-        p_unsolved = 1.0 - p_solved
+        p_unsolved = p_incorrect_code ** nr_implementations[task_id]
         print(f'Task_ID: {task_id} - P_unsolved: {p_unsolved};')
         print(f'nr_checks: {nr_checks[task_id]};')
-        print(f'nr_implementations: {nr_implementations[task_id]}')
+        print(f'nr_implementations: {nr_implementations[task_id]};')
+        print(f'p_incorrect_code: {p_incorrect_code}')
         return p_unsolved
