@@ -74,7 +74,7 @@ class Debugger():
         nr_checks = len(checks)
         no_passes = [True] * nr_checks
         for comp_passes in passes:
-            for check_idx, passed in comp_passes:
+            for check_idx, passed in enumerate(comp_passes):
                 no_passes[check_idx] &= not passed[check_idx] 
         
         groups = [checks]
