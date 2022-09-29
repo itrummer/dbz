@@ -39,6 +39,7 @@ class Debugger():
         disjunct_reqs = []
         prior_reqs = set()
         for group_req in group_reqs:
+            print(f'Group req: {group_req}; prior_reqs: {prior_reqs}')
             if not group_req & prior_reqs:
                 disjunct_reqs += [group_req]
                 prior_reqs.update(group_req)
