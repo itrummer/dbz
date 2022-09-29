@@ -4,8 +4,18 @@ Created on Sep 25, 2022
 @author: immanueltrummer
 '''
 from collections import defaultdict
+from dataclasses import dataclass
 import dbz.execute.check
 import dbz.execute.engine
+
+
+@dataclass
+class FailureInfo():
+    """ Contains helpful information for debugging. """
+    failed_checks: list
+    failed_passes: list
+    prior_comps: list
+    prior_checks: list
 
 
 class Composer():
@@ -25,6 +35,7 @@ class Composer():
         self.nr_tasks = len(self.task_order)
         self.last_task_idx = self.nr_tasks - 1
         self.idx2checks = self._schedule_checks()
+        self.idx2passes = defaultdict(lambda:[])
         self.compositions = defaultdict(lambda:[])
         self.compositions[-1] = [{}]
         
@@ -41,18 +52,26 @@ class Composer():
         self.paths = dbz.util.DbzPaths(data_dir)
         self.python = test_access['python']
     
-    def failed_checks(self):
-        """ Returns checks that no composition passed. 
+    def failure_info(self):
+        """ Returns information on composition failure reasons. 
         
         Returns:
-            list of unsolved checks
+            helpful information to debug failure
         """
         for task_idx in range(self.nr_tasks):
             if not self.compositions[task_idx]:
                 print(f'Failed until step {task_idx}')
-                return self.idx2checks[task_idx]
+                failed_checks = self.idx2checks[task_idx]
+                failed_passes = self.idx2passed[task_idx]
+                prior_comps = self.compositions[task_idx-1]
+                prior_checks = [
+                    c for i in range(task_idx) 
+                    for c in self.idx2checks[i]]
+                return FailureInfo(
+                    failed_checks, failed_passes, 
+                    prior_comps, prior_checks)
         
-        return []
+        return None
     
     def finished(self):
         """ Checks whether a complete engine was generated. 
@@ -153,28 +172,32 @@ class Composer():
             parts += [code]
         return '\n\n'.join(parts)
     
-    def _filter(self, result, last_task_idx):
+    def _filter(self, filter_in, task_idx):
         """ Filter result tuples via newly applicable predicates.
         
         Args:
-            result: list containing result tuples
-            last_task_idx: last treated task index
+            filter_in: filter input (a list of compositions)
+            task_idx: filtering results for this task index
         
         Returns:
             list of tuples satisfying all predicates
         """
-        checks = self.idx2checks[last_task_idx]
-        filtered = []
-        for row in result:
-            success = True
+        checks = self.idx2checks[task_idx]
+        passes = []
+        filter_out = []
+        for comp in filter_in:
+            comp_passes = []
             for check in checks:
-                if not self._check(row, check):
-                    success = False
-                    break
+                comp_pass = self._check(comp, check)
+                comp_passes += [comp_pass]
+                                
+            if all(comp_passes):
+                filter_out += [comp]
             
-            if success:
-                filtered += [row]
-        return filtered
+            passes += comp_passes
+        
+        self.idx2passes[task_idx] += passes
+        return filter_out
         
     def _schedule_checks(self):
         """ Schedule checks based on task order. 
