@@ -49,16 +49,19 @@ class Debugger():
         nr_checks = self._nr_checks(failure_info)
         nr_implementations = self._nr_implementations(failure_info)
         
-        task2prob = {}
+        task2p_unsolved = {}
         for task_id in prior_reqs:
             p_passes = self._p_passes(
                 disjunct_reqs, task_id)
             p_unsolved = self._p_unsolved(
                 nr_checks, nr_implementations, 
                 task_id)
-            task2prob[task_id] = p_passes * p_unsolved
+            task2p_unsolved[task_id] = p_passes * p_unsolved
         
-        todo_id = min(task2prob, key=task2prob.get)
+        choices = list(task2p_unsolved.keys())
+        weights = task2p_unsolved.values()
+        todo_id = random.choices(choices, weights=weights, k=1)
+        # todo_id = max(task2p_unsolved, key=task2p_unsolved.get)
         print(f'Selected task to redo: {todo_id}')
         return todo_id
             
