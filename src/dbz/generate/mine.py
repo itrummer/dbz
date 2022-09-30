@@ -94,7 +94,7 @@ class CodeMiner():
             expansions = []
             for temp in self.temperatures:
                 t2samples_c = t2samples.copy()
-                t2samples_c.count(temp)
+                t2samples_c.update([temp])
                 e_min = self._e_min_temp(t2samples, model)
                 expansions += [(t2samples_c, e_min)]
             t2samples = min(expansions, key=lambda c_e:c_e[1])[0]
