@@ -49,7 +49,8 @@ class CodeMiner():
         """
         e_min = 0
         p_none = 1.0
-        temps = list(t2samples.keys()).sort()
+        temps = list(t2samples.keys())
+        temps.sort()
         for temperature in temps:
             nr_t_samples = t2samples[temperature]
             p_new = self._p_new(nr_t_samples, temperature, model)
