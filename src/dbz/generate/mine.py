@@ -75,7 +75,9 @@ class CodeMiner():
         
         x = np.array(x).reshape((-1, 1))
         y = np.array(y)
-        return sklearn.linear_model.LinearRegression(x, y)
+        model = sklearn.linear_model.LinearRegression()
+        model.fit(x, y)
+        return model
     
     def _optimized_samples(self, task):
         """ Optimize the distribution of samples over temperatures.
