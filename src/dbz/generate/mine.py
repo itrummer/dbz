@@ -91,17 +91,21 @@ class CodeMiner():
         Returns:
             dictionary mapping temperatures to sample counts
         """
-        model = self._model(task)
-        t2samples = Counter()
-        for _ in range(self.max_samples):
-            expansions = []
-            for temp in self.temperatures:
-                t2samples_c = t2samples.copy()
-                t2samples_c.update([temp])
-                e_min = self._e_min_temp(t2samples, model)
-                expansions += [(t2samples_c, e_min)]
-            t2samples = min(expansions, key=lambda c_e:c_e[1])[0]
-        return t2samples
+        task_id = task['task_id']
+        if self.operators.get_ids(task_id):
+            model = self._model(task)
+            t2samples = Counter()
+            for _ in range(self.max_samples):
+                expansions = []
+                for temp in self.temperatures:
+                    t2samples_c = t2samples.copy()
+                    t2samples_c.update([temp])
+                    e_min = self._e_min_temp(t2samples, model)
+                    expansions += [(t2samples_c, e_min)]
+                t2samples = min(expansions, key=lambda c_e:c_e[1])[0]
+            return t2samples
+        else:
+            return {0.0:1}
     
     def _p_new(self, nr_t_samples, temperature, model):
         """ Calculates probability of retrieving new code.
