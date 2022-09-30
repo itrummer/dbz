@@ -112,6 +112,7 @@ class CodeMiner():
         Returns:
             probability that new code is generated at least once
         """
+        temperature = np.array(temperature).reshape((-1, 1))
         p_per_sample = model.predict(temperature)
         p_per_sample_n = 1.0 - p_per_sample
         p_n = p_per_sample_n ** nr_t_samples
