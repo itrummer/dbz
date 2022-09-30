@@ -24,7 +24,7 @@ class Operators():
         Returns:
             Code index if code was added (otherwise None)
         """
-        if self.is_known(task_id, code):
+        if self.is_known(code):
             prior_temp = self.code_temp[code]
             next_temp = min(prior_temp, temperature)
             self.code_temp[code] = next_temp
