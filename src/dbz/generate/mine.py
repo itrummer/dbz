@@ -35,7 +35,9 @@ class CodeMiner():
             ID of generated code in operator library (None if unsuccessful)
         """
         t2samples = self._optimized_samples(task)
-        return self._sample(task, t2samples)
+        code, temp = self._sample(task, t2samples)
+        task_id = task['task_id']
+        return self.operators.add_op(task_id, code, temp)
     
     def _e_min_temp(self, t2samples, model):
         """ Calculate expected minimum temperature for new code.
@@ -126,16 +128,16 @@ class CodeMiner():
             t2samples: maps temperatures to sample counts
         
         Returns:
-            unknown code for lowest temperature
+            unknown code and associated temperature
         """
         for temp in self.temperatures:
             t_samples = t2samples[temp]
             for _ in range(t_samples):
                 code = self.synthesizer.generate(task, temp)
                 if not self.operators.is_known(code):
-                    return code
+                    return code, temp
         
         while True:
             code = self.synthesizer.generate(task, 1)
             if not self.operators.is_known(code):
-                return code
+                return code, 1.0
