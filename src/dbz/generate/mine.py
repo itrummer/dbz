@@ -22,7 +22,7 @@ class CodeMiner():
         self.operators = operators
         self.synthesizer = synthesizer
         temperature_delta = 1.0 / (nr_steps-1)
-        self.temperatures = temperature_delta * range(nr_steps)
+        self.temperatures = [temperature_delta * s for s in range(nr_steps)]
         self.max_samples = max_samples
     
     def mine(self, task):
