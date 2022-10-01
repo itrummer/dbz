@@ -6,6 +6,7 @@ Created on Sep 25, 2022
 import dbz.execute.engine
 import dbz.generate.synthesize
 import json
+import os.path
 import re
 
 
@@ -28,7 +29,7 @@ class Tasks():
         self.gen_tasks = [t for t in tasks if t['type'] == 'generate']
         self.id2task = {t['task_id']:t for t in self.gen_tasks}
         self._add_fct_names()
-        self.check_tasks = self._check_tasks(tasks)        
+        self.check_tasks = self._check_tasks()        
     
     def _add_fct_names(self):
         """ Add names of generated functions to task descriptions. """
@@ -42,12 +43,9 @@ class Tasks():
             if name is not None:
                 gen_task['function_name'] = name
     
-    def _check_tasks(self, all_tasks):
+    def _check_tasks(self):
         """ Generate list of checks with associated requirements. 
-        
-        Args:
-            all_tasks: check and generation tasks
-        
+                
         Returns:
             a list of checks
         """
@@ -55,17 +53,40 @@ class Tasks():
         engine = dbz.execute.engine.DbzEngine(self.paths, tracer_lib, None)
         
         check_tasks = []
-        for t in all_tasks:
-            if t['type'] == 'check':
-                for sql in t['queries']:
-                    check_task = {'query':sql}
-                    requirements = set()
-                    code = engine.code(sql, 'dummy_path')
-                    exec(code, {'requirements':requirements})
-                    check_task['requirements'] = requirements
-                    check_tasks += [check_task]
+        for sql in self.config['checks']['queries']:
+            check_task = {'query':sql, 'type':'sql'}
+            trace_code = engine.sql2code(sql, 'dummy_path')
+            self._add_requirements(check_task, trace_code)
+            check_tasks += [check_task]
+        
+        test_dirs = self.config['checks']['test_dirs']
+        for test_dir in test_dirs:
+            for file_name in os.listdir(test_dir):
+                
+                if file_name == '__init__.py':
+                    continue
+                
+                test_path = os.path.join(test_dir, file_name)
+                with open(test_path) as file:
+                    query_code = file.read()
+                
+                check_task = {'code':query_code, 'type':'code'}    
+                trace_code = engine.add_context(query_code, 'dummy_path')
+                self._add_requirements(check_task, trace_code)
+                check_tasks += [check_task]
                     
         return check_tasks
+
+    def _add_requirements(self, check_task, trace_code):
+        """ Determines requirements and adds them to task.
+        
+        Args:
+            check_task: add requirements to this task
+            trace_code: code for tracing requirements
+        """
+        requirements = set()
+        exec(trace_code, {'requirements':requirements})
+        check_task['requirements'] = requirements
 
     def _fct_name(self, prompt):
         """ Extract name of function to generate from prompt.
@@ -83,7 +104,7 @@ class Tasks():
                 return match.group(1)
         
         return None
-    
+        
     def _tracer_fct(self, fct_name, task_id):
         """ Write function for tracing required tasks. 
         

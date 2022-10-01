@@ -48,7 +48,40 @@ class DbzEngine(Engine):
             paths.tmp_dir)
         self.coder = dbz.execute.code.Coder(paths, True)
     
-    def code(self, sql, out):
+    def add_context(self, query_code, out_path):
+        """ Add context to given piece of code.
+        
+        Args:
+            query_code: core code for query processing
+            out_path: path for result output
+        
+        Returns:
+            completed code with libraries and output commands
+        """
+        code_parts = []
+        code_parts += [self.library]
+        import_path = f'{self.paths.includes}/imports.py'
+        fct_path = f'{self.paths.includes}/functions.py'
+        code_parts += self._include(import_path)
+        code_parts += self._include(fct_path)
+        code_parts += [query_code]
+        code_parts += [f'write_to_csv(last_result, "{out_path}")']
+        return '\n'.join(code_parts)
+        
+    def execute(self, sql, out):
+        """ Execute given query and write out result.
+        
+        Args:
+            sql: an SQL query to answer
+            out: name of file for query result
+        
+        Returns:
+            true iff execution succeeds
+        """
+        code = self.sql2code(sql, out)
+        return self._run(code)
+    
+    def sql2code(self, sql, out):
         """ Generate Python code for processing SQL query.
         
         Args:
@@ -62,28 +95,8 @@ class DbzEngine(Engine):
         print(f'Simplified query: {sql}')
         plan = self.planner.plan(sql)
         print(f'Plan: {plan}')
-        code_parts = []
-        code_parts += [self.library]
-        import_path = f'{self.paths.includes}/imports.py'
-        fct_path = f'{self.paths.includes}/functions.py'
-        code_parts += self._include(import_path)
-        code_parts += self._include(fct_path)
-        code_parts += [self.coder.plan_code(plan)]
-        code_parts += [f'write_to_csv(last_result, "{out}")']
-        return '\n'.join(code_parts)
-    
-    def execute(self, sql, out):
-        """ Execute given query and write out result.
-        
-        Args:
-            sql: an SQL query to answer
-            out: name of file for query result
-        
-        Returns:
-            true iff execution succeeds
-        """
-        code = self.code(sql, out)
-        return self._run(code)
+        query_code = self.coder.plan_code(plan)
+        return self.add_context(query_code, out)
     
     def _include(self, path):
         """ Loads code from file.

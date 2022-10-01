@@ -4,8 +4,64 @@
 	"ref_access":{
 		"pg_db":"tpch_sf0001", "pg_user":"ubuntu", "pg_pwd":"", 
 		"host":"/var/run/postgresql"},
+	"checks":{
+		"queries":[
+			"select * from lineitem",
+			"select l_shipinstruct like '%BACK%' from lineitem",
+			"select cast(l_extendedprice as int) from lineitem",
+			"select count(*) from lineitem",
+			"select cast(l_orderkey as int) from lineitem",
+			"select cast(l_extendedprice as float) from lineitem",
+			"select cast(l_extendedprice as varchar(100)) from lineitem",
+			"select l_extendedprice is null from lineitem", "select null is null",
+			"select * from lineitem order by l_orderkey, l_linenumber DESC limit 5",
+			"select l_extendedprice + 0.1 from lineitem",
+			"select l_extendedprice * 10 from lineitem",
+			"select l_extendedprice + NULL from lineitem",
+			"select substring(l_comment, 1, 3) from lineitem",
+			"select l_extendedprice - 0.1 from lineitem",
+			"select l_extendedprice / 0.1 from lineitem",
+			"select * from lineitem where l_extendedprice < 13309.60",
+			"select * from lineitem where l_extendedprice > 13309.60",
+			"select * from lineitem where l_extendedprice = 13309.60",
+			"select * from lineitem where l_extendedprice <> 13309.60",
+			"select * from lineitem where l_extendedprice <= 13309.60",
+			"select * from lineitem where l_extendedprice >= 13309.60",
+			"select * from lineitem where l_extendedprice < 14000 and l_extendedprice > 12000 and l_extendedprice > 13000",
+			"select * from lineitem where l_extendedprice < 14000 or l_extendedprice > 12000 or l_extendedprice < 13000",
+			"select * from lineitem where not (l_extendedprice < 13000)",
+			"select l_extendedprice is null from lineitem",
+			"select null is true", 
+			"select null is false", 
+			"select null is null", 
+			"select null is not true", 
+			"select null is not false", 
+			"select null is not null",
+			"select sum(l_extendedprice) from lineitem",
+			"select min(l_extendedprice) from lineitem",
+			"select max(l_extendedprice) from lineitem",
+			"select avg(l_extendedprice) from lineitem",
+			"select count(distinct l_shipmode) from lineitem",
+			"select count(distinct l_shipmode) from lineitem",
+			"select case when l_extendedprice < 25000 then 1 else 0 end from lineitem",
+			"select case when l_extendedprice < 25000 then 1 else 0 end from lineitem",
+			"select sum(1) from lineitem group by l_shipdate",
+			"select sum(l_extendedprice) from lineitem group by l_shipmode",
+			"select min(l_extendedprice) from lineitem group by l_shipmode",
+			"select max(l_extendedprice) from lineitem group by l_shipmode",
+			"select avg(l_extendedprice) from lineitem group by l_shipmode",
+			"select count(*) from lineitem group by l_shipmode",
+			"select * from customer, orders where c_custkey = o_custkey",
+			"select * from customer left join orders on c_custkey = o_custkey",
+			"select * from customer right join orders on c_custkey = o_custkey",
+			"select * from customer right join orders on c_custkey = o_custkey",
+			"select * from customer full outer join orders on c_custkey = o_custkey"],
+		"test_dirs":[
+			"src/dbz/tests"
+		],
+		"ref_engine":"libraries/row_lists.py"
+	},
 	"tasks":[
-	
 	{"type":"generate", "task_id":"load", "context":[],
 		"template":"load_data.py", "substitutions":{}},
 	{"type":"generate", "task_id":"store", "context":[],
@@ -13,7 +69,6 @@
 		
 	{"type":"generate", "task_id":"add_column", "context":[],
 		"template":"add_column.py", "substitutions":{}},
-	
 	{"type":"generate", "task_id":"create_table", "context":[],
 		"template":"create_table.py", "substitutions":{}},	
 	{"type":"generate", "task_id":"get_column", "context":[],
@@ -49,174 +104,74 @@
 	{"type":"generate", "task_id":"first_rows", "context":[],
 		"template":"first_rows.py", "substitutions":{}},
 	
-	{"type":"check", "queries":[
-		"select * from lineitem",
-		"select l_shipinstruct like '%BACK%' from lineitem",
-		"select cast(l_extendedprice as int) from lineitem",
-		"select count(*) from lineitem",
-		"select cast(l_orderkey as int) from lineitem",
-		"select cast(l_extendedprice as float) from lineitem",
-		"select cast(l_extendedprice as varchar(100)) from lineitem",
-		"select l_extendedprice is null from lineitem", "select null is null",
-		"select * from lineitem order by l_orderkey, l_linenumber DESC limit 5"
-		]
-	},
-
-
-	
 	{"type":"generate", "task_id":"substring", "context":["is_null"],
 		"template":"substring.py", "substitutions":{}},
-	{"type":"check", "queries":["select substring(l_comment, 1, 3) from lineitem"]},
-		
 	{"type":"generate", "task_id":"addition", "context":["is_null"],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"addition"}},
-	{"type":"check", "queries":[
-		"select l_extendedprice + 0.1 from lineitem",
-		"select l_extendedprice * 10 from lineitem",
-		"select l_extendedprice + NULL from lineitem"]},
-	
 	{"type":"generate", "task_id":"subtraction", "context":["is_null"],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"subtraction"}},
-	{"type":"check", "queries":["select l_extendedprice - 0.1 from lineitem"]},
-	
 	{"type":"generate", "task_id":"division", "context":["is_null"],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"division"}},
-	{"type":"check", "queries":["select l_extendedprice / 0.1 from lineitem"]},
-	
-	
 	
 	{"type":"generate", "task_id":"filter", "context":[],
 		"template":"filter.py", "substitutions":{}},
 	{"type":"generate", "task_id":"less_than", "context":[],
 		"template":"binary_cmp.py", 
 		"substitutions":{"<binary_op>":"less_than", "<short_op>":"<"}},
-	{"type":"check", 
-		"queries":["select * from lineitem where l_extendedprice < 13309.60"]},
-	
 	{"type":"generate", "task_id":"greater_than", "context":[],
 		"template":"binary_cmp.py", 
 		"substitutions":{"<binary_op>":"greater_than", "<short_op>":">"}},
-	{"type":"check", 
-		"queries":["select * from lineitem where l_extendedprice > 13309.60"]},
-	
 	{"type":"generate", "task_id":"equal_to", "context":[],
 		"template":"binary_cmp.py", 
 		"substitutions":{"<binary_op>":"equal", "<short_op>":"="}},
-	{"type":"check", 
-		"queries":["select * from lineitem where l_extendedprice = 13309.60"]},
-	
 	{"type":"generate", "task_id":"not_equal_to", "context":[],
 		"template":"binary_cmp.py", 
 		"substitutions":{"<binary_op>":"not_equal", "<short_op>":"<>"}},
-	{"type":"check", 
-		"queries":["select * from lineitem where l_extendedprice <> 13309.60"]},
-
 	{"type":"generate", "task_id":"less_than_or_equal", "context":[],
 		"template":"binary_cmp.py", 
 		"substitutions":{"<binary_op>":"less_than_or_equal", "<short_op>":"<="}},
-	{"type":"check", 
-		"queries":["select * from lineitem where l_extendedprice <= 13309.60"]},
-	
 	{"type":"generate", "task_id":"greater_than_or_equal", "context":[],
 		"template":"binary_cmp.py", 
 		"substitutions":{"<binary_op>":"greater_than_or_equal", "<short_op>":">="}},
-	{"type":"check", 
-		"queries":["select * from lineitem where l_extendedprice >= 13309.60"]},
-
-
 
 	{"type":"generate", "task_id":"and", "context":[], 
 		"template":"boolean_compound.py", "substitutions":{"<operator>":"and"}},
-	{"type":"check", 
-		"queries":["select * from lineitem where l_extendedprice < 14000 and l_extendedprice > 12000 and l_extendedprice > 13000"]},
-	
 	{"type":"generate", "task_id":"or", "context":[], 
 		"template":"boolean_compound.py", "substitutions":{"<operator>":"or"}},
-	{"type":"check", 
-		"queries":["select * from lineitem where l_extendedprice < 14000 or l_extendedprice > 12000 or l_extendedprice < 13000"]},
-	
 	{"type":"generate", "task_id":"not", "context":[], "template":"unary.py", 
 		"substitutions":{"<operator>":"logical_not", "<InputDescription>":"with Boolean values"}},
-	{"type":"check", 
-		"queries":["select * from lineitem where not (l_extendedprice < 13000)",
-		"select l_extendedprice is null from lineitem",
-		"select null is true", "select null is false", "select null is null", 
-		"select null is not true", "select null is not false", "select null is not null"]},
-	
-	
 	
 	{"type":"generate", "task_id":"sum", "context":[], 
 		"template":"aggregate.py", "substitutions":{"<aggregate>":"sum"}},
-	{"type":"check", "queries":["select sum(l_extendedprice) from lineitem"]},
-	
 	{"type":"generate", "task_id":"min", "context":[], 
 		"template":"aggregate.py", "substitutions":{"<aggregate>":"min"}},
-	{"type":"check", "queries":["select min(l_extendedprice) from lineitem"]},
-	
 	{"type":"generate", "task_id":"max", "context":[], 
 		"template":"aggregate.py", "substitutions":{"<aggregate>":"max"}},
-	{"type":"check", "queries":["select max(l_extendedprice) from lineitem"]},
-	
 	{"type":"generate", "task_id":"avg", "context":[], 
 		"template":"aggregate.py", "substitutions":{"<aggregate>":"avg"}},
-	{"type":"check", "queries":["select avg(l_extendedprice) from lineitem"]},
-
 	{"type":"generate", "task_id":"count_distinct", "context":[], 
 		"template":"count_distinct.py", "substitutions":{}},
-	{"type":"check", "queries":["select count(distinct l_shipmode) from lineitem"]},
-
-
-	
 	{"type":"generate", "task_id":"case", "context":[],
 		"template":"case.py", "substitutions":{}},
-	{"type":"check", 
-		"queries":["select case when l_extendedprice < 25000 then 1 else 0 end from lineitem"]},
 
-	
-		
 	{"type":"generate", "task_id":"grouped_sum", "context":[], 
-		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"sum"}},
-	{"type":"check", 
-	"queries":[
-		"select sum(1) from lineitem group by l_shipdate",
-		"select sum(l_extendedprice) from lineitem group by l_shipmode"]},
-	
+		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"sum"}},	
 	{"type":"generate", "task_id":"grouped_min", "context":["grouped_sum"], 
-		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"min"}},
-	{"type":"check", 
-	"queries":["select min(l_extendedprice) from lineitem group by l_shipmode"]},
-	
+		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"min"}},	
 	{"type":"generate", "task_id":"grouped_max", "context":["grouped_sum"], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"max"}},
-	{"type":"check", 
-	"queries":["select max(l_extendedprice) from lineitem group by l_shipmode"]},
-	
 	{"type":"generate", "task_id":"grouped_avg", "context":["grouped_sum"], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"avg"}},
-	{"type":"check", 
-	"queries":["select avg(l_extendedprice) from lineitem group by l_shipmode"]},
-	
 	{"type":"generate", "task_id":"grouped_count", "context":["grouped_sum"], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"count"}},
-	{"type":"check", 
-	"queries":["select count(*) from lineitem group by l_shipmode"]},
-	
-	
 	
 	{"type":"generate", "task_id":"equi_join", "context":[], "template":"join.py", 
 		"substitutions":{"<JoinDefinition>":"equality", "<JoinDescription>":"equality"}},
-	{"type":"check", "queries":["select * from customer, orders where c_custkey = o_custkey"]},
-	
 	{"type":"generate", "task_id":"left_join", "context":["equi_join"], "template":"join.py", 
 		"substitutions":{"<JoinDefinition>":"left_outer", "<JoinDescription>":"left outer"}},
-	{"type":"check", "queries":["select * from customer left join orders on c_custkey = o_custkey"]},
-
 	{"type":"generate", "task_id":"right_join", "context":["equi_join"], "template":"join.py", 
 		"substitutions":{"<JoinDefinition>":"right_outer", "<JoinDescription>":"right outer"}},
-	{"type":"check", "queries":["select * from customer right join orders on c_custkey = o_custkey"]},
-	
 	{"type":"generate", "task_id":"full_join", "context":["equi_join"], "template":"join.py", 
-		"substitutions":{"<JoinDefinition>":"full_outer", "<JoinDescription>":"full outer"}},
-	{"type":"check", "queries":["select * from customer full outer join orders on c_custkey = o_custkey"]}
+		"substitutions":{"<JoinDefinition>":"full_outer", "<JoinDescription>":"full outer"}}
 	]
 }
