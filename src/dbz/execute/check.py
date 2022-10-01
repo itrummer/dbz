@@ -157,7 +157,7 @@ class Validator():
         Returns:
             True iff different row orders entail a failed comparison
         """
-        if check['check_type'] == 'sql':
+        if check['type'] == 'sql':
             query = check['query']
             return 'order by' in query.lower()
         
