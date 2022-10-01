@@ -16,18 +16,20 @@ import traceback
 class Validator():
     """ Validates an engine implementation by comparing to reference. """
     
-    def __init__(self, paths, queries, ref_engine):
+    def __init__(self, paths, checks, sql_ref, code_ref=None):
         """ Initializes validation for specific engine and queries.
         
         Args:
             paths: relevant paths for DB-zero
-            queries: compare results for those queries
-            ref_engine: compare to results of reference
+            checks: compare results for those test cases
+            sql_ref: generates reference results for SQL queries
+            code_ref: generate reference results for code tests
         """
         self.paths = paths
-        self.queries = queries
-        self.nr_queries = len(queries)
-        self.ref_engine = ref_engine
+        self.checks = checks
+        self.nr_checks = len(checks)
+        self.sql_ref = sql_ref
+        self.code_ref = code_ref
         self._generate_ref()
     
     def validate(self, engine):
@@ -42,10 +44,11 @@ class Validator():
         print('Validation in progress ...')
         results = []
         try:
-            for idx, query in enumerate(self.queries, 1):
-                print(f'Treating query {idx}/{self.nr_queries} ...')
+            for idx, check in enumerate(self.checks, 1):
+                print(f'Treating query {idx}/{self.nr_checks} ...')
                 check_path = f'{self.paths.tmp_dir}/check_{idx}'
-                success = engine.execute(query, check_path)
+                success = self._generate_result(
+                    check, engine, engine, check_path)
                 print(f'Execution successful: {success}')
                 if not success:
                     print(f'Validation failed!')
@@ -87,7 +90,7 @@ class Validator():
                 check_df = pd.read_csv(check_path, header=None)
                 ref_df = pd.read_csv(ref_path, header=None)
                 
-                if not 'order by' in query.lower():
+                if not self._check_row_order(check):
                     check_df.sort_values(
                         list(check_df.columns), inplace=True, ignore_index=True)
                     ref_df.sort_values(
@@ -102,7 +105,7 @@ class Validator():
                     nr_diffs = 777
 
                 if nr_diffs:
-                    print(f'Result comparison failed for query {query}!')
+                    print(f'Result comparison failed for check {check}!')
                     results += [False]
                 else:
                     print(f'Validation successful!')
@@ -117,12 +120,48 @@ class Validator():
         return all(r for r in results)
 
     def _generate_ref(self):
-        """ Generates reference results for all queries. """
+        """ Generates reference results for all test cases. """
         print('Generating reference results ...')
-        for idx, query in enumerate(self.queries, 1):
-            print(f'Treating query {idx}/{self.nr_queries} ...')
+        for idx, check in enumerate(self.checks, 1):
+            print(f'Treating query {idx}/{self.nr_checks} ...')
             out = f'{self.paths.tmp_dir}/ref_{idx}'
-            self.ref_engine.execute(query, out)
+            self._generate_result(check, self.sql_ref, self.code_ref, out)
+    
+    def _generate_result(self, check, sql_engine, code_engine, out):
+        """ Generate result for check, distinguishing check type.
+        
+        Args:
+            check: a check (either Python code to process or an SQL query)
+            sql_engine: use this engine to process SQL queries
+            code_engine: use this engine to process Python code
+            out: write processing result to this path
+        
+        Returns:
+            True iff engine invocation succeeded (i.e., a result was generated)
+        """
+        check_type = check['check_type']
+        assert check_type in ['sql', 'code']
+        if check_type == 'sql':
+            query = check['query']
+            return sql_engine.execute(query, out)
+        else:
+            query_code = check['code']
+            return code_engine.test(query_code, out)
+    
+    def _check_row_order(self, check):
+        """ Determines whether check entails verifying the order of rows.
+        
+        Args:
+            check: a check comparing results of two engines
+        
+        Returns:
+            True iff different row orders entail a failed comparison
+        """
+        if check['check_type'] == 'sql':
+            query = check['query']
+            return 'order by' in query.lower()
+        
+        return False
 
 
 if __name__ == '__main__':

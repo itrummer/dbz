@@ -1,9 +1,12 @@
 {
 	"test_access":{
 		"data_dir":"tpch_sf0001", "python":"python"},
-	"ref_access":{
+	"sql_ref":{
 		"pg_db":"tpch_sf0001", "pg_user":"ubuntu", "pg_pwd":"", 
 		"host":"/var/run/postgresql"},
+	"code_ref":{
+		"ref_operators":"libraries/row_lists.py"
+	},
 	"checks":{
 		"queries":[
 			"select * from lineitem",
@@ -58,8 +61,7 @@
 			"select * from customer full outer join orders on c_custkey = o_custkey"],
 		"test_dirs":[
 			"src/dbz/tests"
-		],
-		"ref_engine":"libraries/row_lists.py"
+		]
 	},
 	"tasks":[
 	{"type":"generate", "task_id":"load", "context":[],

@@ -98,6 +98,19 @@ class DbzEngine(Engine):
         query_code = self.coder.plan_code(plan)
         return self.add_context(query_code, out)
     
+    def test(self, query_code, out_path):
+        """ Execute query code for testing purposes.
+        
+        Args:
+            query_code: code for processing query
+            out_path: path to query result to write
+        
+        Returns:
+            True iff execution was successful
+        """
+        code = self.add_context(query_code, out_path)
+        return self._run(code)
+    
     def _include(self, path):
         """ Loads code from file.
         
