@@ -28,7 +28,7 @@ if __name__ == '__main__':
     openai.api_key = args.ai_key
     with open(args.config) as file:
         config = json.load(file)
-    logging.basicConfig(level=args.log_level)
+    logging.basicConfig(level=int(args.log_level))
 
     tasks = dbz.generate.task.Tasks(config)
     operators = dbz.generate.operator.Operators()
