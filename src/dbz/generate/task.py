@@ -61,7 +61,7 @@ class Tasks():
             trace_code = engine.sql2code(sql, 'dummy_path')
             self._add_requirements(check_task, trace_code)
             check_tasks += [check_task]
-            self.logger.info(f'SQL Check: {check_task}')
+            print(f'SQL Check: {check_task}')
         
         test_dirs = self.config['checks']['test_dirs']
         for test_dir in test_dirs:
@@ -78,7 +78,7 @@ class Tasks():
                 trace_code = engine.add_context(query_code, 'dummy_path')
                 self._add_requirements(check_task, trace_code)
                 check_tasks += [check_task]
-                self.logger.info(f'Code Check: {check_task}')
+                print(f'Code Check: {check_task}')
                     
         return check_tasks
 
