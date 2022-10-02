@@ -12,20 +12,15 @@ import time
 class Synthesizer():
     """ Synthesizes code for a DBMS engine. """
     
-    def __init__(self, operators, table_nl, column_nl, tbl_post_nl):
+    def __init__(self, operators, substitutions):
         """ Initialize for given natural language instructions.
         
         Args:
             operators: manages operator implementations
-            table_nl: natural language description of table representation
-            column_nl: natural language description of column representation
-            tbl_post_nl: natural language description of table post-processing
+            substitutions: maps placeholders to natural language instructions
         """
         self.operators = operators
-        self.def_substitutions = {
-            '<Table>':table_nl, 
-            '<Column>':column_nl, 
-            '<TablePost>':tbl_post_nl}
+        self.def_substitutions = substitutions
 
     @staticmethod    
     def load_prompt(file_name, substitutions):

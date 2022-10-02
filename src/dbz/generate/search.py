@@ -22,6 +22,7 @@ if __name__ == '__main__':
     parser.add_argument('table_nl', type=str, help='Table representation')
     parser.add_argument('column_nl', type=str, help='Column representation')
     parser.add_argument('tbl_post_nl', type=str, help='Table post-processing')
+    parser.add_argument('null_nl', type=str, help='Representing NULL values')
     parser.add_argument('log_level', type=str, help='Set logging level')
     args = parser.parse_args()
     
@@ -32,8 +33,13 @@ if __name__ == '__main__':
 
     tasks = dbz.generate.task.Tasks(config)
     operators = dbz.generate.operator.Operators()
-    synthesizer = dbz.generate.synthesize.Synthesizer(
-        operators, args.table_nl, args.column_nl, args.tbl_post_nl)
+    substitutions = {
+        '<Table>':args.table_nl, 
+        '<Column>':args.column_nl, 
+        '<TablePost>':args.tbl_post_nl,
+        '<Null>':args.null_nl
+    }
+    synthesizer = dbz.generate.synthesize.Synthesizer(operators, substitutions)
     miner = dbz.generate.mine.CodeMiner(operators, synthesizer)
     composer = dbz.generate.compose.Composer(config, operators, tasks)
     debugger = dbz.generate.debug.Debugger(composer)

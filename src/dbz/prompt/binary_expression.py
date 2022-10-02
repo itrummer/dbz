@@ -6,5 +6,5 @@ def <binary_op>(column_1, column_2):
         operand_2: <Column>.
     
     Returns:
-        result column (which is <Column>), NULL where any of the operands is NULL
+        result column (which is <Column>), <Null> where any of the operands is <Null>
     """
