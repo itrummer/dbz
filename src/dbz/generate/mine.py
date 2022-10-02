@@ -75,12 +75,14 @@ class CodeMiner():
         y = [0]
         for temperature in x[1:]:
             code = self.synthesizer.generate(task, temperature)
-            y += [1] if self.operators.is_known(code) else [0]
+            y += [0] if self.operators.is_known(code) else [1]
+        print(f'Fitting Vector: {y}')
         
         x = np.array(x).reshape((-1, 1))
         y = np.array(y)
         model = sklearn.linear_model.LinearRegression()
         model.fit(x, y)
+        print(f'Model: {model}')
         return model
     
     def _optimized_samples(self, task):
@@ -123,7 +125,9 @@ class CodeMiner():
         p_per_sample = model.predict(temperature)
         p_per_sample_n = 1.0 - p_per_sample
         p_n = p_per_sample_n ** nr_t_samples
-        return 1.0 - p_n
+        p = 1.0 - p_n
+        print(f'P(New | {temperature}) = {p}')
+        return p
     
     def _sample(self, task, t2samples):
         """ Execute sample schedule and return first novel code.
