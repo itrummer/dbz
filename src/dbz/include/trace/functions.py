@@ -9,6 +9,7 @@ def is_empty(*args):
     Returns:
         False to ensure everything is visited during tracing
     """
+    requirements.add('is_empty')
     return False
 
 def nr_rows(*args):
@@ -17,6 +18,7 @@ def nr_rows(*args):
     Returns:
         True to ensure that all dependencies are traced
     """
+    requirements.add('nr_rows')
     return 1
 
 def if_else(_, if_val, else_val):
@@ -29,6 +31,7 @@ def if_else(_, if_val, else_val):
     Returns:
         dummy value
     """
+    requirements.add('case')
     for val in [if_val, else_val]:
         if callable(val):
             val()
