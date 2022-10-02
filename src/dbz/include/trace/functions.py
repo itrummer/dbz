@@ -7,9 +7,9 @@ def is_empty(*args):
     """ Code generator visits some branches only for non-empty tables. 
     
     Returns:
-        True to ensure everything is visited during tracing
+        False to ensure everything is visited during tracing
     """
-    return True
+    return False
 
 def nr_rows(*args):
     """ Code generator visits some branches only for non-empty tables.
