@@ -139,7 +139,7 @@ class Validator():
         Returns:
             True iff engine invocation succeeded (i.e., a result was generated)
         """
-        check_type = check['check_type']
+        check_type = check['type']
         assert check_type in ['sql', 'code']
         if check_type == 'sql':
             query = check['query']
