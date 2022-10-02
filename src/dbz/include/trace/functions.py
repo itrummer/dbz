@@ -74,14 +74,14 @@ def scale_columns(*args):
     nr_rows()
     get_value()
     fill_column()
-    return []
+    return list(args)
 
 def scale_to_table(*args):
     get_column()
     nr_rows()
     get_value()
     fill_column()
-    return []
+    return list(args)
 
 def smart_date_extract(*args):
     map_column()
