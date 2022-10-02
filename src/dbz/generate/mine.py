@@ -37,6 +37,7 @@ class CodeMiner():
         Returns:
             ID of generated code in operator library (None if unsuccessful)
         """
+        logging.info(f'Mining code for task: {task}')
         t2samples = self._optimized_samples(task)
         logging.info(f'Optimized Sample Counts: {t2samples}')
         code, temp = self._sample(task, t2samples)
