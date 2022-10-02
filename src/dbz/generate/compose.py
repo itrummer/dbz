@@ -55,7 +55,9 @@ class Composer():
         self.python = test_access['python']
         
         code_ref_info = config['code_ref']
-        ref_lib = code_ref_info['ref_operators']
+        ref_path = code_ref_info['ref_operators']
+        with open(ref_path) as file:
+            ref_lib = file.read()
         self.code_ref = dbz.execute.engine.DbzEngine(
             self.paths, ref_lib, self.python)
     
