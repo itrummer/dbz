@@ -56,6 +56,7 @@ class Tasks():
         for sql in self.config['checks']['queries']:
             check_task = {'query':sql, 'type':'sql'}
             trace_code = engine.sql2code(sql, 'dummy_path')
+            print(f'SQL: {sql}\nSQL Trace Code:\n{trace_code}')
             self._add_requirements(check_task, trace_code)
             check_tasks += [check_task]
         
