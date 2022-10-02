@@ -24,7 +24,7 @@ class Synthesizer():
         self.def_substitutions = {
             '<Table>':table_nl, 
             '<Column>':column_nl, 
-            '<TablePost':tbl_post_nl}
+            '<TablePost>':tbl_post_nl}
 
     @staticmethod    
     def load_prompt(file_name, substitutions):
