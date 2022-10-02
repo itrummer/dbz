@@ -3,6 +3,7 @@ Created on Mar 6, 2022
 
 @author: immanueltrummer
 '''
+import logging
 import openai
 import random
 import time
@@ -87,10 +88,10 @@ class Synthesizer():
         Returns:
             completed code
         """
-        print(f'--- PROMPT ---\n{prompt}')
+        logging.debug(f'--- PROMPT ---\n{prompt}')
         delay_s = 3
         for i in range(5):
-            print(f'Querying Codex - retry nr. {i} ...')
+            logging.info(f'Querying Codex - retry nr. {i} ...')
             try:
                 time.sleep(delay_s)
                 response = openai.Completion.create(
@@ -100,11 +101,11 @@ class Synthesizer():
                     engine='code-davinci-002',
                     max_tokens=600)
                 completion = response['choices'][0]['text']
-                print(f'--- COMPLETION ---\n{completion}')
+                logging.debug(f'--- COMPLETION ---\n{completion}')
                 return completion
             except openai.error.InvalidRequestError as e:
-                print(f'Invalid OpenAI request: {e}')
+                logging.warning(f'Invalid OpenAI request: {e}')
                 return None
             except Exception as e:
-                print(f'Exception: {e}')
+                logging.warning(f'Exception: {e}')
                 delay_s *= 2

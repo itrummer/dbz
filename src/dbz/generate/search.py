@@ -11,6 +11,7 @@ import dbz.generate.operator
 import dbz.generate.synthesize
 import dbz.generate.task
 import json
+import logging
 import openai
 
 if __name__ == '__main__':
@@ -21,12 +22,14 @@ if __name__ == '__main__':
     parser.add_argument('table_nl', type=str, help='Table representation')
     parser.add_argument('column_nl', type=str, help='Column representation')
     parser.add_argument('tbl_post_nl', type=str, help='Table post-processing')
+    parser.add_argument('log_level', type=str, help='Set logging level')
     args = parser.parse_args()
     
     openai.api_key = args.ai_key
     with open(args.config) as file:
         config = json.load(file)
-    
+    logging.basicConfig(level=args.log_level)
+
     tasks = dbz.generate.task.Tasks(config)
     operators = dbz.generate.operator.Operators()
     synthesizer = dbz.generate.synthesize.Synthesizer(
@@ -43,12 +46,12 @@ if __name__ == '__main__':
     
     while not composer.finished():
         task_id = debugger.to_redo()
-        print(f'Redoing task {task_id}')
+        logging.info(f'Redoing task {task_id}')
         task = tasks.id2task[task_id]
         code_id = miner.mine(task)
-        print(f'Mined code ID: {code_id}')
+        logging.info(f'Mined code ID: {code_id}')
         composer.update(task_id, code_id)
-        print('Composer update completed.')
+        logging.info('Composer update completed.')
     
     print('Process complete.')
     sql_engine = composer.final_code()

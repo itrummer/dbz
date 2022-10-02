@@ -7,6 +7,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 import dbz.execute.check
 import dbz.execute.engine
+import logging
 
 
 @dataclass
@@ -70,7 +71,6 @@ class Composer():
         for task_idx in range(self.nr_tasks):
             if not self.compositions[task_idx]:
                 task_id = self.task_order[task_idx]
-                print(f'Failed until step {task_idx} (task: {task_id})')
                 failed_checks = self.idx2checks[task_idx]
                 failed_passes = self.idx2passes[task_idx]
                 nr_failed_ops = len(self.ops.get_ids(task_id))
@@ -78,10 +78,12 @@ class Composer():
                 prior_checks = [
                     c for i in range(task_idx) 
                     for c in self.idx2checks[i]]
-                return FailureInfo(
+                failure_info = FailureInfo(
                     task_id, failed_checks, 
                     failed_passes, nr_failed_ops, 
                     prior_comps, prior_checks)
+                logging.info(f'Failure Info ({task_id}): {failure_info}')
+                return failure_info
         
         return None
     
@@ -127,9 +129,9 @@ class Composer():
                     next_row[task] = cur_code_id
                     next_result += [next_row]
         
-            print(f'Updating at {task_idx}, next result: {next_result}')
+            logging.debug(f'Updating at {task_idx}, next result: {next_result}')
             last_result = self._filter(next_result, task_idx)
-            print(f'Updating at {task_idx}, last result: {last_result}')
+            logging.debug(f'Updating at {task_idx}, last result: {last_result}')
             self.compositions[task_idx] += last_result
     
     def _applicable_checks(self, tasks):
@@ -142,11 +144,9 @@ class Composer():
             set of applicable check IDs
         """
         tasks_set = set(tasks)
-        print(f'Applicable checks? Tasks: {tasks_set}')
         applicable = set()
         for check_idx, check in enumerate(self.tasks.check_tasks):
             required_set = set(check['requirements'])
-            print(f'Required set: {required_set}')
             if required_set.issubset(tasks_set):
                 applicable.add(check_idx)
         return applicable
@@ -227,5 +227,5 @@ class Composer():
             new_checks = [self.tasks.check_tasks[i] for i in new_check_ids]
             idx2checks[task_idx] = new_checks
         
-        print(f'Scheduled checks: {idx2checks}')
+        logging.info(f'Scheduled checks: {idx2checks}')
         return idx2checks

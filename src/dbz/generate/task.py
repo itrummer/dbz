@@ -6,6 +6,7 @@ Created on Sep 25, 2022
 import dbz.execute.engine
 import dbz.generate.synthesize
 import json
+import logging
 import os.path
 import re
 
@@ -56,7 +57,6 @@ class Tasks():
         for sql in self.config['checks']['queries']:
             check_task = {'query':sql, 'type':'sql'}
             trace_code = engine.sql2code(sql, 'dummy_path')
-            print(f'SQL: {sql}\nSQL Trace Code:\n{trace_code}')
             self._add_requirements(check_task, trace_code)
             check_tasks += [check_task]
         
@@ -85,7 +85,7 @@ class Tasks():
             check_task: add requirements to this task
             trace_code: code for tracing requirements
         """
-        print(f'Trace code:\n{trace_code}')
+        logging.debug(f'Trace code:\n{trace_code}')
         requirements = set()
         exec(trace_code, {'requirements':requirements})
         check_task['requirements'] = requirements
