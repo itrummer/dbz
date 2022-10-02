@@ -23,9 +23,10 @@ class CodeMiner():
         self.operators = operators
         self.synthesizer = synthesizer
         temperature_delta = 1.0 / (nr_steps-1)
-        logging.info(f'Temperature Delta: {temperature_delta}')
+        self.logger = logging.getLogger('all')
+        self.logger.info(f'Temperature Delta: {temperature_delta}')
         self.temperatures = [temperature_delta * s for s in range(nr_steps)]
-        logging.info(f'Temperatures Considered: {self.temperatures}')
+        self.logger.info(f'Temperatures Considered: {self.temperatures}')
         self.max_samples = max_samples
     
     def mine(self, task):
@@ -37,9 +38,9 @@ class CodeMiner():
         Returns:
             ID of generated code in operator library (None if unsuccessful)
         """
-        logging.info(f'Mining code for task: {task}')
+        self.logger.info(f'Mining code for task: {task}')
         t2samples = self._optimized_samples(task)
-        logging.info(f'Optimized Sample Counts: {t2samples}')
+        self.logger.info(f'Optimized Sample Counts: {t2samples}')
         code, temp = self._sample(task, t2samples)
         task_id = task['task_id']
         return self.operators.add_op(task_id, code, temp)
@@ -80,13 +81,13 @@ class CodeMiner():
         for temperature in x[1:]:
             code = self.synthesizer.generate(task, temperature)
             y += [0] if self.operators.is_known(code) else [1]
-        logging.info(f'Fitting Vector: {y}')
+        self.logger.info(f'Fitting Vector: {y}')
         
         x = np.array(x).reshape((-1, 1))
         y = np.array(y)
         model = sklearn.linear_model.LinearRegression()
         model.fit(x, y)
-        logging.debug(f'Model: {model}')
+        self.logger.debug(f'Model: {model}')
         return model
     
     def _optimized_samples(self, task):
@@ -109,7 +110,7 @@ class CodeMiner():
                     t2samples_c.update([temp])
                     e_min = self._e_min_temp(t2samples_c, model)
                     expansions += [(t2samples_c, e_min)]
-                logging.debug(f'Sample expansions: {expansions}')
+                self.logger.debug(f'Sample expansions: {expansions}')
                 t2samples = min(expansions, key=lambda c_e:c_e[1])[0]
             return t2samples
         else:
@@ -130,12 +131,12 @@ class CodeMiner():
         p_per_sample = model.predict(temperature)
         p_per_sample = max(p_per_sample, 0.0)
         p_per_sample = min(p_per_sample, 1.0)
-        logging.debug(f'p_per_sample: {p_per_sample}')
+        self.logger.debug(f'p_per_sample: {p_per_sample}')
         p_per_sample_n = 1.0 - p_per_sample
         p_n = p_per_sample_n ** nr_t_samples
-        logging.debug(f'p_n: {p_n}')
+        self.logger.debug(f'p_n: {p_n}')
         p = 1.0 - p_n
-        logging.debug(f'P(New | {temperature}) = {p}')
+        self.logger.debug(f'P(New | {temperature}) = {p}')
         return p
     
     def _sample(self, task, t2samples):
@@ -153,7 +154,7 @@ class CodeMiner():
             for _ in range(t_samples):
                 code = self.synthesizer.generate(task, temp)
                 if not self.operators.is_known(code):
-                    logging.info(f'Mined Code with Temperature {temp}')
+                    self.logger.info(f'Mined Code with Temperature {temp}')
                     return code, temp
         
         while True:

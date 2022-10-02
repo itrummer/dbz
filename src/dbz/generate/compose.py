@@ -14,8 +14,8 @@ import logging
 class FailureInfo():
     """ Contains helpful information for debugging. """
     failed_task_id: str
-    failed_checks: list
-    failed_passes: list
+    checks_at_fail: list
+    passes_at_fail: list
     nr_failed_ops: int
     prior_comps: list
     prior_checks: list
@@ -32,6 +32,7 @@ class Composer():
             operators: manages operator implementations
             tasks: manages generation tasks and checks
         """
+        self.logger = logging.getLogger('all')
         self.ops = operators
         self.tasks = tasks
         self.task_order = [t['task_id'] for t in tasks.gen_tasks]
@@ -71,18 +72,18 @@ class Composer():
         for task_idx in range(self.nr_tasks):
             if not self.compositions[task_idx]:
                 task_id = self.task_order[task_idx]
-                failed_checks = self.idx2checks[task_idx]
-                failed_passes = self.idx2passes[task_idx]
+                checks_at_fail = self.idx2checks[task_idx]
+                passes_at_fail = self.idx2passes[task_idx]
                 nr_failed_ops = len(self.ops.get_ids(task_id))
                 prior_comps = self.compositions[task_idx-1]
                 prior_checks = [
                     c for i in range(task_idx) 
                     for c in self.idx2checks[i]]
                 failure_info = FailureInfo(
-                    task_id, failed_checks, 
-                    failed_passes, nr_failed_ops, 
+                    task_id, checks_at_fail, 
+                    passes_at_fail, nr_failed_ops, 
                     prior_comps, prior_checks)
-                logging.info(f'Failure Info ({task_id}): {failure_info}')
+                self.logger.info(f'Failure Info ({task_id}): {failure_info}')
                 return failure_info
         
         return None
@@ -129,9 +130,9 @@ class Composer():
                     next_row[task] = cur_code_id
                     next_result += [next_row]
         
-            logging.debug(f'Updating at {task_idx}, next result: {next_result}')
+            self.logger.debug(f'Updating at {task_idx}, next result: {next_result}')
             last_result = self._filter(next_result, task_idx)
-            logging.debug(f'Updating at {task_idx}, last result: {last_result}')
+            self.logger.debug(f'Updating at {task_idx}, last result: {last_result}')
             self.compositions[task_idx] += last_result
     
     def _applicable_checks(self, tasks):
@@ -227,5 +228,5 @@ class Composer():
             new_checks = [self.tasks.check_tasks[i] for i in new_check_ids]
             idx2checks[task_idx] = new_checks
         
-        logging.info(f'Scheduled checks: {idx2checks}')
+        self.logger.info(f'Scheduled checks: {idx2checks}')
         return idx2checks

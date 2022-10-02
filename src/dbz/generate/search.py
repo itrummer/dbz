@@ -29,7 +29,8 @@ if __name__ == '__main__':
     openai.api_key = args.ai_key
     with open(args.config) as file:
         config = json.load(file)
-    logging.basicConfig(level=int(args.log_level))
+    logger = logging.getLogger('all')
+    logger.setLevel(int(args.log_level))
 
     tasks = dbz.generate.task.Tasks(config)
     operators = dbz.generate.operator.Operators()
@@ -52,12 +53,12 @@ if __name__ == '__main__':
     
     while not composer.finished():
         task_id = debugger.to_redo()
-        logging.info(f'Redoing task {task_id}')
+        logger.info(f'Redoing task {task_id}')
         task = tasks.id2task[task_id]
         code_id = miner.mine(task)
-        logging.info(f'Mined code ID: {code_id}')
+        logger.info(f'Mined code ID: {code_id}')
         composer.update(task_id, code_id)
-        logging.info('Composer update completed.')
+        logger.info('Composer update completed.')
     
     print('Process complete.')
     sql_engine = composer.final_code()
