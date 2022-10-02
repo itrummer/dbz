@@ -7,6 +7,7 @@ import abc
 import dbz.execute.code
 import dbz.execute.query
 import dbz.execute.plan
+import logging
 import pandas as pd
 import psycopg2
 import subprocess
@@ -40,6 +41,7 @@ class DbzEngine(Engine):
             library: library with operator code
             python_path: path to Python executable
         """
+        self.logger = logging.getLogger('all')
         self.paths = paths
         self.library = library
         self.python_path = python_path
@@ -92,9 +94,9 @@ class DbzEngine(Engine):
             a piece of code processing the query
         """
         sql = dbz.execute.query.simplify(sql)
-        print(f'Simplified query: {sql}')
+        self.logger.info(f'Simplified query: {sql}')
         plan = self.planner.plan(sql)
-        print(f'Plan: {plan}')
+        self.logger.debug(f'Plan: {plan}')
         query_code = self.coder.plan_code(plan)
         return self.add_context(query_code, out)
     
