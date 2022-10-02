@@ -22,7 +22,9 @@ class CodeMiner():
         self.operators = operators
         self.synthesizer = synthesizer
         temperature_delta = 1.0 / (nr_steps-1)
+        print(f'Temperature Delta: {temperature_delta}')
         self.temperatures = [temperature_delta * s for s in range(nr_steps)]
+        print(f'Temperatures Considered: {self.temperature}')
         self.max_samples = max_samples
     
     def mine(self, task):
@@ -103,7 +105,7 @@ class CodeMiner():
                 for temp in self.temperatures[1:]:
                     t2samples_c = t2samples.copy()
                     t2samples_c.update([temp])
-                    e_min = self._e_min_temp(t2samples, model)
+                    e_min = self._e_min_temp(t2samples_c, model)
                     expansions += [(t2samples_c, e_min)]
                 t2samples = min(expansions, key=lambda c_e:c_e[1])[0]
             return t2samples
