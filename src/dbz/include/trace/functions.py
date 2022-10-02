@@ -3,7 +3,7 @@ Created on Sep 25, 2022
 
 @author: immanueltrummer
 '''
-def is_empty(_):
+def is_empty(*args):
     """ Code generator visits some branches only for non-empty tables. 
     
     Returns:
@@ -11,7 +11,7 @@ def is_empty(_):
     """
     return True
 
-def nr_rows(_):
+def nr_rows(*args):
     """ Code generator visits some branches only for non-empty tables.
     
     Returns:
