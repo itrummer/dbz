@@ -45,6 +45,8 @@ class Tasks():
             name = self._fct_name(prompt)
             if name is not None:
                 gen_task['function_name'] = name
+            
+            print(f'Function Name {gen_task["task_id"]}: {name}')
     
     def _check_tasks(self):
         """ Generate list of checks with associated requirements. 
