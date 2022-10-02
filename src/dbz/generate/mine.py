@@ -100,7 +100,7 @@ class CodeMiner():
             t2samples = Counter()
             for _ in range(self.max_samples):
                 expansions = []
-                for temp in self.temperatures:
+                for temp in self.temperatures[1:]:
                     t2samples_c = t2samples.copy()
                     t2samples_c.update([temp])
                     e_min = self._e_min_temp(t2samples, model)
@@ -123,8 +123,12 @@ class CodeMiner():
         """
         temperature = np.array(temperature).reshape((-1, 1))
         p_per_sample = model.predict(temperature)
+        p_per_sample = max(p_per_sample, 0.0)
+        p_per_sample = min(p_per_sample, 1.0)
+        print(f'p_per_sample: {p_per_sample}')
         p_per_sample_n = 1.0 - p_per_sample
         p_n = p_per_sample_n ** nr_t_samples
+        print(f'p_n: {p_n}')
         p = 1.0 - p_n
         print(f'P(New | {temperature}) = {p}')
         return p
