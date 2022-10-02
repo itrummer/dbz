@@ -21,6 +21,7 @@ class Tasks():
             config: JSON configuration file with task descriptions
         """
         self.logger = logging.getLogger('all')
+        self.logger.info('Initializing Tasks')
         self.config = config
         test_access = self.config['test_access']
         data_dir = test_access['data_dir']
@@ -32,7 +33,6 @@ class Tasks():
         self.id2task = {t['task_id']:t for t in self.gen_tasks}
         self._add_fct_names()
         self.check_tasks = self._check_tasks()
-        self.logger.info(self.check_tasks)
     
     def _add_fct_names(self):
         """ Add names of generated functions to task descriptions. """
@@ -61,6 +61,7 @@ class Tasks():
             trace_code = engine.sql2code(sql, 'dummy_path')
             self._add_requirements(check_task, trace_code)
             check_tasks += [check_task]
+            self.logger.info(f'SQL Check: {check_task}')
         
         test_dirs = self.config['checks']['test_dirs']
         for test_dir in test_dirs:
@@ -77,6 +78,7 @@ class Tasks():
                 trace_code = engine.add_context(query_code, 'dummy_path')
                 self._add_requirements(check_task, trace_code)
                 check_tasks += [check_task]
+                self.logger.info(f'Code Check: {check_task}')
                     
         return check_tasks
 
