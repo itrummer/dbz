@@ -318,59 +318,6 @@ class Coder():
             return self._grouped_aggs_code(step)
         else:
             return self._ungrouped_aggs_code(step)
-        
-        
-        step_id = step['id']
-        aggs = step['aggs']
-        
-        result = self._result_name(step_id)
-        
-        parts = ['']
-        parts += [f'# LogicalAggregate: aggs: {aggs}; groups {groups}']
-        parts += [f'result_cols = []']
-        
-        grouping = True if groups else False
-        if grouping:
-            nr_group_cols = len(groups)
-            group_by_cols = [f'input_rel[{g}]' for g in groups]
-            group_by_list = ', '.join(group_by_cols)
-            parts += [f'row_id_rows=to_row_format([{group_by_list}])']
-            parts += ['row_id_column=to_tuple_column(row_id_rows)']
-            
-            parts += ['id_tuples=list(set([tuple(g) for g in row_id_rows]))']
-            parts += ['id_rows=[list(t) for t in id_tuples]']
-            parts += [f'id_columns=rows_to_columns(id_rows,{nr_group_cols})']
-            parts += [f'{result} += id_columns']
-            
-            parts += ['agg_dicts_defs = []']
-            for agg in aggs:
-                parts += [self._agg_code(agg, groups)]
-                def_val = 0 if agg['agg']['kind'] == 'COUNT' else None
-                parts += [f'agg_dicts_defs += [(agg_result,{def_val})]']
-            parts += ['agg_rows = []']
-            parts += ['for id_tuple in id_tuples:']
-            parts += [
-                '\tagg_rows += [' +\
-                '[dict_def[0].get(id_tuple, dict_def[1]) ' +\
-                'for dict_def in agg_dicts_defs]]']
-            nr_aggs = len(aggs)
-            parts += [f'{result} += rows_to_columns(agg_rows,{nr_aggs})']
-
-        else:
-        
-            for agg in aggs:
-                parts += [f'if not is_empty(in_rel_1) and nr_rows(input_rel[0]):']
-                parts += [self._agg_code(agg, groups, 1)]
-                parts += ['else:']
-                def_val = 'fill_column(0,1)' \
-                    if agg['agg']['kind'] == 'COUNT' \
-                    else 'fill_column(None,1)'
-                parts += [f'\tagg_result = {def_val}']
-                parts += [f'{result} += [agg_result]']
-        
-        parts += [f'{result} = adjust_after_aggregate({result}, {grouping})']
-        parts += [f'last_result = {result}']
-        return '\n'.join(parts)
     
     def _LogicalFilter(self, step):
         """ Produce code for a filter.

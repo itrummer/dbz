@@ -3,6 +3,39 @@ Created on Sep 25, 2022
 
 @author: immanueltrummer
 '''
+def is_empty(_):
+    """ Code generator visits some branches only for non-empty tables. 
+    
+    Returns:
+        True to ensure everything is visited during tracing
+    """
+    return True
+
+def nr_rows(_):
+    """ Code generator visits some branches only for non-empty tables.
+    
+    Returns:
+        True to ensure that all dependencies are traced
+    """
+    return 1
+
+def if_else(_, if_val, else_val):
+    """ Visit both branches of if-statement during tracing.
+    
+    Args:
+        if_val: expression result if condition is satisfied
+        else_val: expression result if condition is not satisfied
+    
+    Returns:
+        dummy value
+    """
+    for val in [if_val, else_val]:
+        if callable(val):
+            val()
+        else:
+            val
+    return []
+
 def multiway_and(*args):
     nr_rows()
     fill_column()
