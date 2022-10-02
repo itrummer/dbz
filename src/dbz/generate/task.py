@@ -20,6 +20,7 @@ class Tasks():
         Args:
             config: JSON configuration file with task descriptions
         """
+        self.logger = logging.getLogger('all')
         self.config = config
         test_access = self.config['test_access']
         data_dir = test_access['data_dir']
@@ -30,7 +31,8 @@ class Tasks():
         self.gen_tasks = [t for t in tasks if t['type'] == 'generate']
         self.id2task = {t['task_id']:t for t in self.gen_tasks}
         self._add_fct_names()
-        self.check_tasks = self._check_tasks()        
+        self.check_tasks = self._check_tasks()
+        self.logger.info(self.check_tasks)
     
     def _add_fct_names(self):
         """ Add names of generated functions to task descriptions. """
@@ -85,7 +87,7 @@ class Tasks():
             check_task: add requirements to this task
             trace_code: code for tracing requirements
         """
-        logging.debug(f'Trace code:\n{trace_code}')
+        self.logger.debug(f'Trace code:\n{trace_code}')
         requirements = set()
         exec(trace_code, {'requirements':requirements})
         check_task['requirements'] = requirements
