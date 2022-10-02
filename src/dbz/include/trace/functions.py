@@ -70,18 +70,18 @@ def multiply_by_scalar(*args):
     multiplication()
     return []
 
-def scale_columns(*args):
+def scale_columns(columns):
     nr_rows()
     get_value()
     fill_column()
-    return list(args)
+    return columns
 
-def scale_to_table(*args):
+def scale_to_table(column, table):
     get_column()
     nr_rows()
     get_value()
     fill_column()
-    return list(args)
+    return column, table
 
 def smart_date_extract(*args):
     map_column()
