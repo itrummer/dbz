@@ -24,7 +24,7 @@ class CodeMiner():
         temperature_delta = 1.0 / (nr_steps-1)
         print(f'Temperature Delta: {temperature_delta}')
         self.temperatures = [temperature_delta * s for s in range(nr_steps)]
-        print(f'Temperatures Considered: {self.temperature}')
+        print(f'Temperatures Considered: {self.temperatures}')
         self.max_samples = max_samples
     
     def mine(self, task):
