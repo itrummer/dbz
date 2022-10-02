@@ -89,7 +89,7 @@ class Debugger():
                 all_passes[check_idx] &= passed
                 no_passes[check_idx] &= not passed 
 
-        failed_groups = [[checks]]
+        failed_groups = [checks]
         passed_groups = []
         for check, all_pass, no_pass in zip(
             checks, all_passes, no_passes):
