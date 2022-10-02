@@ -154,7 +154,8 @@ class CodeMiner():
             for _ in range(t_samples):
                 code = self.synthesizer.generate(task, temp)
                 if not self.operators.is_known(code):
-                    self.logger.info(f'Mined Code with Temperature {temp}')
+                    self.logger.info(
+                        f'Mined Code with Temperature {temp}:\n{code}')
                     return code, temp
         
         while True:
