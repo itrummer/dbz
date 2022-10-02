@@ -35,6 +35,7 @@ class CodeMiner():
             ID of generated code in operator library (None if unsuccessful)
         """
         t2samples = self._optimized_samples(task)
+        print(f'Optimized Sample Counts: {t2samples}')
         code, temp = self._sample(task, t2samples)
         task_id = task['task_id']
         return self.operators.add_op(task_id, code, temp)
@@ -139,6 +140,7 @@ class CodeMiner():
             for _ in range(t_samples):
                 code = self.synthesizer.generate(task, temp)
                 if not self.operators.is_known(code):
+                    print(f'Mined Code with Temperature {temp}')
                     return code, temp
         
         while True:
