@@ -3,31 +3,50 @@ Created on Sep 25, 2022
 
 @author: immanueltrummer
 '''
-from collections import Counter
+from collections import Counter, defaultdict
+from dataclasses import dataclass
 import logging
 import numpy as np
 import sklearn.linear_model
 
+
+@dataclass
+class TemperatureStats():
+    """ Statistics about specific temperature level. """
+    nr_tries: int = 0
+    nr_new: int = 0
+    
+    def new_ratio(self):
+        """ Returns probability to generate new code. 
+        
+        Returns:
+            Ratio of succesful to total generation tries
+        """
+        return float(self.nr_new) / self.nr_tries
+
+
 class CodeMiner():
     """ Mines operator implementations using GPT-3 Codex. """
     
-    def __init__(self, operators, synthesizer, nr_steps=11, max_samples=10):
+    def __init__(self, operators, synthesizer, nr_levels=11, max_samples=10):
         """ Initializes for given synthesizer.
         
         Args:
             operators: keeps track of generated operators
             synthesizer: used to generate operator code
-            nr_steps: how many temperature steps to consider
+            nr_levels: how many temperature levels to consider
             max_samples: try to limit to this number of samples
         """
         self.operators = operators
         self.synthesizer = synthesizer
-        temperature_delta = 1.0 / (nr_steps-1)
+        self.nr_levels = nr_levels
+        self.max_samples = max_samples
+        temperature_delta = 1.0 / (nr_levels-1)
         self.logger = logging.getLogger('all')
         self.logger.info(f'Temperature Delta: {temperature_delta}')
-        self.temperatures = [temperature_delta * s for s in range(nr_steps)]
+        self.temperatures = [temperature_delta * s for s in range(nr_levels)]
         self.logger.info(f'Temperatures Considered: {self.temperatures}')
-        self.max_samples = max_samples
+        self.temp2stats = defaultdict(lambda:TemperatureStats())
     
     def mine(self, task):
         """ Mine code for given generation task.
@@ -77,13 +96,24 @@ class CodeMiner():
         Returns:
             a linear model predicting new code probability from temperature
         """
-        x = [0, 1.0/3, 2.0/3, 1]
-        y = [0]
-        for temperature in x[1:]:
-            code = self.synthesizer.generate(task, temperature)
-            y += [0] if self.operators.is_known(code) else [1]
-        self.logger.info(f'Fitting Vector: {y}')
+        if not self.temp2stats:
+            for tmp_idx in [1, self.nr_levels/2, self.nr_levels-1]:
+                temperature = self.temperatures[tmp_idx]
+                code = self.synthesizer.generate(task, temperature)
+                if self.operators.is_known(code):
+                    self._update_stats(temperature, False)
+                else:
+                    self._update_stats(temperature, True)
         
+        x = [0]
+        y = [0]
+        for temperature in self.temperatures:
+            if temperature in self.temp2stats:
+                stats = self.temp2stats[temperature]
+                x += [temperature]
+                y += [stats.new_ratio()]
+        
+        self.logger.info(f'Fitting Vector: {y}')
         x = np.array(x).reshape((-1, 1))
         y = np.array(y)
         model = sklearn.linear_model.LinearRegression()
@@ -155,9 +185,27 @@ class CodeMiner():
             for _ in range(t_samples):
                 code = self.synthesizer.generate(task, temp)
                 if not self.operators.is_known(code):
+                    self._update_stats(temp, True)
                     return code, temp
+                else:
+                    self._update_stats(temp, False)
         
         while True:
             code = self.synthesizer.generate(task, 1)
             if not self.operators.is_known(code):
+                self._update_stats(1.0, True)
                 return code, 1.0
+            else:
+                self._update_stats(1.0, False)
+    
+    def _update_stats(self, temperature, success):
+        """ Updates temperature-related statistics.
+        
+        Args:
+            temperature: update statistics on this temperature
+            success: True iff mining new code was successful
+        """
+        stats = self.temp2stats[temperature]
+        stats.nr_tries += 1
+        if success:
+            stats.nr_new += 1
