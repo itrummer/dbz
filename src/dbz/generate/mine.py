@@ -122,7 +122,8 @@ class CodeMiner():
         """
         self.logger = logging.getLogger('all')
         self.env = MiningEnv(operators, synthesizer, nr_levels, nr_samples)
-        self.agent = stable_baselines3.a2c.A2C(self.env, normalize_advantage=True)
+        self.agent = stable_baselines3.a2c.A2C(
+            'CnnPolicy', self.env, normalize_advantage=True)
     
     def mine(self, task):
         """ Mine code as specified in given generation task.
