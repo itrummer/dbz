@@ -7,6 +7,7 @@ from collections import defaultdict
 import gym.spaces
 import logging
 import numpy as np
+import random
 import stable_baselines3.a2c
 
 
@@ -43,7 +44,7 @@ class MiningEnv(gym.Env):
         self.taskid2c_t = defaultdict(lambda:[])
     
     def pop_code(self, task_id):
-        """ Get code with lowest temperature seen so far and reset. 
+        """ Get code with lowest temperature seen so far and reset.
         
         Args:
             task_id: get code for this task ID
@@ -158,9 +159,13 @@ class CodeMiner():
         """
         task_id = task['task_id']
         if self.operators.get_ids(task_id):
-            self.env.task = task
-            self.agent.learn(1)
-            code, temperature = self.env.pop_code(task_id)
+            # self.env.task = task
+            # self.agent.learn(1)
+            # code, temperature = self.env.pop_code(task_id)
+            # return self.operators.add_op(task_id, code, temperature)
+            temperature = random.random()
+            code = self.synthesizer.generate(task, temperature)
+            self.logger.info(f'Mined first implementation for task {task_id}')
             return self.operators.add_op(task_id, code, temperature)
         else:
             code = self.synthesizer.generate(task, 0.0)
