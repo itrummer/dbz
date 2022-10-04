@@ -3,6 +3,7 @@ Created on Sep 25, 2022
 
 @author: immanueltrummer
 '''
+from collections import defaultdict
 import gym.spaces
 import logging
 import numpy as np
@@ -39,7 +40,22 @@ class MiningEnv(gym.Env):
             low=0, high=1, shape=(2,),
             dtype=np.uint8)
         self.task = None
-        self.last_code_ID = None
+        self.taskid2c_t = defaultdict(lambda:[])
+    
+    def pop_code(self, task_id):
+        """ Get code with lowest temperature seen so far and reset. 
+        
+        Args:
+            task_id: get code for this task ID
+        
+        Returns:
+            tuple: newly generated code and associated temperature
+        """
+        mined = self.taskid2c_t[task_id]
+        mined.sort(key=lambda c_t:c_t[1])
+        c_t = mined[0]
+        del self.taskid2c_t[task_id]
+        return c_t
     
     def reset(self):
         """ Returns vector of observations (nothing else to do). """
@@ -63,7 +79,7 @@ class MiningEnv(gym.Env):
         code, temp = self._sample(t2samples)
         self.logger.info(f'Mined Code with Temperature {temp}:\n{code}')
         task_id = self.task['task_id']
-        self.last_code_ID = self.operators.add_op(task_id, code, temp)
+        self.taskid2c_t[task_id] += [(code, temp)]
         reward = 1.0 - temp
         
         return self._observe(), reward, True, {}
@@ -124,11 +140,12 @@ class CodeMiner():
         self.logger = logging.getLogger('all')
         self.operators = operators
         self.synthesizer = synthesizer
+        
         self.env = MiningEnv(operators, synthesizer, nr_levels, nr_samples)
         self.logger.info(f'Mining Environment: {self.env}')
         self.agent = stable_baselines3.a2c.A2C(
             'MlpPolicy', self.env, 
-            n_steps=1, normalize_advantage=True)
+            n_steps=2, normalize_advantage=True)
     
     def mine(self, task):
         """ Mine code as specified in given generation task.
@@ -143,11 +160,12 @@ class CodeMiner():
         if self.operators.get_ids(task_id):
             self.env.task = task
             self.agent.learn(1)
-            return self.env.last_code_ID
+            code, temperature = self.env.pop_code(task_id)
+            return self.operators.add_op(task_id, code, temperature)
         else:
-            code = self.synthesizer.generate(task, 0)
+            code = self.synthesizer.generate(task, 0.0)
             self.logger.info(f'Mined first implementation for task {task_id}')
-            return self.operators.add_op(task_id, code, 0)
+            return self.operators.add_op(task_id, code, 0.0)
 
 
 if __name__ == '__main__':
