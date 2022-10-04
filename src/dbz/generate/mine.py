@@ -147,3 +147,7 @@ class CodeMiner():
             code = self.synthesizer.generate(task, 0)
             self.logger.info(f'Mined first implementation for task {task_id}')
             return self.operators.add_op(task_id, code, 0)
+
+
+if __name__ == '__main__':
+    miner = CodeMiner(None, None, 4, 10)
