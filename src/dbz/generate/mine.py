@@ -164,12 +164,13 @@ class CodeMiner():
             # code, temperature = self.env.pop_code(task_id)
             # return self.operators.add_op(task_id, code, temperature)
             while True:
-                #temperature = random.random()
-                temperature = 0.5
-                code = self.synthesizer.generate(task, temperature)
-                if not self.operators.is_known(code):
-                    self.logger.info(f'Mined implementation for task {task_id}:\n{code}')
-                    return self.operators.add_op(task_id, code, temperature)
+                for temperature in self.env.temperatures:
+                    #temperature = random.random()
+                    #temperature = 0.5
+                    code = self.synthesizer.generate(task, temperature)
+                    if not self.operators.is_known(code):
+                        self.logger.info(f'Mined implementation for task {task_id}:\n{code}')
+                        return self.operators.add_op(task_id, code, temperature)
         else:
             code = self.synthesizer.generate(task, 0.0)
             self.logger.info(f'Mined first implementation for task {task_id}')

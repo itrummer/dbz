@@ -171,7 +171,7 @@ class Debugger():
         Returns:
             probability that no correct code is available for task
         """
-        p_incorrect_code = 0.5 ** nr_checks[task_id]
+        p_incorrect_code = 0.9 ** nr_checks[task_id]
         p_unsolved = p_incorrect_code ** nr_implementations[task_id]
         self.logger.debug(f'*** Task_ID: {task_id} - P_unsolved: {p_unsolved}')
         self.logger.debug(f'#checks: {nr_checks[task_id]}')
