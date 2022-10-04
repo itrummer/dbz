@@ -58,6 +58,7 @@ class MiningEnv(gym.Env):
         for idx, temp in enumerate(self.temperatures):
             t_samples = round(action[idx] * self.nr_samples)
             t2samples[temp] = t_samples
+        self.logger.info(f'#Samples per Temperature: {t2samples}')
         
         code, temp = self._sample(t2samples)
         self.logger.info(f'Mined Code with Temperature {temp}:\n{code}')
@@ -124,6 +125,7 @@ class CodeMiner():
         self.operators = operators
         self.synthesizer = synthesizer
         self.env = MiningEnv(operators, synthesizer, nr_levels, nr_samples)
+        self.logger.info(f'Mining Environment: {self.env}')
         self.agent = stable_baselines3.a2c.A2C(
             'MlpPolicy', self.env, normalize_advantage=True)
     
