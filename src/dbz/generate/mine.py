@@ -127,7 +127,8 @@ class CodeMiner():
         self.env = MiningEnv(operators, synthesizer, nr_levels, nr_samples)
         self.logger.info(f'Mining Environment: {self.env}')
         self.agent = stable_baselines3.a2c.A2C(
-            'MlpPolicy', self.env, normalize_advantage=True)
+            'MlpPolicy', self.env, 
+            n_steps=1, normalize_advantage=True)
     
     def mine(self, task):
         """ Mine code as specified in given generation task.
