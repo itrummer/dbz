@@ -121,9 +121,11 @@ class CodeMiner():
             nr_samples: try to limit to this number of samples
         """
         self.logger = logging.getLogger('all')
+        self.operators = operators
+        self.synthesizer = synthesizer
         self.env = MiningEnv(operators, synthesizer, nr_levels, nr_samples)
         self.agent = stable_baselines3.a2c.A2C(
-            'CnnPolicy', self.env, normalize_advantage=True)
+            'MlpPolicy', self.env, normalize_advantage=True)
     
     def mine(self, task):
         """ Mine code as specified in given generation task.
@@ -134,6 +136,10 @@ class CodeMiner():
         Returns:
             ID of newly generated code in operator library
         """
-        self.env.task = task
-        self.agent.learn(1)
-        return self.env.last_code_ID
+        task_id = task['task_id']
+        if self.operators.get_ids(task_id):
+            self.env.task = task
+            self.agent.learn(1)
+            return self.env.last_code_ID
+        else:
+            self.synthesizer.generate(task, 0)
