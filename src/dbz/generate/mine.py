@@ -142,4 +142,6 @@ class CodeMiner():
             self.agent.learn(1)
             return self.env.last_code_ID
         else:
-            self.synthesizer.generate(task, 0)
+            code = self.synthesizer.generate(task, 0)
+            self.logger.info(f'Mined first implementation for task {task_id}')
+            return self.operators.add_op(task_id, code, 0)
