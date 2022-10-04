@@ -3,178 +3,93 @@ Created on Sep 25, 2022
 
 @author: immanueltrummer
 '''
-from collections import Counter, defaultdict
-from dataclasses import dataclass
+import gym.spaces
 import logging
 import numpy as np
-import sklearn.linear_model
+import stable_baselines3.a2c
 
 
-@dataclass
-class TemperatureStats():
-    """ Statistics about specific temperature level. """
-    nr_tries: int = 0
-    nr_new: int = 0
+class MiningEnv(gym.Env):
+    """ Models decisions related to code mining temperature. """
     
-    def new_ratio(self):
-        """ Returns probability to generate new code. 
-        
-        Returns:
-            Ratio of succesful to total generation tries
-        """
-        return float(self.nr_new) / self.nr_tries
-
-
-class CodeMiner():
-    """ Mines operator implementations using GPT-3 Codex. """
-    
-    def __init__(self, operators, synthesizer, nr_levels=11, max_samples=10):
+    def __init__(self, operators, synthesizer, nr_levels, nr_samples):
         """ Initializes for given synthesizer.
         
         Args:
             operators: keeps track of generated operators
             synthesizer: used to generate operator code
             nr_levels: how many temperature levels to consider
-            max_samples: try to limit to this number of samples
+            nr_samples: try to limit to this number of samples
         """
+        gym.Env.__init__(self)
+        self.logger = logging.getLogger('all')
         self.operators = operators
         self.synthesizer = synthesizer
         self.nr_levels = nr_levels
-        self.max_samples = max_samples
-        temperature_delta = 1.0 / (nr_levels-1)
-        self.logger = logging.getLogger('all')
-        self.logger.info(f'Temperature Delta: {temperature_delta}')
-        self.temperatures = [temperature_delta * s for s in range(nr_levels)]
+        self.nr_samples = nr_samples
+        temperature_delta = 1.0 / nr_levels
+        self.logger.debug(f'Temperature Delta: {temperature_delta}')
+        self.temperatures = [
+            temperature_delta * s for s in range(1, nr_levels+1)]
         self.logger.info(f'Temperatures Considered: {self.temperatures}')
-        self.temp2stats = defaultdict(lambda:TemperatureStats())
+        self.action_space = gym.spaces.Box(
+            low=0, high=1, shape=(nr_levels,), 
+            dtype=np.uint8)
+        self.observation_space = gym.spaces.Box(
+            low=0, high=1, shape=(2,),
+            dtype=np.uint8)
+        self.task = None
+        self.last_code_ID = None
     
-    def mine(self, task):
-        """ Mine code for given generation task.
+    def reset(self):
+        """ Returns vector of observations (nothing else to do). """
+        return self._observe()
+    
+    def step(self, action):
+        """ Mines code using strategy described by action.
         
         Args:
-            task: describes code generation task
+            action: describes number of samples per temperature level
         
         Returns:
-            ID of generated code in operator library (None if unsuccessful)
+            observation, reward, termination, meta-data
         """
-        self.logger.info(f'Mining code for task: {task}')
-        t2samples = self._optimized_samples(task)
-        self.logger.info(f'Optimized Sample Counts: {t2samples}')
-        code, temp = self._sample(task, t2samples)
+        t2samples= {}
+        for idx, temp in enumerate(self.temperatures):
+            t_samples = round(action[idx] * self.nr_samples)
+            t2samples[temp] = t_samples
+        
+        code, temp = self._sample(t2samples)
         self.logger.info(f'Mined Code with Temperature {temp}:\n{code}')
-        task_id = task['task_id']
-        return self.operators.add_op(task_id, code, temp)
-    
-    def _e_min_temp(self, t2samples, model):
-        """ Calculate expected minimum temperature for new code.
+        task_id = self.task['task_id']
+        self.last_code_ID = self.operators.add_op(task_id, code, temp)
+        reward = 1.0 - temp
         
-        Args:
-            t2samples: maps temperature to a number of samples
-            model: predicts likelihood of new code from temperature
+        return self._observe(), reward, True, {}
+    
+    def _observe(self):
+        """ Generates observation for RL algorithm.
         
         Returns:
-            expectation on minimum temperature
+            array with observation values (prompt size, #implementations) 
         """
-        e_min = 0
-        p_none = 1.0
-        temps = list(t2samples.keys())
-        temps.sort()
-        for temperature in temps:
-            nr_t_samples = t2samples[temperature]
-            p_new = self._p_new(nr_t_samples, temperature, model)
-            e_min += p_none * p_new * temperature
-            p_none *= (1.0 - p_new)
+        prompt_path = self.task['template']
+        prompt = self.synthesizer.load_prompt(prompt_path, {})
+        prompt_size = len(prompt)
+        scaled_size = float(prompt_size) / 500
+        assert scaled_size <= 1.0
         
-        return e_min
+        task_id = self.task['task_id']
+        op_ids = self.operators.get_ids(task_id)
+        nr_operators = len(op_ids)
+        scaled_nr = float(min(nr_operators, 10)) / 10
+        
+        return np.array([scaled_size, scaled_nr])
     
-    def _model(self, task):
-        """ Creates a model linking temperature to probability of new code. 
-        
-        Args:
-            task: describes the code generation task
-        
-        Returns:
-            a linear model predicting new code probability from temperature
-        """
-        if not self.temp2stats:
-            for tmp_idx in [1, self.nr_levels/2, self.nr_levels-1]:
-                temperature = self.temperatures[tmp_idx]
-                code = self.synthesizer.generate(task, temperature)
-                if self.operators.is_known(code):
-                    self._update_stats(temperature, False)
-                else:
-                    self._update_stats(temperature, True)
-        
-        x = [0]
-        y = [0]
-        for temperature in self.temperatures:
-            if temperature in self.temp2stats:
-                stats = self.temp2stats[temperature]
-                x += [temperature]
-                y += [stats.new_ratio()]
-        
-        self.logger.info(f'Fitting Vector: {y}')
-        x = np.array(x).reshape((-1, 1))
-        y = np.array(y)
-        model = sklearn.linear_model.LinearRegression()
-        model.fit(x, y)
-        self.logger.debug(f'Model: {model}')
-        return model
-    
-    def _optimized_samples(self, task):
-        """ Optimize the distribution of samples over temperatures.
-        
-        Args:
-            task: describes code generation task
-        
-        Returns:
-            dictionary mapping temperatures to sample counts
-        """
-        task_id = task['task_id']
-        if self.operators.get_ids(task_id):
-            model = self._model(task)
-            t2samples = Counter()
-            for _ in range(self.max_samples):
-                expansions = []
-                for temp in self.temperatures[1:]:
-                    t2samples_c = t2samples.copy()
-                    t2samples_c.update([temp])
-                    e_min = self._e_min_temp(t2samples_c, model)
-                    expansions += [(t2samples_c, e_min)]
-                self.logger.debug(f'Sample expansions: {expansions}')
-                t2samples = min(expansions, key=lambda c_e:c_e[1])[0]
-            return t2samples
-        else:
-            return {0.0:1}
-    
-    def _p_new(self, nr_t_samples, temperature, model):
-        """ Calculates probability of retrieving new code.
-        
-        Args:
-            nr_t_samples: number of code samples for temperature
-            temperature: draw samples at this temperature
-            model: predicts new code probability, given temperature
-        
-        Returns:
-            probability that new code is generated at least once
-        """
-        temperature = np.array(temperature).reshape((-1, 1))
-        p_per_sample = model.predict(temperature)
-        p_per_sample = max(p_per_sample, 0.0)
-        p_per_sample = min(p_per_sample, 1.0)
-        self.logger.debug(f'p_per_sample: {p_per_sample}')
-        p_per_sample_n = 1.0 - p_per_sample
-        p_n = p_per_sample_n ** nr_t_samples
-        self.logger.debug(f'p_n: {p_n}')
-        p = 1.0 - p_n
-        self.logger.debug(f'P(New | {temperature}) = {p}')
-        return p
-    
-    def _sample(self, task, t2samples):
+    def _sample(self, t2samples):
         """ Execute sample schedule and return first novel code.
         
         Args:
-            task: describes code generation task
             t2samples: maps temperatures to sample counts
         
         Returns:
@@ -183,29 +98,41 @@ class CodeMiner():
         for temp in self.temperatures:
             t_samples = t2samples[temp]
             for _ in range(t_samples):
-                code = self.synthesizer.generate(task, temp)
+                code = self.synthesizer.generate(self.task, temp)
                 if not self.operators.is_known(code):
-                    self._update_stats(temp, True)
                     return code, temp
-                else:
-                    self._update_stats(temp, False)
         
         while True:
-            code = self.synthesizer.generate(task, 1)
+            code = self.synthesizer.generate(self.task, 1)
             if not self.operators.is_known(code):
-                self._update_stats(1.0, True)
                 return code, 1.0
-            else:
-                self._update_stats(1.0, False)
+
+
+class RlCodeMiner():
+    """ Mines code using reinforcement learning for configuration. """
     
-    def _update_stats(self, temperature, success):
-        """ Updates temperature-related statistics.
+    def __init__(self, operators, synthesizer, nr_levels=4, nr_samples=10):
+        """ Initializes for given synthesizer.
         
         Args:
-            temperature: update statistics on this temperature
-            success: True iff mining new code was successful
+            operators: keeps track of generated operators
+            synthesizer: used to generate operator code
+            nr_levels: how many temperature levels to consider
+            nr_samples: try to limit to this number of samples
         """
-        stats = self.temp2stats[temperature]
-        stats.nr_tries += 1
-        if success:
-            stats.nr_new += 1
+        self.logger = logging.getLogger('all')
+        self.env = MiningEnv(operators, synthesizer, nr_levels, nr_samples)
+        self.agent = stable_baselines3.a2c.A2C(self.env, normalize_advantage=True)
+    
+    def mine(self, task):
+        """ Mine code as specified in given generation task.
+        
+        Args:
+            task: describes code generation task
+        
+        Returns:
+            ID of newly generated code in operator library
+        """
+        self.env.task = task
+        self.agent.learn(1)
+        return self.env.last_code_ID
