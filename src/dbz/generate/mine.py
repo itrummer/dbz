@@ -108,7 +108,7 @@ class MiningEnv(gym.Env):
                 return code, 1.0
 
 
-class RlCodeMiner():
+class CodeMiner():
     """ Mines code using reinforcement learning for configuration. """
     
     def __init__(self, operators, synthesizer, nr_levels=4, nr_samples=10):
