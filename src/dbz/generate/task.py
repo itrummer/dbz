@@ -92,6 +92,7 @@ class Tasks():
             trace_code: code for tracing requirements
         """
         #print(f'Trace code:\n{trace_code}')
+        self.logger.debug(trace_code)
         requirements = set()
         exec(trace_code, {'requirements':requirements})
         check_task['requirements'] = requirements

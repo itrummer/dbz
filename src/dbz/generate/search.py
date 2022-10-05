@@ -29,6 +29,7 @@ if __name__ == '__main__':
     openai.api_key = args.ai_key
     with open(args.config) as file:
         config = json.load(file)
+    logging.basicConfig(level=int(args.log_level))
     logger = logging.getLogger('all')
     logger.setLevel(int(args.log_level))
 
