@@ -152,6 +152,37 @@ class Composer():
                 applicable.add(check_idx)
         return applicable
     
+    def _cache_get(self, composition, check):
+        """ Retrieves check result from cache if available.
+        
+        Args:
+            composition: maps task IDs to code IDs
+            check: retrieve from result cache of this check
+        
+        Returns:
+            Boolean result if cached, None otherwise
+        """
+        if 'cache' in check:
+            cache_key = self._get_key(composition, check)
+            cache = check['cache']
+            return cache.get(cache_key)
+        else:
+            return None
+    
+    def _cache_put(self, composition, check, passed):
+        """ Updates cache storing check results.
+        
+        Args:
+            composition: maps task IDs to code IDs
+            check: cache result for this check
+            passed: whether check was passed or not
+        """
+        if 'cache' not in check:
+            check['cache'] = {}
+        
+        cache_key = self._get_key(composition, check)
+        check['cache'][cache_key] = passed
+    
     def _check(self, composition, check):
         """ Apply check to given composition. 
         
@@ -162,13 +193,17 @@ class Composer():
         Returns:
             True iff the composition passes the check
         """
-        library = self._composition_code(composition)
-        test_engine = dbz.execute.engine.DbzEngine(
-            self.paths, library, self.python)
+        if self._cache_get(composition, check) is None:
+            library = self._composition_code(composition)
+            test_engine = dbz.execute.engine.DbzEngine(
+                self.paths, library, self.python)
+            
+            validator = dbz.execute.check.Validator(
+                self.paths, [check], self.sql_ref, self.code_ref)
+            passed = validator.validate(test_engine)
+            self._cache_put(composition, check, passed)
         
-        validator = dbz.execute.check.Validator(
-            self.paths, [check], self.sql_ref, self.code_ref)
-        return validator.validate(test_engine)
+        return self._cache_get(composition, check)
     
     def _composition_code(self, composition):
         """ Translates composition into a piece of code.
@@ -211,7 +246,24 @@ class Composer():
         
         self.idx2passes[task_idx] += passes
         return filter_out
+    
+    def _get_key(self, composition, check):
+        """ Calculates composition key used for check result caching. 
         
+        Args:
+            composition: maps task IDs to code IDs
+            check: calculate key for this check's cache
+        
+        Returns:
+            a frozen set capturing composition aspects relevant for check 
+        """
+        sub_comp = {}
+        for req_id in check['requirements']:
+            code_id = composition[req_id]
+            sub_comp[req_id] = code_id
+        
+        sub_comp = frozenset(sub_comp)
+    
     def _schedule_checks(self):
         """ Schedule checks based on task order. 
         
