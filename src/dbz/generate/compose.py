@@ -301,6 +301,7 @@ class Composer():
         self.task_order = [t['task_id'] for t in tasks.gen_tasks]
         self.nr_tasks = len(self.task_order)
         self.idx2checks = self._schedule_checks()
+        self.idx2passes = defaultdict(lambda:[])
         self.composition = {}
         self.works_until = -1
         
@@ -421,10 +422,12 @@ class Composer():
             Boolean result if cached, None otherwise
         """
         if 'cache' in check:
+            self.info('Retrieved check result from cache')
             cache_key = self._get_key(composition, check)
             cache = check['cache']
             return cache.get(cache_key)
         else:
+            self.info('No cached check result found')
             return None
     
     def _cache_put(self, composition, check, passed):
