@@ -50,7 +50,7 @@
 			"select case when n_comment like '%carefully%' then NULL else 0 end < 1 from nation",
 			"select case when n_comment like '%carefully%' then NULL else 0 end <= 1 from nation",
 			"select case when n_comment like '%carefully%' then NULL else 0 end = 0 from nation",
-			"select case when o_orderdate < date '1993-1-1' then NULL else o_orderdate from orders",
+			"select case when o_orderdate < date '1993-1-1' then NULL else o_orderdate end from orders",
 			"select sum(l_extendedprice) from lineitem",
 			"select min(l_extendedprice) from lineitem",
 			"select max(l_extendedprice) from lineitem",
