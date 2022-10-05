@@ -422,12 +422,12 @@ class Composer():
             Boolean result if cached, None otherwise
         """
         if 'cache' in check:
-            self.info('Retrieved check result from cache')
+            self.logger.info('Retrieved check result from cache')
             cache_key = self._get_key(composition, check)
             cache = check['cache']
             return cache.get(cache_key)
         else:
-            self.info('No cached check result found')
+            self.logger.info('No cached check result found')
             return None
     
     def _cache_put(self, composition, check, passed):
