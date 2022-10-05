@@ -45,17 +45,22 @@ if __name__ == '__main__':
     composer = dbz.generate.compose.Composer(config, operators, tasks)
     debugger = dbz.generate.debug.Debugger(composer)
     
+    composition = {}
     for gen_task in tasks.gen_tasks:
-        miner.mine(gen_task)
+        miner.mine(gen_task, composition)
+        task_id = gen_task['task_id']
+        composition[task_id] = 0
+    
+    # TODO: Need to update this if ordering in composer
     first_task = tasks.gen_tasks[0]
     first_task_id = first_task['task_id']
     composer.update(first_task_id, 0)
     
     while not composer.finished():
-        task_id = debugger.to_redo()
-        logger.info(f'Redoing task {task_id}')
+        task_id, comp = debugger.to_redo()
+        logger.info(f'Redoing task {task_id}; context: {comp}')
         task = tasks.id2task[task_id]
-        code_id = miner.mine(task)
+        code_id = miner.mine(task, comp)
         logger.info(f'Mined code ID: {code_id}')
         composer.update(task_id, code_id)
         logger.info('Composer update completed.')

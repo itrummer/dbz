@@ -148,11 +148,12 @@ class CodeMiner():
             'MlpPolicy', self.env, 
             n_steps=2, normalize_advantage=True)
     
-    def mine(self, task):
+    def mine(self, task, composition):
         """ Mine code as specified in given generation task.
         
         Args:
             task: describes code generation task
+            composition: maps tasks to operator IDs
         
         Returns:
             ID of newly generated code in operator library
@@ -167,12 +168,14 @@ class CodeMiner():
                 for temperature in self.env.temperatures:
                     #temperature = random.random()
                     #temperature = 0.5
-                    code = self.synthesizer.generate(task, temperature)
+                    code = self.synthesizer.generate(
+                        task, temperature, composition)
                     if not self.operators.is_known(code):
                         self.logger.info(f'Mined implementation for task {task_id}:\n{code}')
                         return self.operators.add_op(task_id, code, temperature)
         else:
-            code = self.synthesizer.generate(task, 0.0)
+            code = self.synthesizer.generate(
+                task, 0.0, composition)
             self.logger.info(f'Mined first implementation for task {task_id}')
             return self.operators.add_op(task_id, code, 0.0)
 

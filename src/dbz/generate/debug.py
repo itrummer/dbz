@@ -22,10 +22,10 @@ class Debugger():
         self.logger = logging.getLogger('all')
     
     def to_redo(self):
-        """ Suggests generation task to redo. 
+        """ Suggests generation task to redo and corresponding context. 
         
         Returns:
-            ID of task to redo
+            ID of task to redo, composition passing checks of prior task
         """
         failure_info = self.composer.failure_info()
         self.logger.debug(f'Failure Info: {failure_info}')
@@ -67,9 +67,12 @@ class Debugger():
         choices = list(task2p_unsolved.keys())
         weights = task2p_unsolved.values()
         todo_id = random.choices(choices, weights=weights, k=1)[0]
-        # todo_id = max(task2p_unsolved, key=task2p_unsolved.get)
         self.logger.info(f'Selected task to redo: {todo_id}')
-        return todo_id
+        
+        prior_comp = random.choice(failure_info.prior_comps)
+        self.logger.info(f'Selected redo context: {prior_comp}')
+        
+        return todo_id, prior_comp
             
     def _group_checks(self, checks, passes):
         """ Divides checks into groups that passed/failed for all compositions.

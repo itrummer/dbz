@@ -42,12 +42,13 @@ class Synthesizer():
         
         return text
     
-    def generate(self, task, temperature):
+    def generate(self, task, temperature, composition):
         """ Synthesize code piece as described in task.
         
         Args:
             task: dictionary describing generation task
             temperature: degree of randomness in generation
+            composition: selected operators in current composition
         
         Returns:
             prompt with generated code piece
@@ -56,7 +57,8 @@ class Synthesizer():
         context = task['context']
         for c in context:
             ops_tmp = self.operators.get_ops(c)
-            op_tmp = random.choice(ops_tmp)
+            op_idx = composition[c]
+            op_tmp = ops_tmp[op_idx]
             parts += [op_tmp[0]]
         
         file = task['template']
