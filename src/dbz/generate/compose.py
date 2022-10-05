@@ -262,7 +262,7 @@ class Composer():
             code_id = composition[req_id]
             sub_comp[req_id] = code_id
         
-        sub_comp = frozenset(sub_comp.items())
+        return frozenset(sub_comp.items())
     
     def _schedule_checks(self):
         """ Schedule checks based on task order. 
