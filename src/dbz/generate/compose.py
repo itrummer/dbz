@@ -337,7 +337,11 @@ class Composer():
             checks_at_fail = self.idx2checks[fail_idx]
             passes_at_fail = self.idx2passes[fail_idx]
             nr_failed_ops = len(self.ops.get_ids(task_id))
-            prior_comps = self.compositions[fail_idx-1]
+            prior_comp = self.composition.copy()
+            for next_idx in range(fail_idx, self.nr_tasks):
+                task_idx = self.task_order[next_idx]
+                del prior_comp[task_idx]
+            prior_comps = [prior_comp]
             prior_checks = [
                 c for i in range(fail_idx) 
                 for c in self.idx2checks[i]]
