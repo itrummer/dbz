@@ -302,7 +302,7 @@ class Composer():
         self.nr_tasks = len(self.task_order)
         self.idx2checks = self._schedule_checks()
         self.idx2passes = defaultdict(lambda:[])
-        self.composition = {}
+        self.composition = {tid:0 for tid in self.task_order}
         self.works_until = -1
         
         sql_ref_info = config['sql_ref']
