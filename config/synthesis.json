@@ -5,7 +5,7 @@
 		"pg_db":"tpch_sf0001", "pg_user":"ubuntu", "pg_pwd":"", 
 		"host":"/var/run/postgresql"},
 	"code_ref":{
-		"ref_operators":"libraries/list_engine.py"
+		"ref_operators":"libraries/list_engine_manual.py"
 	},
 	"checks":{
 		"queries":[
