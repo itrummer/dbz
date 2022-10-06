@@ -204,8 +204,11 @@ class Composer():
             
             if 'query' in check:
                 sql = check['query']
+                self.logger.info(f'Checking query {sql} ...')
                 code = test_engine.sql2code(sql, 'dummy')
             else:
+                file_name = check['file']
+                self.logger.info(f'Checking code {file_name} ...')
                 query_code = check['code']
                 code = test_engine.add_context(query_code, 'dummy')
             

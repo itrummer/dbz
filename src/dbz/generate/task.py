@@ -76,7 +76,9 @@ class Tasks():
                 with open(test_path) as file:
                     query_code = file.read()
                 
-                check_task = {'code':query_code, 'type':'code'}    
+                check_task = {
+                    'file': file_name, 'code':query_code, 
+                    'type':'code'}    
                 trace_code = engine.add_context(query_code, 'dummy_path')
                 self._add_requirements(check_task, trace_code)
                 check_tasks += [check_task]
