@@ -57,7 +57,9 @@ if __name__ == '__main__':
     first_task_id = first_task['task_id']
     composer.update(first_task_id, 0)
     
+    round_ctr = 0
     while not composer.finished():
+        round_ctr += 1
         task_id, comp = debugger.to_redo()
         logger.info(f'Redoing task {task_id}; context: {comp}')
         task = tasks.id2task[task_id]
@@ -65,6 +67,9 @@ if __name__ == '__main__':
         logger.info(f'Mined code ID: {code_id}')
         composer.update(task_id, code_id)
         logger.info('Composer update completed.')
+        if round_ctr % 10 == 0:
+            code = composer.final_code()
+            logger.info(f'Current Library:\n{code}')
     
     print('Process complete.')
     sql_engine = composer.final_code()

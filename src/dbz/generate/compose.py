@@ -371,7 +371,7 @@ class Composer():
         Returns:
             Code implementing operators of SQL execution engine
         """
-        assert self.finished(), 'No valid engine generated yet'
+        #assert self.finished(), 'No valid engine generated yet'
         return self._composition_code(self.composition)
     
     def update(self, updated_task_id, new_code_id):
