@@ -212,7 +212,7 @@ class Composer():
             code_name = f'CodeV{self.nr_validations}.py'
             code_path = os.path.join(self.paths.tmp_dir, code_name)
             self.logger.info(f'Writing validated code to {code_path}')
-            with open(code_path) as file:
+            with open(code_path, 'w') as file:
                 file.write(code)
                             
             validator = dbz.execute.check.Validator(
