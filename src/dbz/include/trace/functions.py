@@ -32,11 +32,11 @@ def if_else(_, if_val, else_val):
         dummy value
     """
     requirements.add('case')
-    for val in [if_val, else_val]:
-        if callable(val):
-            val()
-        else:
-            val
+    # for val in [if_val, else_val]:
+        # if callable(val):
+            # val()
+        # else:
+            # val
     return []
 
 def multiway_and(*args):
