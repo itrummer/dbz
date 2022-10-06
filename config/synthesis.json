@@ -111,6 +111,8 @@
 		"template":"cast.py", "substitutions":{"<ToType>":"string"}},
 	{"type":"generate", "task_id":"is_empty", "context":[], 
 		"template":"is_empty.py", "substitutions":{}},
+	{"type":"generate", "task_id":"get_null", "context":[],
+		"template":"get_null.py", "substitutions":{}},
 	
 	{"type":"generate", "task_id":"sort", "context":[], 
 		"template":"sort.py", "substitutions":{}},

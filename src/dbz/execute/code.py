@@ -281,7 +281,7 @@ class Coder():
         to_test = self._operation_code(operands[0])
         like_expr = self._operation_code(operands[1])
         like_expr = f'get_value({like_expr},0).replace(\'%\', \'.*\')'
-        pred_code = f'lambda s:None if s is None else re.match({like_expr}, s) is not None'
+        pred_code = f're.match({like_expr}, s)'
         return f'map_column({to_test}, {pred_code})'
     
     def _literal_code(self, literal, embed=True):
@@ -299,9 +299,9 @@ class Coder():
         if scale is None:
             data_type = literal['type']['type']
             if data_type in ['CHAR', 'VARCHAR', 'TEXT']:
-                value = f"None if '{value}' == 'None' else '{value}'"
+                value = f"get_null() if '{value}' == 'None' else '{value}'"
         else:
-            value = f'None if {value} == None else round({value}*1e{scale})'
+            value = f'get_null() if {value} == None else round({value}*1e{scale})'
         return f'fill_column({value},1)' if embed else value
     
     def _LogicalAggregate(self, step):
