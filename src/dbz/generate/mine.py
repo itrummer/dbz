@@ -171,12 +171,14 @@ class CodeMiner():
                     code = self.synthesizer.generate(
                         task, temperature, composition)
                     if not self.operators.is_known(code):
-                        self.logger.info(f'Mined implementation for task {task_id}:\n{code}')
+                        self.logger.info(
+                            f'Mined implementation for task {task_id}:\n{code}')
                         return self.operators.add_op(task_id, code, temperature)
         else:
             code = self.synthesizer.generate(
                 task, 0.0, composition)
-            self.logger.info(f'Mined first implementation for task {task_id}')
+            self.logger.info(
+                f'Mined first implementation for task {task_id}:\n{code}')
             return self.operators.add_op(task_id, code, 0.0)
 
 
