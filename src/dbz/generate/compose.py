@@ -349,7 +349,7 @@ class Composer():
                 task_id, checks_at_fail, 
                 passes_at_fail, nr_failed_ops, 
                 prior_comps, prior_checks)
-            self.logger.info(
+            self.logger.debug(
                 f'Failure Info ({task_id}): {failure_info}')
             return failure_info
         else:
@@ -496,11 +496,14 @@ class Composer():
             list of tuples satisfying all predicates
         """
         checks = self.idx2checks[task_idx]
+        nr_checks = len(checks)
         passes = []
         filter_out = []
         for comp in filter_in:
             comp_passes = []
-            for check in checks:
+            for check_idx, check in enumerate(checks, 1):
+                self.logger.info(
+                    f'Check {check_idx}/{nr_checks} for task {task_idx}')
                 comp_pass = self._check(comp, check)
                 comp_passes += [comp_pass]
                                 
