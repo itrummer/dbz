@@ -86,7 +86,7 @@ class Composer():
                 c for i in range(fail_idx) 
                 for c in self.idx2checks[i]]
             task2nr_ops = {}
-            for task_id in self.task_order[:fail_idx]:
+            for task_id in self.task_order:
                 nr_ops = len(self.ops.get_ids(task_id))
                 task2nr_ops[task_id] = nr_ops
             failure_info = FailureInfo(
