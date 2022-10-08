@@ -4,7 +4,6 @@ Created on Sep 25, 2022
 @author: immanueltrummer
 '''
 from collections import Counter
-from collections import defaultdict
 import logging
 import random
 
@@ -52,7 +51,9 @@ class Debugger():
         failed_task_id = failure_info.failed_task_id
         passed_checks = passed_group + failure_info.prior_checks
         nr_checks = self._nr_checks(failed_task_id, passed_checks)
-        nr_implementations = self._nr_implementations(failure_info)
+        self.logger.info(f'Number of checks: {nr_checks}')
+        nr_implementations = failure_info.task2nr_ops
+        self.logger.info(f'Number of implementations: {nr_implementations}')
         
         task2p_unsolved = {}
         for task_id in prior_reqs:
@@ -117,27 +118,6 @@ class Debugger():
         task2nr[failed_task_id] = 0
         for check in passed_checks:
             task2nr.update(check['requirements'])
-        
-        return task2nr
-    
-    def _nr_implementations(self, failure_info):
-        """ Calculates number of implementations per task before failure. 
-        
-        Args:
-            failure_info: information about failure
-        
-        Returns:
-            dictionary mapping task IDs to the number of implementations
-        """
-        task2code = defaultdict(lambda:set())
-        for comp in failure_info.prior_comps:
-            for task_id, code_id in comp.items():
-                task2code[task_id].add(code_id)
-        
-        task2nr = {t:len(c) for t, c in task2code.items()}
-        failed_task_id = failure_info.failed_task_id
-        nr_failed_ops = failure_info.nr_failed_ops
-        task2nr[failed_task_id] = nr_failed_ops
         
         return task2nr
     

@@ -20,6 +20,7 @@ class FailureInfo():
     nr_failed_ops: int
     prior_comps: list
     prior_checks: list
+    task2nr_ops: dict
 
 
 class Composer():
@@ -84,10 +85,15 @@ class Composer():
             prior_checks = [
                 c for i in range(fail_idx) 
                 for c in self.idx2checks[i]]
+            task2nr_ops = {}
+            for task_id in self.task_order[:fail_idx]:
+                nr_ops = len(self.ops.get_ids(task_id))
+                task2nr_ops[task_id] = nr_ops
             failure_info = FailureInfo(
                 task_id, checks_at_fail, 
                 passes_at_fail, nr_failed_ops, 
-                prior_comps, prior_checks)
+                prior_comps, prior_checks,
+                task2nr_ops)
             self.logger.debug(
                 f'Failure Info ({task_id}): {failure_info}')
             return failure_info
