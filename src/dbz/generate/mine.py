@@ -7,7 +7,6 @@ from collections import defaultdict
 import gym.spaces
 import logging
 import numpy as np
-import random
 import stable_baselines3.a2c
 
 
@@ -170,16 +169,31 @@ class CodeMiner():
                     #temperature = 0.5
                     code = self.synthesizer.generate(
                         task, temperature, composition)
+                    code = self._normalize(code)
                     if not self.operators.is_known(code):
                         self.logger.info(
                             f'Mined implementation for task {task_id}:\n{code}')
                         return self.operators.add_op(task_id, code, temperature)
         else:
-            code = self.synthesizer.generate(
-                task, 0.0, composition)
+            code = self.synthesizer.generate(task, 0.0, composition)
+            code = self._normalize(code)
             self.logger.info(
                 f'Mined first implementation for task {task_id}:\n{code}')
             return self.operators.add_op(task_id, code, 0.0)
+    
+    def _normalize(self, code):
+        """ Normalize code by removing comments and empty lines.
+        
+        Args:
+            code: code to normalize
+        
+        Returns:
+            normalized code version
+        """
+        code_lines = code.split('\n')
+        code_lines = filter(lambda l:l.lstrip(), code_lines)
+        code_lines = filter(lambda l:l.lstrip().startswith('#'), code_lines)
+        return code_lines
 
 
 if __name__ == '__main__':
