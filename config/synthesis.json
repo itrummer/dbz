@@ -9,6 +9,7 @@
 	},
 	"checks":{
 		"queries":[
+			"select * from (values (1,2), (2,3)) as t",
 			"select * from lineitem",
 			"select l_shipinstruct like '%BACK%' from lineitem",
 			"select cast(l_extendedprice as int) from lineitem",
@@ -71,7 +72,6 @@
 			"select * from customer right join orders on c_custkey = o_custkey",
 			"select * from customer full outer join orders on c_custkey = o_custkey"],
 		"test_dirs":[
-			"src/dbz/tests"
 		]
 	},
 	"tasks":[
