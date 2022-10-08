@@ -193,7 +193,7 @@ class CodeMiner():
         code_lines = code.split('\n')
         code_lines = filter(lambda l:l.lstrip(), code_lines)
         code_lines = filter(lambda l:l.lstrip().startswith('#'), code_lines)
-        return code_lines
+        return '\n'.join(code_lines)
 
 
 if __name__ == '__main__':
