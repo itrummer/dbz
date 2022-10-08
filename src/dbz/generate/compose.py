@@ -14,12 +14,8 @@ import os.path
 @dataclass
 class FailureInfo():
     """ Contains helpful information for debugging. """
-    failed_task_id: str
-    checks_at_fail: list
-    passes_at_fail: list
-    nr_failed_ops: int
-    prior_comps: list
-    prior_checks: list
+    passed_checks: list
+    failed_checks: list
     task2nr_ops: dict
 
 
@@ -40,9 +36,9 @@ class Composer():
         self.task_order = [t['task_id'] for t in tasks.gen_tasks]
         self.nr_tasks = len(self.task_order)
         self.idx2checks = self._schedule_checks()
-        self.idx2passes = defaultdict(lambda:[])
         self.composition = {tid:0 for tid in self.task_order}
         self.works_until = -1
+        self.failure_info = None
         self.nr_validations = 0
         
         sql_ref_info = config['sql_ref']
@@ -64,41 +60,6 @@ class Composer():
             ref_lib = file.read()
         self.code_ref = dbz.execute.engine.DbzEngine(
             self.paths, ref_lib, self.python)
-    
-    def failure_info(self):
-        """ Returns information on composition failure reasons. 
-        
-        Returns:
-            helpful information to debug failure (or None if no failure)
-        """
-        fail_idx = self.works_until + 1
-        if fail_idx < self.nr_tasks:
-            task_id = self.task_order[fail_idx]
-            checks_at_fail = self.idx2checks[fail_idx]
-            passes_at_fail = self.idx2passes[fail_idx]
-            nr_failed_ops = len(self.ops.get_ids(task_id))
-            prior_comp = self.composition.copy()
-            for next_idx in range(fail_idx, self.nr_tasks):
-                task_idx = self.task_order[next_idx]
-                del prior_comp[task_idx]
-            prior_comps = [prior_comp]
-            prior_checks = [
-                c for i in range(fail_idx) 
-                for c in self.idx2checks[i]]
-            task2nr_ops = {}
-            for task_id in self.task_order:
-                nr_ops = len(self.ops.get_ids(task_id))
-                task2nr_ops[task_id] = nr_ops
-            failure_info = FailureInfo(
-                task_id, checks_at_fail, 
-                passes_at_fail, nr_failed_ops, 
-                prior_comps, prior_checks,
-                task2nr_ops)
-            self.logger.debug(
-                f'Failure Info ({task_id}): {failure_info}')
-            return failure_info
-        else:
-            return None
     
     def finished(self):
         """ Checks whether a complete engine was generated. 
@@ -133,9 +94,21 @@ class Composer():
         candidate_comp = self.composition.copy()
         candidate_comp[updated_task_id] = new_code_id
         
+        passed_checks = []
+        failed_checks = []
         candidate_until = updated_idx - 1
         for task_idx in range(updated_idx, self.nr_tasks):
-            if self._filter([candidate_comp], task_idx):
+            checks = self.idx2checks[task_idx]
+            all_passed = True
+            for check in checks:
+                if self._check(candidate_comp, check):
+                    passed_checks += [check]
+                else:
+                    failed_checks += [check]
+                    all_passed = False
+                    break
+
+            if all_passed:
                 candidate_until = task_idx
             else:
                 break
@@ -145,6 +118,17 @@ class Composer():
             self.logger.info(f'Replacing prior operator')
             self.works_until = candidate_until
             self.composition = candidate_comp
+            
+            if not self.finished():
+                task2nr_ops = {}
+                for task_id in self.task_order:
+                    nr_ops = len(self.ops.get_ids(task_id))
+                    task2nr_ops[task_id] = nr_ops
+
+                self.failure_info = FailureInfo(
+                    passed_checks, failed_checks, 
+                    task2nr_ops)
+            
             return True
         else:
             return False

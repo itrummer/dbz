@@ -5,7 +5,6 @@ Created on Sep 25, 2022
 '''
 from collections import Counter
 import logging
-import random
 
 
 class Debugger():
@@ -26,117 +25,45 @@ class Debugger():
         Returns:
             ranked list of pairs (ID of task to redo, composition context)
         """
-        failure_info = self.composer.failure_info()
+        failure_info = self.composer.failure_info
         self.logger.debug(f'Failure Info: {failure_info}')
-        passed_group, failed_groups = self._group_checks(
-            failure_info.checks_at_fail,
-            failure_info.passes_at_fail)
-        group_reqs = []
-        for group in failed_groups:
-            group_req = set([r for rs in group for r in rs['requirements']])
-            group_reqs += [group_req]
-        
-        group_reqs.sort(key=lambda r:len(r))
-        disjunct_reqs = []
-        prior_reqs = set()
-        for group_req in group_reqs:
-            self.logger.debug(
-                f'Group req: {group_req}; prior_reqs: {prior_reqs}')
-            if not group_req & prior_reqs:
-                disjunct_reqs += [group_req]
-                prior_reqs.update(group_req)
         
         # Calculate marginal probability of unsolved tasks using Bayes formula:
         # P(No Operator | Passes) ~ P(Passes | No Operator) * P(No Operator)
-        failed_task_id = failure_info.failed_task_id
-        passed_checks = passed_group + failure_info.prior_checks
-        nr_checks = self._nr_checks(failed_task_id, passed_checks)
-        self.logger.info(f'Number of checks: {nr_checks}')
+        nr_passed = self._nr_passed_checks(failure_info.passed_checks)
+        self.logger.info(f'Number of passed checks: {nr_passed}')
         nr_implementations = failure_info.task2nr_ops
         self.logger.info(f'Number of implementations: {nr_implementations}')
         
+        failed_checks = failure_info.failed_checks
+        assert len(failed_checks) == 1
+        redo_candidates = failed_checks[0]['requirements']
         task2p_unsolved = {}
-        for task_id in prior_reqs:
-            p_passes = self._p_passes(
-                disjunct_reqs, task_id)
+        for task_id in redo_candidates:
             p_unsolved = self._p_unsolved(
-                nr_checks, nr_implementations, 
-                task_id)
-            task2p_unsolved[task_id] = p_passes * p_unsolved
+                nr_passed, nr_implementations, task_id)
+            task2p_unsolved[task_id] = p_unsolved
         
         self.logger.info(f'Tasks and redo weights: {task2p_unsolved}')
         tasks_weights = list(task2p_unsolved.items())
         tasks_weights.sort(key=lambda t_w:t_w[1], reverse=True)
         self.logger.info(f'Tasks and weights by priority: {tasks_weights}')
         return tasks_weights
-            
-    def _group_checks(self, checks, passes):
-        """ Divides checks into groups that passed/failed for all compositions.
-        
-        Args:
-            checks: list of checks
-            passes: per-composition passes
-        
-        Returns:
-            one group of checks that passed, groups of checks that failed
-        """
-        nr_checks = len(checks)
-        all_passes = [True] * nr_checks
-        no_passes = [True] * nr_checks
-        for comp_passes in passes:
-            for check_idx, passed in enumerate(comp_passes):
-                all_passes[check_idx] &= passed
-                no_passes[check_idx] &= not passed 
-
-        failed_groups = [checks]
-        passed_groups = []
-        for check, all_pass, no_pass in zip(
-            checks, all_passes, no_passes):
-            if all_pass:
-                passed_groups += [check]
-            if no_pass:
-                failed_groups += [[check]]
-        
-        return passed_groups, failed_groups
     
-    def _nr_checks(self, failed_task_id, passed_checks):
-        """ Calculates number of checks per task before failure. 
+    def _nr_passed_checks(self, passed_checks):
+        """ Calculates number of passed checks per task. 
         
         Args:
-            failed_task_id: ID of failed task
             passed_checks: list of passed checks
         
         Returns:
-            counter mapping task IDs to the number of checks
+            counter mapping task IDs to the number of passed checks
         """
         task2nr = Counter()
-        task2nr[failed_task_id] = 0
         for check in passed_checks:
             task2nr.update(check['requirements'])
         
         return task2nr
-    
-    def _p_passes(self, disjunct_reqs, unsolved_task_id):
-        """ Calculates probability to fail checks, given unsolved task.
-        
-        Args:
-            disjunct_reqs: list of disjunct requirement sets
-            unsolved_task_id: assume this task is unsolved
-        
-        Returns:
-            probability (float between 0 and 1)
-        """
-        prob = 1.0
-        for reqs in disjunct_reqs:
-            if unsolved_task_id not in reqs:
-                p_pass = 1.0
-                for task_id in reqs:
-                    p_solved = 1.0 - self._p_unsolved(task_id)
-                    p_pass *= p_solved
-                prob *= 1.0 - p_pass
-        
-        self.logger.debug(f'Task_ID: {unsolved_task_id}; P(Passes): {prob}')
-        return prob
     
     def _p_unsolved(self, nr_checks, nr_implementations, task_id):
         """ Calculates probability that task is unsolved. 
