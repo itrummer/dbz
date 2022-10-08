@@ -125,6 +125,9 @@ class Composer():
         Args:
             updated_task_id: new implementation for this task
             new_code_id: ID of new code for updated task
+        
+        Returns:
+            True if the update resolved previous problems
         """
         updated_idx = self.task_order.index(updated_task_id)
         candidate_comp = self.composition.copy()
@@ -142,6 +145,9 @@ class Composer():
             self.logger.info(f'Replacing prior operator')
             self.works_until = candidate_until
             self.composition = candidate_comp
+            return True
+        else:
+            return False
     
     def _applicable_checks(self, tasks):
         """ Retrieves applicable checks, given finished tasks.

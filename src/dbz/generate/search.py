@@ -60,13 +60,19 @@ if __name__ == '__main__':
     round_ctr = 0
     while not composer.finished():
         round_ctr += 1
-        task_id, comp = debugger.to_redo()
-        logger.info(f'Redoing task {task_id}; context: {comp}')
-        task = tasks.id2task[task_id]
-        code_id = miner.mine(task, comp)
-        logger.info(f'Mined code ID: {code_id}')
-        composer.update(task_id, code_id)
-        logger.info('Composer update completed.')
+        logger.info(f'Starting Debugging Round {round_ctr} ...')
+        redo_tasks = debugger.to_redo()
+        comp = composer.composition
+        for task_id, _ in redo_tasks:
+            logger.info(f'Redoing task {task_id}; context: {comp}')
+            task = tasks.id2task[task_id]
+            code_id = miner.mine(task, comp)
+            logger.info(f'Mined code ID: {code_id}')
+            success = composer.update(task_id, code_id)
+            logger.info(f'Composer update successful: {success}.')
+            if success:
+                break
+            
         if round_ctr % 10 == 0:
             code = composer.final_code()
             logger.info(f'Current Library:\n{code}')
