@@ -3,7 +3,6 @@ Created on Sep 25, 2022
 
 @author: immanueltrummer
 '''
-from collections import defaultdict
 from dataclasses import dataclass
 import dbz.execute.check
 import dbz.execute.engine
@@ -94,10 +93,13 @@ class Composer():
         candidate_comp = self.composition.copy()
         candidate_comp[updated_task_id] = new_code_id
         
+        if not self._old_checks(candidate_comp, updated_idx):
+            return False
+        
         passed_checks = []
         failed_checks = []
-        candidate_until = updated_idx - 1
-        for task_idx in range(updated_idx, self.nr_tasks):
+        candidate_until = self.works_until
+        for task_idx in range(self.works_until+1, self.nr_tasks):
             checks = self.idx2checks[task_idx]
             all_passed = True
             for check in checks:
@@ -237,36 +239,6 @@ class Composer():
             parts += [code]
         return '\n\n'.join(parts)
     
-    def _filter(self, filter_in, task_idx):
-        """ Filter result tuples via newly applicable predicates.
-        
-        Args:
-            filter_in: filter input (a list of compositions)
-            task_idx: filtering results for this task index
-        
-        Returns:
-            list of tuples satisfying all predicates
-        """
-        checks = self.idx2checks[task_idx]
-        nr_checks = len(checks)
-        passes = []
-        filter_out = []
-        for comp in filter_in:
-            comp_passes = []
-            for check_idx, check in enumerate(checks, 1):
-                self.logger.info(
-                    f'Check {check_idx}/{nr_checks} for task {task_idx}')
-                comp_pass = self._check(comp, check)
-                comp_passes += [comp_pass]
-                                
-            if all(comp_passes):
-                filter_out += [comp]
-            
-            passes += [comp_passes]
-        
-        self.idx2passes[task_idx] += passes
-        return filter_out
-    
     def _get_key(self, composition, check):
         """ Calculates composition key used for check result caching. 
         
@@ -283,6 +255,27 @@ class Composer():
             sub_comp[req_id] = code_id
         
         return frozenset(sub_comp.items())
+    
+    def _old_checks(self, candidate_comp, updated_idx):
+        """ Re-perform checks for candidate composition passed by others.
+        
+        Args:
+            candidate_comp: check candidate composition
+            updated_idx: index of updated operator in generation order
+            
+        Returns:
+            True iff all old checks are passed with new implementation
+        """
+        old_checks = []
+        for idx in range(updated_idx, self.works_until):
+            old_checks += self.idx2checks[idx]
+        old_checks.sort(key=lambda c:self._selectivity(c))
+        
+        for old_check in old_checks:
+            if not self._check(candidate_comp, old_check):
+                return False
+        
+        return True
     
     def _schedule_checks(self):
         """ Schedule checks based on task order. 
@@ -302,3 +295,20 @@ class Composer():
         
         self.logger.info(f'Scheduled checks: {idx2checks}')
         return idx2checks
+    
+    def _selectivity(self, check):
+        """ Calculates selectivity of check using cache content.
+        
+        Args:
+            check: estimate probability to pass this check
+        
+        Returns:
+            a selectivity number between 0 and 1 (default: 0.5)
+        """
+        if 'cache' in check:
+            comp2result = check['cache']
+            nr_checked = len(comp2result)
+            nr_passed = sum(comp2result.values())
+            return float(nr_passed) / nr_checked
+        else:
+            return 0.5
