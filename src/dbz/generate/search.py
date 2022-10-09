@@ -64,7 +64,8 @@ if __name__ == '__main__':
         redo_tasks = debugger.to_redo()
         comp = composer.composition
         for task_id, _ in redo_tasks:
-            logger.info(f'Redoing task {task_id}; context: {comp}')
+            logger.info(
+                f'Redoing task {task_id} from {redo_tasks}; context: {comp}')
             task = tasks.id2task[task_id]
             code_id = miner.mine(task, comp)
             logger.info(f'Mined code ID: {code_id}')
