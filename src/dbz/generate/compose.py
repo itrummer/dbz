@@ -291,6 +291,7 @@ class Composer():
             next_check_ids = self._applicable_checks(next_tasks)
             new_check_ids = next_check_ids - prior_check_ids
             new_checks = [self.tasks.check_tasks[i] for i in new_check_ids]
+            new_checks.sort(key=lambda c:len(c['requirements']))
             idx2checks[task_idx] = new_checks
         
         self.logger.info(f'Scheduled checks: {idx2checks}')
