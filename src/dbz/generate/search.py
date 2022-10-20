@@ -45,7 +45,8 @@ if __name__ == '__main__':
     synthesizer = dbz.generate.synthesize.Synthesizer(
         operators, substitutions, args.pre_code)
     miner = dbz.generate.mine.CodeMiner(operators, synthesizer)
-    composer = dbz.generate.compose.Composer(config, operators, tasks)
+    composer = dbz.generate.compose.Composer(
+        config, operators, tasks, args.pre_code)
     debugger = dbz.generate.debug.Debugger(composer)
     
     composition = {}
