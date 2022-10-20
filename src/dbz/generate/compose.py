@@ -21,17 +21,19 @@ class FailureInfo():
 class Composer():
     """ Composes operator implementations into full SQL engine. """
     
-    def __init__(self, config, operators, tasks):
+    def __init__(self, config, operators, tasks, pre_code):
         """ Initialize with operator manager. 
         
         Args:
             config: JSON file configuring synthesis
             operators: manages operator implementations
             tasks: manages generation tasks and checks
+            pre_code: code prefix
         """
         self.logger = logging.getLogger('all')
         self.ops = operators
         self.tasks = tasks
+        self.pre_code = pre_code
         self.task_order = [t['task_id'] for t in tasks.gen_tasks]
         self.nr_tasks = len(self.task_order)
         self.idx2checks = self._schedule_checks()
@@ -233,7 +235,7 @@ class Composer():
         Returns:
             a piece of Python code
         """
-        parts = []
+        parts = [self.pre_code]
         for task, code_id in composition.items():
             code = self.ops.get_ops(task)[code_id][0]
             parts += [code]

@@ -12,15 +12,17 @@ import time
 class Synthesizer():
     """ Synthesizes code for a DBMS engine. """
     
-    def __init__(self, operators, substitutions):
+    def __init__(self, operators, substitutions, pre_code):
         """ Initialize for given natural language instructions.
         
         Args:
             operators: manages operator implementations
             substitutions: maps placeholders to natural language instructions
+            pre_code: a code prefix that is shown to GPT-3
         """
         self.operators = operators
         self.def_substitutions = substitutions
+        self.pre_code = pre_code
 
     @staticmethod    
     def load_prompt(file_name, substitutions):
@@ -53,7 +55,7 @@ class Synthesizer():
         Returns:
             prompt with generated code piece
         """
-        parts = []
+        parts = [self.pre_code]
         context = task['context']
         for c in context:
             ops_tmp = self.operators.get_ops(c)
