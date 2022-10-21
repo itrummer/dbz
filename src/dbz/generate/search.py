@@ -19,7 +19,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('config', type=str, help='Path to synthesis')
     parser.add_argument('ai_key', type=str, help='Access key to OpenAI')
-    parser.add_argument('pre_code', type=str, help='Code preamble')
+    parser.add_argument('pre_path', type=str, help='Path to code preamble')
     parser.add_argument('table_nl', type=str, help='Table representation')
     parser.add_argument('column_nl', type=str, help='Column representation')
     parser.add_argument('tbl_post_nl', type=str, help='Table post-processing')
@@ -30,6 +30,8 @@ if __name__ == '__main__':
     openai.api_key = args.ai_key
     with open(args.config) as file:
         config = json.load(file)
+    with open(args.pre_path) as file:
+        pre_code = file.read()
     logging.basicConfig(level=int(args.log_level))
     logger = logging.getLogger('all')
     logger.setLevel(int(args.log_level))
