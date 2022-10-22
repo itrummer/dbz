@@ -8,7 +8,7 @@ c2 = fill_column(1, 10)
 
 results = []
 for in_1, in_2 in [(c1,c2), (c2,c1), (c1,c1), (c2,c2)]:
-    cmp = <SubstituteBy:greater_than|less_than|equal|not_equal|less_than_or_equal|greater_than_or_equal|addition|subtraction|multiplication|division>(c1, c2)
+    cmp = <SubstituteBy:greater_than|less_than|equal|not_equal|less_than_or_equal|greater_than_or_equal|addition|subtraction|multiplication|division>(in_1, in_2)
     r = is_null(cmp)
     results += [r]
 
