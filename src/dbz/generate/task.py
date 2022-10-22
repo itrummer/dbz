@@ -89,8 +89,7 @@ class Tasks():
                     check_task = {
                         'file': file_name, 'code':code, 
                         'type':'code'}
-                    trace_code = engine.add_context(
-                        code, 'dummy_path')
+                    trace_code = engine.add_context(code)
                     self._add_requirements(
                         check_task, trace_code)
                     check_tasks += [check_task]

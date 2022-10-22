@@ -50,7 +50,7 @@ class DbzEngine(Engine):
             paths.tmp_dir)
         self.coder = dbz.execute.code.Coder(paths, True)
     
-    def add_context(self, query_code, out_path):
+    def add_context(self, query_code, out_path=None):
         """ Add context to given piece of code.
         
         Args:
@@ -67,7 +67,8 @@ class DbzEngine(Engine):
         code_parts += self._include(import_path)
         code_parts += self._include(fct_path)
         code_parts += [query_code]
-        code_parts += [f'write_to_csv(last_result, "{out_path}")']
+        if out_path is not None:
+            code_parts += [f'write_to_csv(last_result, "{out_path}")']
         return '\n'.join(code_parts)
         
     def execute(self, sql, out):
