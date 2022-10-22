@@ -87,7 +87,7 @@ class Validator():
             ref_path = f'{self.paths.tmp_dir}/ref'
             check_path = f'{self.paths.tmp_dir}/check'
             
-            ref_success = self.sql_engine.execute(query, ref_path)
+            ref_success = self.sql_ref.execute(query, ref_path)
             if not ref_success:
                 print('Execution failed for reference engine - this should not happen!')
                 return False
