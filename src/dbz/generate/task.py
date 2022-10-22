@@ -105,7 +105,7 @@ class Tasks():
             check_task: add requirements to this task
             trace_code: code for tracing requirements
         """
-        #print(f'Trace code:\n{trace_code}')
+        trace_code = trace_code.replace('assert ', '')
         self.logger.debug(trace_code)
         requirements = set()
         exec(trace_code, {'requirements':requirements})
