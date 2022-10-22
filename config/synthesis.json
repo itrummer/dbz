@@ -4,9 +4,6 @@
 	"sql_ref":{
 		"pg_db":"tpch_sf0001", "pg_user":"ubuntu", "pg_pwd":"", 
 		"host":"/var/run/postgresql"},
-	"code_ref":{
-		"ref_operators":"libraries/list_engine_manual.py"
-	},
 	"checks":{
 		"queries":[
 			"select * from (values (1,2), (2,3)) as t",
@@ -80,6 +77,7 @@
 			"select * from customer right join orders on c_custkey = o_custkey",
 			"select * from customer full outer join orders on c_custkey = o_custkey"],
 		"test_dirs":[
+			"src/dbz/tests"
 		]
 	},
 	"tasks":[

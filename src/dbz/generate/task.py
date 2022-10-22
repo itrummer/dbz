@@ -74,15 +74,27 @@ class Tasks():
                 
                 test_path = os.path.join(test_dir, file_name)
                 with open(test_path) as file:
-                    query_code = file.read()
+                    raw_code = file.read()
                 
-                check_task = {
-                    'file': file_name, 'code':query_code, 
-                    'type':'code'}    
-                trace_code = engine.add_context(query_code, 'dummy_path')
-                self._add_requirements(check_task, trace_code)
-                check_tasks += [check_task]
-                print(f'Code Check: {check_task}')
+                m = re.match('<SubstituteBy:((.)*)>', raw_code)
+                if m is None:
+                    codes = [raw_code]
+                else:
+                    placeholder = m.group(0)
+                    substitutes = m.group(1).split('|')
+                    codes = [raw_code.replace(placeholder, s) 
+                             for s in substitutes]
+                        
+                for code in codes:
+                    check_task = {
+                        'file': file_name, 'code':code, 
+                        'type':'code'}
+                    trace_code = engine.add_context(
+                        code, 'dummy_path')
+                    self._add_requirements(
+                        check_task, trace_code)
+                    check_tasks += [check_task]
+                    print(f'Added Code Check: {check_task}')
                     
         return check_tasks
 

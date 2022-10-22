@@ -81,51 +81,9 @@ class DbzEngine(Engine):
             true iff execution succeeds
         """
         code = self.sql2code(sql, out)
-        return self._run(code)
+        return self.run(code)
     
-    def sql2code(self, sql, out):
-        """ Generate Python code for processing SQL query.
-        
-        Args:
-            sql: an SQL query to process
-            out: name of query result file
-        
-        Returns:
-            a piece of code processing the query
-        """
-        sql = dbz.execute.query.simplify(sql)
-        self.logger.info(f'Simplified query: {sql}')
-        plan = self.planner.plan(sql)
-        self.logger.debug(f'Plan: {plan}')
-        query_code = self.coder.plan_code(plan)
-        return self.add_context(query_code, out)
-    
-    def test(self, query_code, out_path):
-        """ Execute query code for testing purposes.
-        
-        Args:
-            query_code: code for processing query
-            out_path: path to query result to write
-        
-        Returns:
-            True iff execution was successful
-        """
-        code = self.add_context(query_code, out_path)
-        return self._run(code)
-    
-    def _include(self, path):
-        """ Loads code from file.
-        
-        Args:
-            path: load code from this file
-        
-        Returns:
-            list of code lines
-        """
-        with open(path) as file:
-            return [file.read()]
-    
-    def _run(self, code):
+    def run(self, code):
         """ Execute given Python code.
         
         Args:
@@ -144,6 +102,35 @@ class DbzEngine(Engine):
             return False
         else:
             return True
+    
+    def sql2code(self, sql, out):
+        """ Generate Python code for processing SQL query.
+        
+        Args:
+            sql: an SQL query to process
+            out: name of query result file
+        
+        Returns:
+            a piece of code processing the query
+        """
+        sql = dbz.execute.query.simplify(sql)
+        self.logger.info(f'Simplified query: {sql}')
+        plan = self.planner.plan(sql)
+        self.logger.debug(f'Plan: {plan}')
+        query_code = self.coder.plan_code(plan)
+        return self.add_context(query_code, out)
+    
+    def _include(self, path):
+        """ Loads code from file.
+        
+        Args:
+            path: load code from this file
+        
+        Returns:
+            list of code lines
+        """
+        with open(path) as file:
+            return [file.read()]
 
 
 class PgEngine(Engine):
