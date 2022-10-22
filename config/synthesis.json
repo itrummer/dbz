@@ -81,6 +81,11 @@
 		]
 	},
 	"tasks":[
+	{"type":"generate", "task_id":"column_type_test", "context":[],
+		"template":"column_type_test.py", "substitutions":[]},
+	{"type":"generate", "task_id":"table_type_test", "context":[],
+		"template":"table_type_test.py", "substitutions":[]},
+
 	{"type":"generate", "task_id":"load", "context":[],
 		"template":"load_data.py", "substitutions":{}},
 	{"type":"generate", "task_id":"store", "context":[],
