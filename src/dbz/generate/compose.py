@@ -267,8 +267,10 @@ class Composer():
         for idx in range(updated_idx, self.works_until):
             old_checks += self.idx2checks[idx]
         old_checks.sort(key=lambda c:self._selectivity(c))
+        nr_checks = len(old_checks)
         
-        for old_check in old_checks:
+        for idx, old_check in enumerate(old_checks, 1):
+            self.logger.info(f'Performing old check {idx}/{nr_checks} ...')
             if not self._check(candidate_comp, old_check):
                 return False
         
