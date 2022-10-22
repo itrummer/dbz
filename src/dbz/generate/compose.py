@@ -55,12 +55,8 @@ class Composer():
         self.paths = dbz.util.DbzPaths(data_dir)
         self.python = test_access['python']
         
-        code_ref_info = config['code_ref']
-        ref_path = code_ref_info['ref_operators']
-        with open(ref_path) as file:
-            ref_lib = file.read()
-        self.code_ref = dbz.execute.engine.DbzEngine(
-            self.paths, ref_lib, self.python)
+        self.validator = dbz.execute.check.Validator(
+            self.paths, self.sql_ref)        
     
     def finished(self):
         """ Checks whether a complete engine was generated. 
@@ -218,9 +214,8 @@ class Composer():
             with open(code_path, 'w') as file:
                 file.write(code)
                             
-            validator = dbz.execute.check.Validator(
-                self.paths, [check], self.sql_ref, self.code_ref)
-            passed = validator.validate(test_engine)
+            
+            passed = self.validator.validate(test_engine, check)
             self._cache_put(composition, check, passed)
             self.nr_validations += 1
         

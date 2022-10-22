@@ -76,7 +76,7 @@ class Tasks():
                 with open(test_path) as file:
                     raw_code = file.read()
                 
-                m = re.match('<SubstituteBy:((.)*)>', raw_code)
+                m = re.search('<SubstituteBy:((.)*)>', raw_code)
                 if m is None:
                     codes = [raw_code]
                 else:
