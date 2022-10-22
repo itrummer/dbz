@@ -70,6 +70,7 @@ class Validator():
             True iff the test was successful
         """
         code = check['code']
+        code = engine.add_context(code)
         return engine.run(code)
     
     def _sql_check(self, engine, check):
