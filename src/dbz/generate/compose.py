@@ -194,7 +194,12 @@ class Composer():
             True iff the composition passes the check
         """
         if self._cache_get(composition, check) is None:
-            library = self._composition_code(composition)
+            
+            min_comp = {}
+            for task_id in check['requirements']:
+                code_id = composition[task_id]
+                min_comp[task_id] = code_id
+            library = self._composition_code(min_comp)
             test_engine = dbz.execute.engine.DbzEngine(
                 self.paths, library, self.python)
             
@@ -213,7 +218,6 @@ class Composer():
             self.logger.info(f'Writing validated code to {code_path}')
             with open(code_path, 'w') as file:
                 file.write(code)
-                            
             
             passed = self.validator.validate(test_engine, check)
             self._cache_put(composition, check, passed)
@@ -231,8 +235,8 @@ class Composer():
             a piece of Python code
         """
         parts = [self.pre_code]
-        for task, code_id in composition.items():
-            code = self.ops.get_ops(task)[code_id][0]
+        for task_id, code_id in composition.items():
+            code = self.ops.get_ops(task_id)[code_id][0]
             parts += [code]
         return '\n\n'.join(parts)
     
