@@ -268,6 +268,21 @@ class Coder():
         parts += [f'{result} = create_table(result_cols)']
         return '\n'.join(parts)
     
+    def _internal_type(self, sql_type):
+        """ Returns internal type representing given SQL type.
+        
+        Args:
+            sql_type: SQL type in string representation
+        
+        Returns:
+            corresponding internal type (in string representation)
+        """
+        sql_type = sql_type.upper()
+        return {
+            'DECIMAL':'int', 'NUMERIC':'float', 'FLOAT':'float', 
+            'INTEGER':'int', 'CHAR':'string', 'VARCHAR':'string',
+            'DATE':'int'}[sql_type]
+
     def _like_code(self, node):
         """ Generate code for evaluating LIKE expression.
         
@@ -296,16 +311,18 @@ class Coder():
         """
         scale = self._get_scale(literal)
         value = literal['literal']
+        sql_type = literal['type']['type']
+        internal_type = self._internal_type(sql_type)
         if value is None:
             value = 'get_null()'
         else:
             if scale is None:
-                data_type = literal['type']['type']
-                if data_type in ['CHAR', 'VARCHAR', 'TEXT']:
+                if sql_type in ['CHAR', 'VARCHAR', 'TEXT']:
                     value = f"'{value}'"
             else:
                 value = f'round({value}*1e{scale})'
-        return f'fill_column({value},1)' if embed else value
+        
+        return f'fill_{internal_type}_column({value},1)' if embed else value
     
     def _LogicalAggregate(self, step):
         """ Produce code for aggregates (optionally with grouping). 
@@ -473,10 +490,7 @@ class Coder():
         for col_idx, col_type in enumerate(col_types):
             parts += [f'col = get_column({result},{col_idx})']
             sql_type = col_type['type']
-            cast_type = {
-                'DECIMAL':'int', 'NUMERIC':'float', 'FLOAT':'float', 
-                'INTEGER':'int', 'CHAR':'string', 'VARCHAR':'string',
-                'DATE':'int'}[sql_type]
+            cast_type = self._internal_type(sql_type)
             fct_name = f'cast_to_{cast_type}'
             parts += [f'col = {fct_name}(col)']
             parts += [f'set_column({result},{col_idx},col)']
@@ -736,9 +750,9 @@ class Coder():
                 parts += [f'\tval = ungrouped_count({params})']
                 
             parts += ['else:']
-            def_val = '0' if agg['agg']['kind'] == 'COUNT' else 'None'
+            def_val = '0' if agg['agg']['kind'] == 'COUNT' else 'get_null()'
             parts += [f'\tval = {def_val}']
-            parts += [f'agg_result = fill_column(val, 1)']
+            parts += [f'agg_result = fill_int_column(val, 1)']
             parts += [f'result_cols += [agg_result]']
         
         parts += [f'{result} = create_table(result_cols)']

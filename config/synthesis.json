@@ -109,8 +109,16 @@
 		"substitutions":{"<binary_op>":"multiplication"}},
 	{"type":"generate", "task_id":"get", "context":[],
 		"template":"get_value.py", "substitutions":{}},
-	{"type":"generate", "task_id":"fill_column", "context":[],
-		"template":"fill_column.py", "substitutions":{}},
+		
+	{"type":"generate", "task_id":"fill_int_column", "context":[],
+		"template":"fill_column.py", "substitutions":{"<Type>":"int"}},
+	{"type":"generate", "task_id":"fill_float_column", "context":[],
+		"template":"fill_column.py", "substitutions":{"<Type>":"float"}},
+	{"type":"generate", "task_id":"fill_bool_column", "context":[],
+		"template":"fill_column.py", "substitutions":{"<Type>":"Boolean"}},
+	{"type":"generate", "task_id":"fill_string_column", "context":[],
+		"template":"fill_column.py", "substitutions":{"<Type>":"string"}},
+
 	{"type":"generate", "task_id":"map", "context":[],
 		"template":"map.py", "substitutions":{}},
 		
@@ -120,6 +128,9 @@
 		"template":"cast.py", "substitutions":{"<ToType>":"float"}},
 	{"type":"generate", "task_id":"to_string", "context":[],
 		"template":"cast.py", "substitutions":{"<ToType>":"string"}},
+	{"type":"generate", "task_id":"to_bool", "context":[],
+		"template":"cast.py", "substitutions":{"<ToType>":"Boolean"}},
+
 	{"type":"generate", "task_id":"is_empty", "context":[], 
 		"template":"is_empty.py", "substitutions":{}},
 	{"type":"generate", "task_id":"get_null", "context":[],
