@@ -1,8 +1,9 @@
 def cast_to_<ToType>(column):
-    """ Casts a column to <ToType> values.
+    """ Applies cast to obtain column representing <ToType> values.
     
-    1. Transform input column into <ToType> values.
-    2. Ensure output is <Column>.
+    1. <Null> maps to <Null>.
+    2. Other values are casted to represent <ToType> values.
+    3. Ensure output is <Column>.
     
     Args:
         column: <Column>.
