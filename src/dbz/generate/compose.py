@@ -268,7 +268,7 @@ class Composer():
             True iff all old checks are passed with new implementation
         """
         old_checks = []
-        for idx in range(updated_idx, self.works_until):
+        for idx in range(updated_idx, self.works_until+2):
             old_checks += self.idx2checks[idx]
         old_checks.sort(key=lambda c:self._selectivity(c))
         nr_checks = len(old_checks)
