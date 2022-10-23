@@ -281,7 +281,7 @@ class Coder():
         return {
             'DECIMAL':'int', 'NUMERIC':'float', 'FLOAT':'float', 
             'INTEGER':'int', 'CHAR':'string', 'VARCHAR':'string',
-            'DATE':'int'}[sql_type]
+            'DATE':'int', 'BOOLEAN':'Boolean'}[sql_type]
 
     def _like_code(self, node):
         """ Generate code for evaluating LIKE expression.
