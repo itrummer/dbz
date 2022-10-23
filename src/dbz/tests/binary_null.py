@@ -3,8 +3,8 @@ Created on Oct 22, 2022
 
 @author: immanueltrummer
 '''
-c1 = fill_column(get_null(), 10)
-c2 = fill_column(1, 10)
+c1 = fill_int_column(get_null(), 10)
+c2 = fill_int_column(1, 10)
 
 results = []
 for in_1, in_2 in [(c1,c2), (c2,c1), (c1,c1), (c2,c2)]:

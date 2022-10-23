@@ -3,6 +3,29 @@ Created on Aug 9, 2022
 
 @author: immanueltrummer
 '''
+def fill_column(constant, cardinality):
+    """ Fills column using constant - type detection is a hack! 
+    
+    Args:
+        constant: a constant of type bool, integer, float, or string
+        cardinality: number of rows in result column
+    
+    Returns:
+        column of given size, filled with constant
+    """
+    try:
+        return fill_int_column(constant, cardinality)
+    except:
+        pass
+    
+    try:
+        return fill_float_column(constant, cardinality)
+    except:
+        pass
+    
+    return fill_string_column(constant, cardinality)
+
+
 def multiway_and(operands):
     """ Calculates a logical and between multiple operands.
     
@@ -13,7 +36,7 @@ def multiway_and(operands):
         column containing logical and
     """
     max_rows = max([nr_rows(op) for op in operands])
-    result = fill_column(True, max_rows)
+    result = fill_Boolean_column(True, max_rows)
     for op in operands:
         result = logical_and(result, op)
     return result
@@ -29,7 +52,7 @@ def multiway_or(operands):
         column containing logical or
     """
     max_rows = max([nr_rows(op) for op in operands])
-    result = fill_column(False, max_rows)
+    result = fill_Boolean_column(False, max_rows)
     for op in operands:
         result = logical_or(result, op)
     return result
@@ -54,7 +77,7 @@ def grouped_count(table, groups, operands, distinct):
         count_nr = map_column(do_count, lambda d:1 if d else 0)
     else:
         in_card = table_cardinality(table)
-        count_nr = fill_column(1, in_card)
+        count_nr = fill_int_column(1, in_card)
     in_cols += [count_nr]
     in_table = create_table(in_cols)
     
@@ -67,7 +90,7 @@ def grouped_count(table, groups, operands, distinct):
     if distinct:
         grouped_tbl = group_by_sum(in_table, count_nr_idx, in_groups + in_ops)
         dup_cnt = get_column(grouped_tbl, count_nr_idx)
-        ones = fill_column(1, nr_rows(dup_cnt))
+        ones = fill_int_column(1, nr_rows(dup_cnt))
         no_dup_cnt = min(dup_cnt, ones)
         set_column(grouped_tbl, count_nr_idx, no_dup_cnt)
         return group_by_sum(grouped_tbl, count_nr_idx, in_groups)
@@ -86,7 +109,7 @@ def multiply_by_scalar(column, scalar):
         column resulting from multiplication
     """
     scale_to = nr_rows(column)
-    const_col = fill_column(scalar, scale_to)
+    const_col = fill_float_column(scalar, scale_to)
     return multiplication(column, const_col)
 
 
