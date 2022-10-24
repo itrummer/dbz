@@ -41,13 +41,13 @@ def if_else(_, if_val, else_val):
 
 def multiway_and(*args):
     nr_rows()
-    fill_column()
+    fill_Boolean_column()
     logical_and()
     return []
 
 def multiway_or(*args):
     nr_rows()
-    fill_column()
+    fill_Boolean_column()
     logical_or()
     return []
 
@@ -57,7 +57,10 @@ def grouped_count(*args):
     is_null()
     map_column()
     table_cardinality()
-    fill_column()
+    fill_Boolean_column()
+    fill_int_column()
+    fill_float_column()
+    fill_string_column()
     create_table()
     group_by_sum()
     set_column()
@@ -66,21 +69,30 @@ def grouped_count(*args):
 
 def multiply_by_scalar(*args):
     nr_rows()
-    fill_column()
+    fill_Boolean_column()
+    fill_int_column()
+    fill_float_column()
+    fill_string_column()
     multiplication()
     return []
 
 def scale_columns(columns, types):
     nr_rows()
     get_value()
-    fill_column()
+    fill_Boolean_column()
+    fill_int_column()
+    fill_float_column()
+    fill_string_column()
     return columns
 
 def scale_to_table(column, col_type, table):
     get_column()
     nr_rows()
     get_value()
-    fill_column()
+    fill_Boolean_column()
+    fill_int_column()
+    fill_float_column()
+    fill_string_column()
     return column, table
 
 def smart_date_extract(*args):
