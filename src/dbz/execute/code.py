@@ -286,7 +286,8 @@ class Coder():
         sql_type = sql_type.upper()
         return {
             'DECIMAL':'int', 'NUMERIC':'float', 'FLOAT':'float', 
-            'INTEGER':'int', 'CHAR':'string', 'VARCHAR':'string',
+            'INTEGER':'int', 'BIGINT':'int', 
+            'CHAR':'string', 'VARCHAR':'string',
             'DATE':'int', 'BOOLEAN':'Boolean'}[sql_type]
 
     def _like_code(self, node):
