@@ -111,13 +111,13 @@
 		"template":"get_value.py", "substitutions":{}},
 		
 	{"type":"generate", "task_id":"fill_int_column", "context":[],
-		"template":"fill_column.py", "substitutions":{"<Type>":"int"}},
+		"template":"fill_int_column.py", "substitutions":{}},
 	{"type":"generate", "task_id":"fill_float_column", "context":[],
-		"template":"fill_column.py", "substitutions":{"<Type>":"float"}},
+		"template":"fill_float_column.py", "substitutions":{}},
 	{"type":"generate", "task_id":"fill_bool_column", "context":[],
-		"template":"fill_column.py", "substitutions":{"<Type>":"Boolean"}},
+		"template":"fill_Boolean_column.py", "substitutions":{}},
 	{"type":"generate", "task_id":"fill_string_column", "context":[],
-		"template":"fill_column.py", "substitutions":{"<Type>":"string"}},
+		"template":"fill_string_column.py", "substitutions":{}},
 
 	{"type":"generate", "task_id":"map", "context":[],
 		"template":"map.py", "substitutions":{}},

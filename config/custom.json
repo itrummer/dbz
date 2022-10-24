@@ -1,0 +1,13 @@
+{
+	"code_prefix_path":"config/pre_pandas.py",
+	"substitutions":{
+		"<Table>":"a pandas DataFrame",
+		"<Column>":"a pandas series",
+		"<TablePost>":" Rename columns to integer range and drop row index.",
+		"<Null>":"pd.NA",
+		"<BooleanField>":"bool",
+		"<IntegerField>":"pd.Int64Dtype",
+		"<FloatField>":"float",
+		"<StringField>":"string"
+	}
+}

@@ -19,18 +19,17 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('config', type=str, help='Path to synthesis')
     parser.add_argument('ai_key', type=str, help='Access key to OpenAI')
-    parser.add_argument('pre_path', type=str, help='Path to code preamble')
-    parser.add_argument('table_nl', type=str, help='Table representation')
-    parser.add_argument('column_nl', type=str, help='Column representation')
-    parser.add_argument('tbl_post_nl', type=str, help='Table post-processing')
-    parser.add_argument('null_nl', type=str, help='Representing NULL values')
+    parser.add_argument('custom', type=str, help='Path to customization file')
     parser.add_argument('log_level', type=str, help='Set logging level')
     args = parser.parse_args()
     
     openai.api_key = args.ai_key
     with open(args.config) as file:
         config = json.load(file)
-    with open(args.pre_path) as file:
+    with open(args.custom) as file:
+        custom = json.load(file)
+    pre_path = custom['code_prefix_path']
+    with open(pre_path) as file:
         pre_code = file.read()
     logging.basicConfig(level=int(args.log_level))
     logger = logging.getLogger('all')
@@ -38,12 +37,9 @@ if __name__ == '__main__':
 
     tasks = dbz.generate.task.Tasks(config)
     operators = dbz.generate.operator.Operators()
-    substitutions = {
-        '<Table>':args.table_nl, 
-        '<Column>':args.column_nl, 
-        '<TablePost>':args.tbl_post_nl,
-        '<Null>':args.null_nl
-    }
+    # Substitutions: <Table>, <Column>, <TablePost>, <Null>, 
+    # <BooleanField>, <IntegerField>, <FloatField>, <StringField> 
+    substitutions = custom['substitutions']
     synthesizer = dbz.generate.synthesize.Synthesizer(
         operators, substitutions, pre_code)
     miner = dbz.generate.mine.CodeMiner(operators, synthesizer)
