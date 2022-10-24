@@ -105,7 +105,9 @@ class Coder():
                 f'Unsupported types for binary operation: {op_types}; ' +\
                     f'operation: {operation}')
         
-        return f'{op_name}(*scale_columns([{left_op},{right_op}]))'
+        op_internal_types = [self._internal_type(t) for t in op_types]
+        return f'{op_name}(*scale_columns(' +\
+            f'[{left_op},{right_op}],{op_internal_types}))'
     
     def _case_code(self, operation):
         """ Generate code representing case statement.
@@ -118,8 +120,12 @@ class Coder():
         """
         operands = operation['operands']
         op_codes = [self._operation_code(op) for op in operands]
+        op_sql_types = [op['type']['type'] for op in operands]
+        op_internal_types = [self._internal_type(t) for t in op_sql_types]
         pred_code, if_code, else_code = op_codes
-        return f'if_else(*scale_columns([{pred_code},{if_code},{else_code}]))'
+        return f'if_else(*scale_columns(' +\
+            f'[{pred_code},{if_code},{else_code}], ' +\
+            f'{op_internal_types}))'
     
     def _cast_code(self, operation):
         """ Generate code for a casting operation.
@@ -352,7 +358,7 @@ class Coder():
         condition = step['condition']
         pred_code = self._operation_code(condition)
         parts = [f'p_idx = {pred_code}']
-        parts += [f'p_idx = scale_to_table(p_idx, in_rel_1)']
+        parts += [f'p_idx = scale_to_table(p_idx, "Boolean", in_rel_1)']
         parts += [f'{result} = filter_table(in_rel_1, p_idx)']
         return '\n'.join(parts)
     
@@ -433,8 +439,11 @@ class Coder():
         exprs = step['exprs']
         for expr in exprs:
             expr_code = self._operation_code(expr)
+            expr_sql_type = expr['type']['type']
+            expr_internal_type = self._internal_type(expr_sql_type)
             parts += [f'column = {expr_code}']
-            parts += [f'column = scale_to_table(column, in_rel_1)']
+            parts += [f'column = scale_to_table(' +\
+                      f'column, "{expr_internal_type}", in_rel_1)']
             parts += ['result_cols += [column]']
         parts += [f'{result} = create_table(result_cols)']
         return '\n'.join(parts)
@@ -536,8 +545,12 @@ class Coder():
         op_kind = operation['op']['kind']
         op_name = {'AND':'multiway_and', 'OR':'multiway_or'}[op_kind]
         operands = operation['operands']
+        op_sql_types = [op['type']['type'] for op in operands]
+        op_internal_types = [self._internal_type(t) for t in op_sql_types]
         params = [self._operation_code(operand) for operand in operands]
-        return f'{op_name}(scale_columns([{", ".join(params)}]))'
+        return f'{op_name}(scale_columns(' +\
+            f'[{", ".join(params)}], ' +\
+            f'{op_internal_types}))'
     
     def _operation_code(self, operation):
         """ Generate code realizing given operation. 

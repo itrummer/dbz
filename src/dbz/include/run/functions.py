@@ -3,29 +3,7 @@ Created on Aug 9, 2022
 
 @author: immanueltrummer
 '''
-def fill_column(constant, cardinality):
-    """ Fills column using constant - type detection is a hack! 
-    
-    Args:
-        constant: a constant of type bool, integer, float, or string
-        cardinality: number of rows in result column
-    
-    Returns:
-        column of given size, filled with constant
-    """
-    try:
-        return fill_int_column(constant, cardinality)
-    except:
-        pass
-    
-    try:
-        return fill_float_column(constant, cardinality)
-    except:
-        pass
-    
-    return fill_string_column(constant, cardinality)
-
-
+from dbz.prompt.fill_string_column import fill_string_column
 def multiway_and(operands):
     """ Calculates a logical and between multiple operands.
     
@@ -113,35 +91,45 @@ def multiply_by_scalar(column, scalar):
     return multiplication(column, const_col)
 
 
-def scale_columns(columns):
+def scale_columns(columns, types):
     """ Scale up scalar columns to maximal size.
     
     Args:
         columns: list of columns
+        types: column types (Boolean, int, float, string)
     
     Returns:
         list of scaled columns
     """
     max_rows = max([nr_rows(c) for c in columns])
     scaled_cols = []
-    for col in columns:
+    for col, col_type in zip(columns, types):
         cur_size = nr_rows(col)
         if cur_size == max_rows:
             scaled_cols += [col]
         elif cur_size < max_rows and cur_size == 1:
             value = get_value(col, 0)
-            scaled_col = fill_column(value, max_rows)
+            assert col_type in ['Boolean', 'int', 'float', 'string']
+            if col_type == 'Boolean':
+                scaled_col = fill_Boolean_column(value, max_rows)
+            elif col_type == 'int':
+                scaled_col = fill_int_column(value, max_rows)
+            elif col_type == 'float':
+                scaled_col = fill_float_column(value, max_rows)
+            else:
+                scaled_col = fill_string_column(value, max_rows)
             scaled_cols += [scaled_col]
         else:
             raise ValueError(f'Cannot scale size {cur_size} to {max_rows}')
     return scaled_cols
 
 
-def scale_to_table(column, table):
+def scale_to_table(column, col_type, table):
     """ Scales scalar values to table size. 
     
     Args:
         column: column to scale
+        col_type: data type of column 
         table: scale to table cardinality
     
     Returns:
@@ -154,7 +142,15 @@ def scale_to_table(column, table):
         return column
     elif col_size == 1:
         value = get_value(column, 0)
-        return fill_column(value, tbl_size)
+        assert col_type in ['Boolean', 'int', 'float', 'string']
+        if col_type == 'Boolean':
+            return fill_Boolean_column(value, tbl_size)
+        elif col_type == 'int':
+            return fill_int_column(value, tbl_size)
+        elif col_type == 'float':
+            return fill_float_column(value, tbl_size)
+        else:
+            return fill_string_column(value, tbl_size)
     else:
         raise ValueError('Cannot scale non-scalar column!')
 

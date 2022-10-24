@@ -39,12 +39,6 @@ def if_else(_, if_val, else_val):
             # val
     return []
 
-def fill_column(*args):
-    fill_Boolean_column()
-    fill_int_column()
-    fill_float_column()
-    fill_string_column()
-
 def multiway_and(*args):
     nr_rows()
     fill_column()
