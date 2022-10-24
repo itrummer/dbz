@@ -3,7 +3,6 @@ Created on Aug 9, 2022
 
 @author: immanueltrummer
 '''
-from dbz.prompt.fill_string_column import fill_string_column
 def multiway_and(operands):
     """ Calculates a logical and between multiple operands.
     
