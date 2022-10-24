@@ -70,13 +70,13 @@ def multiply_by_scalar(*args):
     multiplication()
     return []
 
-def scale_columns(columns):
+def scale_columns(columns, types):
     nr_rows()
     get_value()
     fill_column()
     return columns
 
-def scale_to_table(column, table):
+def scale_to_table(column, col_type, table):
     get_column()
     nr_rows()
     get_value()
