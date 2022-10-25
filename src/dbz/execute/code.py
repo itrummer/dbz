@@ -106,8 +106,11 @@ class Coder():
                     f'operation: {operation}')
         
         op_internal_types = [self._internal_type(t) for t in op_types]
-        return f'{op_name}(*scale_columns(' +\
-            f'[{left_op},{right_op}],{op_internal_types}))'
+        result_sql_type = operation['type']['type']
+        result_internal_type = self._internal_type(result_sql_type)
+        return f'fix_nulls([{left_op},{right_op}], ' +\
+            f'{op_name}(*scale_columns([{left_op},{right_op}],' +\
+            f'{op_internal_types})), {result_internal_type})'
     
     def _case_code(self, operation):
         """ Generate code representing case statement.

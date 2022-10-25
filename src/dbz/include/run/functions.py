@@ -35,6 +35,22 @@ def multiway_or(operands):
     return result
 
 
+def fix_nulls(inputs, result, result_type):
+    """ Returns result with NULL values wherever any input is NULL.
+    
+    Args:
+        inputs: a list of input columns
+        result: a raw result that may not handle NULL values correctly
+        result_type: data type of result column
+    
+    Returns:
+        fixed result version: NULL wherever any input is NULL
+    """
+    input_null = multiway_or([is_null(in_col) for in_col in inputs])
+    scaled_if_else = scale_column([get_null(), result], [result_type] * 2)
+    return if_else(input_null, *scaled_if_else)
+
+
 def grouped_count(table, groups, operands, distinct):
     """ Calculate count with group-by clause.
     
@@ -74,7 +90,7 @@ def grouped_count(table, groups, operands, distinct):
     else:
         return group_by_sum(in_table, count_nr_idx, in_groups)
 
-
+    
 def multiply_by_scalar(column, scalar):
     """ Multiplies column by a scalar.
     

@@ -21,7 +21,7 @@ def nr_rows(*args):
     requirements.add('nr_rows')
     return 1
 
-def if_else(_, if_val, else_val):
+def if_else(*args):
     """ Visit both branches of if-statement during tracing.
     
     Args:
@@ -38,6 +38,13 @@ def if_else(_, if_val, else_val):
         # else:
             # val
     return []
+
+def fix_nulls(inputs, result, result_type):
+    is_null()
+    multiway_or()
+    scale_columns([], [])
+    get_null()
+    if_else()
 
 def multiway_and(*args):
     nr_rows()
