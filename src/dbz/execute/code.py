@@ -769,7 +769,10 @@ class Coder():
             parts += ['else:']
             def_val = '0' if agg['agg']['kind'] == 'COUNT' else 'get_null()'
             parts += [f'\tval = {def_val}']
-            parts += [f'agg_result = fill_int_column(val, 1)']
+            
+            agg_sql_type = agg['type']['type']
+            agg_internal_type = self._internal_type(agg_sql_type)
+            parts += [f'agg_result = fill_{agg_internal_type}_column(val, 1)']
             parts += [f'result_cols += [agg_result]']
         
         parts += [f'{result} = create_table(result_cols)']
