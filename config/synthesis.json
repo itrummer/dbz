@@ -119,13 +119,13 @@
 		"template":"map.py", "substitutions":{}},
 		
 	{"type":"generate", "task_id":"to_int", "context":[],
-		"template":"cast.py", "substitutions":{"<ToType>":"int"}},
+		"template":"cast_to_int.py", "substitutions":{}},
 	{"type":"generate", "task_id":"to_float", "context":[],
-		"template":"cast.py", "substitutions":{"<ToType>":"float"}},
+		"template":"cast_to_float.py", "substitutions":{}},
 	{"type":"generate", "task_id":"to_string", "context":[],
-		"template":"cast.py", "substitutions":{"<ToType>":"string"}},
+		"template":"cast_to_string.py", "substitutions":{}},
 	{"type":"generate", "task_id":"to_bool", "context":[],
-		"template":"cast.py", "substitutions":{"<ToType>":"Boolean"}},
+		"template":"cast_to_Boolean.py", "substitutions":{}},
 
 	{"type":"generate", "task_id":"is_empty", "context":[], 
 		"template":"is_empty.py", "substitutions":{}},
