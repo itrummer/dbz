@@ -5,7 +5,7 @@
 		"<Column>":"a pandas series",
 		"<TablePost>":" Rename columns to integer range and drop row index.",
 		"<Null>":"pd.NA",
-		"<BooleanField>":"bool",
+		"<BooleanField>":"'Boolean' (dtype)",
 		"<IntegerField>":"pd.Int64Dtype",
 		"<FloatField>":"float",
 		"<StringField>":"string"
