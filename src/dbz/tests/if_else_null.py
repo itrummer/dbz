@@ -3,7 +3,7 @@ Created on Oct 22, 2022
 
 @author: immanueltrummer
 '''
-c = fill_int_column(True, 1)
+c = fill_Boolean_column(True, 1)
 n = fill_int_column(get_null(), 1)
 
 r = if_else(c,c,n)
