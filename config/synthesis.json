@@ -168,11 +168,13 @@
 		"substitutions":{"<binary_op>":"greater_than_or_equal", "<short_op>":">="}},
 
 	{"type":"generate", "task_id":"and", "context":[], 
-		"template":"boolean_compound.py", "substitutions":{"<operator>":"and"}},
+		"template":"boolean_compound.py", 
+		"substitutions":{"<operator>":"and"}},
 	{"type":"generate", "task_id":"or", "context":[], 
-		"template":"boolean_compound.py", "substitutions":{"<operator>":"or"}},
-	{"type":"generate", "task_id":"not", "context":[], "template":"unary.py", 
-		"substitutions":{"<operator>":"logical_not", "<InputDescription>":"with Boolean values"}},
+		"template":"boolean_compound.py", 
+		"substitutions":{"<operator>":"or"}},
+	{"type":"generate", "task_id":"not", "context":[], 
+		"template":"not.py", "substitutions":{}},
 	
 	{"type":"generate", "task_id":"sum", "context":[], 
 		"template":"aggregate.py", "substitutions":{"<aggregate>":"sum"}},
