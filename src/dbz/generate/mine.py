@@ -66,7 +66,7 @@ class CodeMiner():
         self.code_cache[prompt] = prior_cached + [code]
         
         self.logger.info(f'Mined code for task {task_id}:\n{code}')
-        return self.operators.add_op(task_id, code, temperature)
+        return self.operators.add_op(task_id, code, -1)
     
     def _normalize(self, code):
         """ Normalize code by removing comments and empty lines.
