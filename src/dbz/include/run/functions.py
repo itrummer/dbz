@@ -47,7 +47,7 @@ def fix_nulls(inputs, result, result_type):
         fixed result version: NULL wherever any input is NULL
     """
     input_null = multiway_or([is_null(in_col) for in_col in inputs])
-    scaled_if_else = scale_column([get_null(), result], [result_type] * 2)
+    scaled_if_else = scale_columns([get_null(), result], [result_type] * 2)
     return if_else(input_null, *scaled_if_else)
 
 
