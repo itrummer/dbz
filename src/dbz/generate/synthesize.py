@@ -55,6 +55,24 @@ class Synthesizer():
         Returns:
             prompt with generated code piece
         """
+        prompt, prompt_end = self.task_prompt(task, composition)
+        stop = ['\n\n\n', 'def ']
+        if 'stop' in task:
+            stop = task['stop']
+        completion = self._complete(prompt, temperature, stop)
+                
+        return prompt_end + completion + ('\n'*2)
+    
+    def task_prompt(self, task, composition):
+        """ Generate prompt used for specific generation task and context.
+        
+        Args:
+            task: dictionary describing operator generation task
+            composition: maps task IDs to IDs of selected code pieces
+        
+        Returns:
+            pair containing full prompt and last prompt piece
+        """
         parts = [self.pre_code]
         context = task['context']
         for c in context:
@@ -68,13 +86,7 @@ class Synthesizer():
         prompt_end = Synthesizer.load_prompt(file, substitutions)
         parts += [prompt_end]
         
-        prompt = '\n'.join(parts)
-        stop = ['\n\n\n', 'def ']
-        if 'stop' in task:
-            stop = task['stop']
-        completion = self._complete(prompt, temperature, stop)
-                
-        return prompt_end + completion + ('\n'*2)
+        return '\n'.join(parts), prompt_end
     
     def _complete(self, prompt, temperature, stop):
         """ Use OpenAI's GPT-3 Codex model for completion.

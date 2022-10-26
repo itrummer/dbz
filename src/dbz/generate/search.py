@@ -13,6 +13,7 @@ import dbz.generate.task
 import json
 import logging
 import openai
+import os.path
 
 if __name__ == '__main__':
     
@@ -21,6 +22,7 @@ if __name__ == '__main__':
     parser.add_argument('ai_key', type=str, help='Access key to OpenAI')
     parser.add_argument('custom', type=str, help='Path to customization file')
     parser.add_argument('log_level', type=str, help='Set logging level')
+    parser.add_argument('code_cache', type=str, help='Path to code cache')
     args = parser.parse_args()
     
     openai.api_key = args.ai_key
@@ -34,6 +36,12 @@ if __name__ == '__main__':
     logging.basicConfig(level=int(args.log_level))
     logger = logging.getLogger('all')
     logger.setLevel(int(args.log_level))
+    
+    if os.path.exists(args.code_cache):
+        with open(args.code_cache) as file:
+            code_cache = json.load(file)
+    else:
+        code_cache = {}
 
     tasks = dbz.generate.task.Tasks(config)
     operators = dbz.generate.operator.Operators()
@@ -42,7 +50,8 @@ if __name__ == '__main__':
     substitutions = custom['substitutions']
     synthesizer = dbz.generate.synthesize.Synthesizer(
         operators, substitutions, pre_code)
-    miner = dbz.generate.mine.CodeMiner(operators, synthesizer)
+    miner = dbz.generate.mine.CodeMiner(
+        operators, synthesizer, code_cache)
     composer = dbz.generate.compose.Composer(
         config, operators, tasks, pre_code)
     debugger = dbz.generate.debug.Debugger(composer)
@@ -62,6 +71,10 @@ if __name__ == '__main__':
     while not composer.finished():
         round_ctr += 1
         logger.info(f'Starting Debugging Round {round_ctr} ...')
+
+        with open(args.code_cache, 'w') as file:
+            json.dump(miner.code_cache, file)
+        
         redo_tasks = debugger.to_redo()
         comp = composer.composition
         for task_id, _ in redo_tasks:
