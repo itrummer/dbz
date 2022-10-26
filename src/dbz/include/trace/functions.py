@@ -40,9 +40,9 @@ def if_else(*args):
     return []
 
 def fix_nulls(inputs, result, result_type):
+    nr_rows()
     is_null()
     multiway_or()
-    scale_columns([], [])
     get_null()
     if_else()
 

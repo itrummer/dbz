@@ -47,8 +47,19 @@ def fix_nulls(inputs, result, result_type):
         fixed result version: NULL wherever any input is NULL
     """
     input_null = multiway_or([is_null(in_col) for in_col in inputs])
-    scaled_if_else = scale_columns([get_null(), result], [result_type] * 2)
-    return if_else(input_null, *scaled_if_else)
+    
+    assert result_type in ['Boolean', 'int', 'float', 'string']
+    scale_to = nr_rows(result)
+    if result_type == 'Boolean':
+        scaled_null = fill_Boolean_column(get_null(), scale_to)
+    elif result_type == 'int':
+        scaled_null = fill_int_column(get_null(), scale_to)
+    elif result_type == 'float':
+        scaled_null = fill_float_column(get_null(), scale_to)
+    else:
+        scaled_null = fill_string_column(get_null(), scale_to)
+
+    return if_else(input_null, scaled_null, result)
 
 
 def grouped_count(table, groups, operands, distinct):
