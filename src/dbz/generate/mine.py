@@ -58,6 +58,8 @@ class CodeMiner():
                         code = self._normalize(code)
                         if self.operators.is_known(code):
                             code = None
+                        else:
+                            break
             else:
                 code = self.synthesizer.generate(task, 0.0, composition)
                 code = self._normalize(code)
