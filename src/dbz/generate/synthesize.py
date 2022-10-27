@@ -86,7 +86,7 @@ class Synthesizer():
         prompt_end = Synthesizer.load_prompt(file, substitutions)
         parts += [prompt_end]
         
-        return '\n'.join(parts), prompt_end
+        return '\n\n'.join(parts), prompt_end
     
     def _complete(self, prompt, temperature, stop):
         """ Use OpenAI's GPT-3 Codex model for completion.

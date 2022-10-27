@@ -117,7 +117,8 @@
 
 	{"type":"generate", "task_id":"map", "context":[],
 		"template":"map.py", "substitutions":{}},
-		
+	{"type":"generate", "task_id":"round", "context":[],
+		"template":"round.py", "substitutions":{}},
 	{"type":"generate", "task_id":"to_int", "context":[],
 		"template":"cast_to_int.py", "substitutions":{}},
 	{"type":"generate", "task_id":"to_float", "context":[],
