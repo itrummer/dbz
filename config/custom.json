@@ -8,6 +8,6 @@
 		"<BooleanField>":"'boolean' (dtype)",
 		"<IntegerField>":"'Int64' (dtype)",
 		"<FloatField>":"'Float64' (dtpye)",
-		"<StringField>":"'string' (dtype)'"
+		"<StringField>":"'string' (dtype)"
 	}
 }
