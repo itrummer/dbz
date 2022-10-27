@@ -46,6 +46,7 @@ class CodeMiner():
         """
         task_id = task['task_id']
         prompt, _ = self.synthesizer.task_prompt(task, composition)
+        self.logger.info(f'Mining with Prompt:---\n{prompt}\n---\n')
         cached = self.code_cache.get(prompt, [])
         code = next((c for c in cached if not self.operators.is_known(c)), None)
         
