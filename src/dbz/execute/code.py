@@ -496,19 +496,10 @@ class Coder():
             code realizing scan
         """
         table = step['table'][0]
-        col_types = step['outputType']['fields']
         file_path = f'{self.paths.data_dir}/{table.lower()}.csv'
         scan_code = f'load_from_csv("{file_path}")'
         result = self._result_name(step['id'])
         parts = [f'{result} = {scan_code}']
-        
-        for col_idx, col_type in enumerate(col_types):
-            parts += [f'col = get_column({result},{col_idx})']
-            sql_type = col_type['type']
-            cast_type = self._internal_type(sql_type)
-            fct_name = f'cast_to_{cast_type}'
-            parts += [f'col = {fct_name}(col)']
-            parts += [f'set_column({result},{col_idx},col)']
         
         return '\n'.join(parts)
     
@@ -692,6 +683,16 @@ class Coder():
         handler = f'_{rel_op}'
         parts += [getattr(self, handler)(step)]
         result = self._result_name(op_id)
+        
+        col_types = step['outputType']['fields']
+        for col_idx, col_type in enumerate(col_types):
+            parts += [f'col = get_column({result},{col_idx})']
+            sql_type = col_type['type']
+            cast_type = self._internal_type(sql_type)
+            fct_name = f'cast_to_{cast_type}'
+            parts += [f'col = {fct_name}(col)']
+            parts += [f'set_column({result},{col_idx},col)']
+        
         parts += [f'last_result = {result}']
         return '\n'.join(parts)
     
