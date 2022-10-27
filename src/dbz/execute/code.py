@@ -558,34 +558,41 @@ class Coder():
         Returns:
             code for realizing operation
         """
+        op_code = None
         if 'literal' in operation:
-            return self._literal_code(operation)
+            op_code = self._literal_code(operation)
         elif 'input' in operation:
-            return self._column_code(operation)
+            op_code = self._column_code(operation)
         elif 'op' in operation:
             syntax = operation['op']['syntax']
             name = operation['op']['name']
             if name in ['AND', 'OR']:
-                return self._nary_boolean_code(operation)
-            if syntax == 'BINARY' or name in ['+', '-']:
-                return self._binary_code(operation)
-            if name == 'CASE':
-                return self._case_code(operation)
-            if name == 'CAST':
-                return self._cast_code(operation)
-            if name == 'EXTRACT':
-                return self._extract_code(operation)
-            if name in [
+                op_code = self._nary_boolean_code(operation)
+            elif syntax == 'BINARY' or name in ['+', '-']:
+                op_code = self._binary_code(operation)
+            elif name == 'CASE':
+                op_code = self._case_code(operation)
+            elif name == 'CAST':
+                # Unnecessary due to auto-casting
+                op_code = self._cast_code(operation)
+            elif name == 'EXTRACT':
+                op_code = self._extract_code(operation)
+            elif name in [
                 'NOT', 'IS NULL', 'IS NOT NULL', 
                 'IS TRUE', 'IS NOT TRUE', 
                 'IS FALSE', 'IS NOT FALSE']:
-                return self._unary_code(operation)
-            if name == 'LIKE':
-                return self._like_code(operation)
-            if name == 'SUBSTRING':
-                return self._substring_code(operation)
+                op_code = self._unary_code(operation)
+            elif name == 'LIKE':
+                op_code = self._like_code(operation)
+            elif name == 'SUBSTRING':
+                op_code = self._substring_code(operation)
         
-        raise ValueError(f'Unhandled operation: {operation}')
+        if op_code is None:
+            raise ValueError(f'Unhandled operation: {operation}')
+        else:
+            sql_type = operation['type']['type']
+            internal_type = self._internal_type(sql_type)
+            return f'cast_to_{internal_type}({op_code})'
     
     def _post_code(self, final_step):
         """ Code for column-type specific post-processing. 
