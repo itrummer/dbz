@@ -1,8 +1,3 @@
-'''
-Created on Oct 22, 2022
-
-@author: immanueltrummer
-'''
 def check_table_type(table):
     """ Verify that table is <Table>. 
     

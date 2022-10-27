@@ -1,8 +1,3 @@
-'''
-Created on Oct 22, 2022
-
-@author: immanueltrummer
-'''
 def check_column_type(column):
     """ Verify that column is <Column>. 
     
