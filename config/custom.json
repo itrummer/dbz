@@ -6,8 +6,8 @@
 		"<TablePost>":" Rename columns to integer range and drop row index.",
 		"<Null>":"pd.NA",
 		"<BooleanField>":"'boolean' (dtype)",
-		"<IntegerField>":"pd.Int64Dtype",
-		"<FloatField>":"float",
-		"<StringField>":"string"
+		"<IntegerField>":"'Int64' (dtype)",
+		"<FloatField>":"'Float64' (dtpye)",
+		"<StringField>":"'string' (dtype)'"
 	}
 }
