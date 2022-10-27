@@ -3,21 +3,23 @@ Created on Oct 22, 2022
 
 @author: immanueltrummer
 '''
-c = fill_Boolean_column(True, 1)
-n = fill_int_column(get_null(), 1)
+b_t = fill_Boolean_column(True, 1)
+b_n = fill_Boolean_column(get_null(), 1)
+i_1 = fill_int_column(1, 1)
+i_n = fill_int_column(get_null(), 1)
 
-r = if_else(c,c,n)
+r = if_else(b_t,i_1,i_n)
 r = is_null(r)
 assert not get_value(r,0)
 
-r = if_else(c,n,c)
+r = if_else(b_t,i_n,i_1)
 r = is_null(r)
 assert get_value(r,0)
 
-r = if_else(n,c,n)
+r = if_else(b_n,i_1,i_n)
 r = is_null(r)
 assert get_value(r,0)
 
-r = if_else(n,n,c)
+r = if_else(b_n,i_n,i_1)
 r = is_null(r)
 assert not get_value(r,0)
