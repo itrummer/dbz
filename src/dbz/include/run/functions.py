@@ -15,7 +15,7 @@ def cast_to_int_round(column):
     try:
         return cast_to_int(column)
     except:
-        return cast_to_int(round(column))
+        return cast_to_int(round_column(column))
 
 def multiway_and(operands):
     """ Calculates a logical and between multiple operands.
