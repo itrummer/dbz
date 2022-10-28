@@ -592,7 +592,8 @@ class Coder():
         else:
             sql_type = operation['type']['type']
             internal_type = self._internal_type(sql_type)
-            return f'cast_to_{internal_type}({op_code})'
+            suffix = '_round' if internal_type == 'int' else ''
+            return f'cast_to_{internal_type}{suffix}({op_code})'
     
     def _post_code(self, final_step):
         """ Code for column-type specific post-processing. 
@@ -696,7 +697,8 @@ class Coder():
             parts += [f'col = get_column({result},{col_idx})']
             sql_type = col_type['type']
             cast_type = self._internal_type(sql_type)
-            fct_name = f'cast_to_{cast_type}'
+            suffix = '_round' if cast_type == 'int' else ''
+            fct_name = f'cast_to_{cast_type}{suffix}'
             parts += [f'col = {fct_name}(col)']
             parts += [f'set_column({result},{col_idx},col)']
         

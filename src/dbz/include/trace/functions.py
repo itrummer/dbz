@@ -3,6 +3,10 @@ Created on Sep 25, 2022
 
 @author: immanueltrummer
 '''
+def cast_to_int_round(*args):
+    round_column()
+    cast_to_int()
+
 def is_empty(*args):
     """ Code generator visits some branches only for non-empty tables. 
     

@@ -3,6 +3,20 @@ Created on Aug 9, 2022
 
 @author: immanueltrummer
 '''
+def cast_to_int_round(column):
+    """ Try casting to integers - try rounding if unsuccessful. 
+    
+    Args:
+        column: a column to cast to integers, possibly after rounding
+    
+    Returns:
+        column casted to integer
+    """
+    try:
+        return cast_to_int(column)
+    except:
+        return cast_to_int(round(column))
+
 def multiway_and(operands):
     """ Calculates a logical and between multiple operands.
     
