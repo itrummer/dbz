@@ -56,7 +56,7 @@ class Synthesizer():
             prompt with generated code piece
         """
         prompt, prompt_end = self.task_prompt(task, composition)
-        stop = ['\n\n\n', 'def ']
+        stop = ['\n\n\n']
         if 'stop' in task:
             stop = task['stop']
         completion = self._complete(prompt, temperature, stop)
