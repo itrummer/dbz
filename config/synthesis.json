@@ -201,7 +201,7 @@
 	{"type":"generate", "task_id":"grouped_count", "context":["grouped_sum"], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"count"}},
 	
-	{"type":"generate", "task_id":"equi_join", "context":["filter"], "template":"join.py", 
+	{"type":"generate", "task_id":"equi_join", "context":[], "template":"join.py", 
 		"substitutions":{"<JoinDefinition>":"equality", "<JoinDescription>":"equality"}},
 	{"type":"generate", "task_id":"left_join", "context":["equi_join"], "template":"join.py", 
 		"substitutions":{"<JoinDefinition>":"left_outer", "<JoinDescription>":"left outer"}},

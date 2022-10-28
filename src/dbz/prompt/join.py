@@ -1,6 +1,9 @@
 def <JoinDefinition>_join(table_1, table_2, key_cols_1, key_cols_2):
-    """ Join two tables by <JoinDescription> join.<TablePost>
-   
+    """ Join two tables by <JoinDescription> join.
+
+    1. Perform <JoinDescription> join.
+    2.<TablePost>
+
     Args:
         table_1: <Table>.
         table_2: <Table>.
