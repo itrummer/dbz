@@ -202,7 +202,7 @@
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"count"}},
 	
 	{"type":"generate", "task_id":"equi_join", "context":[], "template":"join.py", "stop":"\n\n\n",
-		"substitutions":{"<JoinDefinition>":"equality", "<JoinDescription>":"equality"}},
+		"substitutions":{"<JoinDefinition>":"equality", "<JoinDescription>":"inner equality"}},
 	{"type":"generate", "task_id":"left_join", "context":[], "template":"join.py", "stop":"\n\n\n",
 		"substitutions":{"<JoinDefinition>":"left_outer", "<JoinDescription>":"left outer"}},
 	{"type":"generate", "task_id":"right_join", "context":[], "template":"join.py", "stop":"\n\n\n",
