@@ -1,8 +1,8 @@
 def <JoinDefinition>_join(table_1, table_2, key_cols_1, key_cols_2):
     """ Join two tables by <JoinDescription> join.
     
-    1. Index table_1 on key_cols_1.
-    2. Index table_2 on key_cols_2.
+    1. Index table_1 on key_cols_1 (do not drop column).
+    2. Index table_2 on key_cols_2 (do not drop column).
     3. Join table_1 and table_2:
         -  Use an <JoinDescription> join.
         -  Avoid name clash in result columns.
