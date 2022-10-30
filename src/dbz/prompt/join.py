@@ -4,9 +4,11 @@ def <JoinDefinition>_join(table_1, table_2, key_cols_1, key_cols_2):
     1. Index table_1 on key_cols_1 (do not drop column).
     2. Index table_2 on key_cols_2 (do not drop column).
     3. Join table_1 and table_2:
+        -  Use suffix '_1' for columns in table_1.
+        -  Use suffix '_2' for columns in table_2.
         -  Use an <JoinDescription> join.
-        -  Avoid name clash in result columns.
-    4.<TablePost>
+        -  Replace NULL values by <Null>.
+    4. Rename columns to integer range and drop row index.
 
     Args:
         table_1: <Table>.
