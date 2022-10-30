@@ -12,6 +12,6 @@ assert table_cardinality(r) == 100
 r = right_outer_join(t1, t2, [0], [0])
 assert table_cardinality(r) == 100
 r = right_outer_join(t1, t2, [1], [0])
-assert table_cardinality(r) == 100
+assert table_cardinality(r) == 10
 r = right_outer_join(t1, t2, [0], [1])
-assert table_cardinality(r) == 100
+assert table_cardinality(r) == 10
