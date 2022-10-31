@@ -1,9 +1,13 @@
 def load_from_csv(path_to_csv):
-    """ Load data from .csv file (without header).<TablePost>
+    """ Load data from .csv file (without header).
+    
+    1. Use pandas (pd) to load .csv file from disk.
+    2. Transform into <Table>.
+    3.<TablePost>
     
     Args:
         path_to_csv: path to .csv file to load.
     
     Returns:
-        <Table>
+        <Table>.
     """
