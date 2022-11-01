@@ -58,7 +58,7 @@ class Synthesizer():
         """
         prompt, prompt_end = self.task_prompt(
             task, composition, use_context)
-        stop = ['\n\n\n', '\ndef ']
+        stop = ['\n\n\n', '\ndef ', '\nif']
         if 'stop' in task:
             stop = task['stop']
         completion = self._complete(prompt, temperature, stop)
