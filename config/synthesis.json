@@ -1,8 +1,8 @@
 {
 	"test_access":{
-		"data_dir":"tpch_sf0001", "python":"python"},
+		"data_dir":"tpch_sf001", "python":"python"},
 	"sql_ref":{
-		"pg_db":"tpch_sf0001", "pg_user":"ubuntu", "pg_pwd":"", 
+		"pg_db":"tpch_sf001", "pg_user":"ubuntu", "pg_pwd":"", 
 		"host":"/var/run/postgresql"},
 	"checks":{
 		"queries":[
