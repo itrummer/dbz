@@ -250,7 +250,7 @@ class Coder():
         
         parts = [f'# LogicalAggregate: aggs: {aggs}; groups {groups}']
         if not aggs:
-            aggs = [{'distinct':False, 'kind':'COUNT', 'operands':[]}]
+            aggs = [{'distinct':False, 'agg':{'kind':'COUNT'}, 'operands':[]}]
         
         nr_group_cols = len(groups)
         result_idx = nr_group_cols
