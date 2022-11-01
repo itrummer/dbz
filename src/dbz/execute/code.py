@@ -249,6 +249,8 @@ class Coder():
         result = self._result_name(step_id)
         
         parts = [f'# LogicalAggregate: aggs: {aggs}; groups {groups}']
+        if not aggs:
+            aggs = [{'distinct':False, 'kind':'COUNT', 'operands':[]}]
         
         nr_group_cols = len(groups)
         result_idx = nr_group_cols
