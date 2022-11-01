@@ -76,7 +76,9 @@ class Synthesizer():
         Returns:
             pair containing full prompt and last prompt piece
         """
-        parts = [self.pre_code]
+        parts = []
+        if self.pre_code:
+            parts += [self.pre_code]
         
         if use_context:
             context = task['context']

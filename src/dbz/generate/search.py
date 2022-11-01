@@ -30,9 +30,13 @@ if __name__ == '__main__':
         config = json.load(file)
     with open(args.custom) as file:
         custom = json.load(file)
-    pre_path = custom['code_prefix_path']
-    with open(pre_path) as file:
-        pre_code = file.read()
+    
+    pre_code = ''
+    if 'code_prefix_path' in custom:
+        pre_path = custom['code_prefix_path']
+        with open(pre_path) as file:
+            pre_code = file.read()
+    
     logging.basicConfig(level=int(args.log_level))
     logger = logging.getLogger('all')
     logger.setLevel(int(args.log_level))
