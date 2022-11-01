@@ -49,18 +49,26 @@ class CodeMiner():
         self.logger.info(f'Mining with Prompt:---\n{prompt}\n---\n')
         cached = self.code_cache.get(prompt, [])
         code = next((c for c in cached if not self.operators.is_known(c)), None)
+        context_flags = [True, False] if task['context'] else [True]
         
         if code is None:
             if self.operators.get_ids(task_id):
                 while code is None:
                     for temperature in self.temperatures:
-                        code = self.synthesizer.generate(
-                            task, temperature, composition)
-                        code = self._normalize(code)
-                        if self.operators.is_known(code):
-                            code = None
-                        else:
-                            break
+                        for use_context in context_flags:
+                            code = self.synthesizer.generate(
+                                task, temperature, 
+                                composition, use_context)
+                            code = self._normalize(code)
+                            
+                            if self.operators.is_known(code):
+                                code = None
+                            else:
+                                t_info = f'temperature: {temperature}'
+                                c_info = f'use_context: {use_context}'
+                                self.logger.info(
+                                    f'New code found using {t_info}; {c_info}')
+                                break
             else:
                 code = self.synthesizer.generate(task, 0.0, composition)
                 code = self._normalize(code)

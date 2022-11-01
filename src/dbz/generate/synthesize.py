@@ -44,18 +44,20 @@ class Synthesizer():
         
         return text
     
-    def generate(self, task, temperature, composition):
+    def generate(self, task, temperature, composition, use_context=True):
         """ Synthesize code piece as described in task.
         
         Args:
             task: dictionary describing generation task
             temperature: degree of randomness in generation
             composition: selected operators in current composition
+            use_context: whether to integrate context into prompt
         
         Returns:
             prompt with generated code piece
         """
-        prompt, prompt_end = self.task_prompt(task, composition)
+        prompt, prompt_end = self.task_prompt(
+            task, composition, use_context)
         stop = ['\n\n\n', 'def ']
         if 'stop' in task:
             stop = task['stop']
@@ -63,23 +65,26 @@ class Synthesizer():
                 
         return prompt_end + completion + ('\n'*2)
     
-    def task_prompt(self, task, composition):
+    def task_prompt(self, task, composition, use_context=True):
         """ Generate prompt used for specific generation task and context.
         
         Args:
             task: dictionary describing operator generation task
             composition: maps task IDs to IDs of selected code pieces
+            use_context: integrate context code snippets into prompt
         
         Returns:
             pair containing full prompt and last prompt piece
         """
         parts = [self.pre_code]
-        context = task['context']
-        for c in context:
-            ops_tmp = self.operators.get_ops(c)
-            op_idx = composition[c]
-            op_tmp = ops_tmp[op_idx]
-            parts += [op_tmp[0]]
+        
+        if use_context:
+            context = task['context']
+            for c in context:
+                ops_tmp = self.operators.get_ops(c)
+                op_idx = composition[c]
+                op_tmp = ops_tmp[op_idx]
+                parts += [op_tmp[0]]
         
         file = task['template']
         substitutions = {**task['substitutions'], **self.def_substitutions}
