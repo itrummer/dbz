@@ -7,5 +7,6 @@ import csv
 import datetime
 import math
 import numpy as np
+import operator
 import pandas as pd
 import re
