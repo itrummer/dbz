@@ -220,8 +220,6 @@
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"max"}},
 	{"type":"generate", "task_id":"grouped_avg", "context":["grouped_sum"], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"avg"}},
-	{"type":"generate", "task_id":"grouped_count", "context":["grouped_sum"], 
-		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"count"}},
 	
 	{"type":"generate", "task_id":"equi_join", "context":[], 
 		"template":"inner_join.py", "substitutions":{"<JoinDefinition>":"equality", 
