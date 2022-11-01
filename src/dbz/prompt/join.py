@@ -8,7 +8,7 @@ def <JoinDefinition>_join(table_1, table_2, key_cols_1, key_cols_2):
         -  Use suffix '_2' for columns in table_2.
         -  Use an <JoinDescription> join.
         -  Replace NULL values by <Null>.
-    4. Rename columns to integer range and drop row index.
+    4.<TablePost>
 
     Args:
         table_1: <Table>.
