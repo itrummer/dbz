@@ -8,6 +8,8 @@ import dbz.execute.engine
 import dbz.execute.query
 import dbz.util
 import filecmp
+import logging
+import math
 import os
 import pandas as pd
 import traceback
@@ -25,6 +27,7 @@ class Validator():
         """
         self.paths = paths
         self.sql_ref = sql_ref
+        self.logger = logging.getLogger('all')
     
     def validate(self, engine, check):
         """ Validate engine implementation by comparison to reference.
@@ -73,6 +76,44 @@ class Validator():
         code = engine.add_context(code)
         return engine.run(code)
     
+    def _round_dfs(self, check_df, ref_df, round_how):
+        """ Rounds test and reference data as per instructions.
+        
+        Args:
+            check_df: data to test for equivalence
+            ref_df: ground truth data to compare against
+            round_how: instructions on how to round
+        
+        Returns:
+            pair of (rounded) check_df, ref_df
+        """
+        tolerance_type = round_how['type']
+        cols_to_round = round_how['columns']
+        for col_idx in cols_to_round:
+            ref_col = ref_df.iloc[:,col_idx].astype('Float64')
+            check_col = check_df.iloc[:,col_idx].astype('Float64')
+            
+            if tolerance_type == 'absolute':
+                tolerance = round_how['tolerance']
+            elif tolerance_type == 'relative':
+                ratio = round_how['ratio']
+                ref_min = ref_col.min()
+                tolerance = ratio * ref_min
+            else:
+                raise ValueError(f'Unknown tolerance: {tolerance_type}')
+            
+            self.logger.info(
+                f'Rounding column {col_idx} with tolerance {tolerance} ...')
+            if tolerance > 0:
+                ref_col = ref_col.map(
+                    lambda x:math.floor((x/tolerance)+0.5))
+                check_col = check_col.map(
+                    lambda x:math.floor((x/tolerance)+0.5))
+                ref_df.iloc[:,col_idx] = ref_col
+                check_df.iloc[:,col_idx] = check_col
+        
+        return ref_df, check_df
+    
     def _sql_check(self, engine, check):
         """ Validates engine by comparing query result to reference.
         
@@ -109,12 +150,17 @@ class Validator():
             if filecmp.cmp(check_path, ref_path):
                 print(f'Validation successful!')
                 return True
-                            
-            check_path = self._write_rounded(check_path, 2)
-            ref_path = self._write_rounded(ref_path, 2)
-                            
+
             check_df = pd.read_csv(check_path, header=None)
             ref_df = pd.read_csv(ref_path, header=None)
+            
+            if 'rounding' in check:
+                for round_how in check['rounding']:
+                    check_df, ref_df = self._round_dfs(
+                        check_df, ref_df, round_how)
+                            
+            check_path = self._write_rounded(check_df, check_path)
+            ref_path = self._write_rounded(ref_df, ref_path)
             
             if not self._check_row_order(check):
                 check_df.sort_values(
@@ -142,23 +188,19 @@ class Validator():
             traceback.print_exc()
             return False
     
-    def _write_rounded(self, in_path, precision):
+    def _write_rounded(self, df, in_path):
         """ Write rounded version of .csv file to disk.
         
         Args:
+            df: a rounded data frame to write to disk
             in_path: path to input .csv file
-            precision: round to this precision (nr. digits)
         
         Returns:
             path to file with rounded values
         """
-        df = pd.read_csv(in_path, header=None)
         out_path = in_path + '_rounded'
-        df.to_csv(
-            out_path, header=None, index=False, 
-            float_format=f'%.{precision}f')
+        df.to_csv(out_path, header=None, index=False)
         return out_path
-
 
 
 if __name__ == '__main__':
