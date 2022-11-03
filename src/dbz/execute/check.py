@@ -93,12 +93,10 @@ class Validator():
             ref_col = ref_df.iloc[:,col_idx].astype('Float64')
             check_col = check_df.iloc[:,col_idx].astype('Float64')
             
-            if tolerance_type == 'absolute':
-                tolerance = round_how['tolerance']
-            elif tolerance_type == 'relative':
-                ratio = round_how['ratio']
+            tolerance = round_how['tolerance']
+            if tolerance_type == 'relative':
                 ref_min = ref_col.min()
-                tolerance = ratio * ref_min
+                tolerance = tolerance * ref_min
             else:
                 raise ValueError(f'Unknown tolerance: {tolerance_type}')
             
