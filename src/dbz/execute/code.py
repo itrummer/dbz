@@ -151,6 +151,8 @@ class Coder():
         if old_type == new_type:
             return operand_code
         
+        old_type_name = old_type['type'].lower()
+        new_type_name = new_type['type'].lower()
         scale_before = self._get_scale(operand)
         scale_after = self._get_scale(operation)
         scale_before = 0 if scale_before is None else scale_before
@@ -158,10 +160,10 @@ class Coder():
         if not (scale_before == scale_after):
             diff = scale_after - scale_before
             operand_code = f'multiply_by_scalar({operand_code},1e{diff})'
-            #operand_code = f'map_column({operand_code},lambda i:round(i,{diff}))'
+            if new_type_name == 'varchar':
+                operand_code = f'map_column({operand_code},' +\
+                    f'lambda i:round(i,{diff}))'
         
-        old_type_name = old_type['type'].lower()
-        new_type_name = new_type['type'].lower()
         if old_type_name == 'char' and new_type_name == 'char':
             pad_to = new_type['precision']
             return f'smart_padding({operand_code},{pad_to})'
