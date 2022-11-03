@@ -97,8 +97,6 @@ class Validator():
             if tolerance_type == 'relative':
                 ref_min = ref_col.min()
                 tolerance = tolerance * ref_min
-            else:
-                raise ValueError(f'Unknown tolerance: {tolerance_type}')
             
             self.logger.info(
                 f'Rounding column {col_idx} with tolerance {tolerance} ...')
