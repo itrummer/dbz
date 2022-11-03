@@ -615,9 +615,7 @@ class Coder():
                 if 'scale' in col_type:
                     scale = col_type['scale']
                     parts += [f'col = multiply_by_scalar(col, 1e-{scale})']
-                if 'precision' in col_type:
-                    precision = col_type['precision']
-                    parts += [f'col = map_column(lambda i:round(i,{precision}))']
+                    parts += [f'col = map_column(col, lambda i:round(i,{scale}))']
             elif base_type in ['CHAR']:
                 length = col_type['precision']
                 parts += [f'col = smart_padding(col, {length})']
