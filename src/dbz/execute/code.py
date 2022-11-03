@@ -160,7 +160,7 @@ class Coder():
         if not (scale_before == scale_after):
             diff = scale_after - scale_before
             operand_code = f'multiply_by_scalar({operand_code},1e{diff})'
-            if new_type_name == 'varchar':
+            if new_type_name in ['varchar', 'float']:
                 operand_code = f'map_column({operand_code},' +\
                     f'lambda i:round(i,{diff}))'
         
