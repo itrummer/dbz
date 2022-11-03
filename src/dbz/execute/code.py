@@ -160,9 +160,9 @@ class Coder():
         if not (scale_before == scale_after):
             diff = scale_after - scale_before
             operand_code = f'multiply_by_scalar({operand_code},1e{diff})'
-            if new_type_name in ['varchar', 'float']:
+            if new_type_name in ['varchar', 'float'] and diff < 0:
                 operand_code = f'map_column({operand_code},' +\
-                    f'lambda i:round(i,{diff}))'
+                    f'lambda i:round(i,-{diff}))'
         
         if old_type_name == 'char' and new_type_name == 'char':
             pad_to = new_type['precision']
