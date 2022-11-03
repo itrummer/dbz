@@ -158,6 +158,7 @@ class Coder():
         if not (scale_before == scale_after):
             diff = scale_after - scale_before
             operand_code = f'multiply_by_scalar({operand_code},1e{diff})'
+            operand_code = f'map_column({operand_code},lambda i:round(i,{diff}))'
         
         old_type_name = old_type['type'].lower()
         new_type_name = new_type['type'].lower()
