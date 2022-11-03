@@ -161,16 +161,14 @@ class Coder():
         
         old_type_name = old_type['type'].lower()
         new_type_name = new_type['type'].lower()
-        if new_type_name == 'integer':
-            # TODO: needs to be cleaned up
-            return f'map_column({operand_code}, lambda r:round(r+1e-10))'
-        elif old_type_name == 'char' and new_type_name == 'char':
+        if old_type_name == 'char' and new_type_name == 'char':
             pad_to = new_type['precision']
             return f'smart_padding({operand_code},{pad_to})'
         elif new_type_name == 'varchar':
             return f'cast_to_string({operand_code})'
         else:
-            return f'cast_to_{new_type_name}({operand_code})'
+            new_internal_type = self._internal_type(new_type_name)
+            return f'cast_to_{new_internal_type}({operand_code})'
     
     def _column_code(self, column_ref):
         """ Generate code retrieving column of last result. 
@@ -615,6 +613,9 @@ class Coder():
                 if 'scale' in col_type:
                     scale = col_type['scale']
                     parts += [f'col = multiply_by_scalar(col, 1e-{scale})']
+                if 'precision' in col_type:
+                    precision = col_type['precision']
+                    parts += [f'col = map_column(lambda i:round(i,{precision}))']
             elif base_type in ['CHAR']:
                 length = col_type['precision']
                 parts += [f'col = smart_padding(col, {length})']
