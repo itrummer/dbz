@@ -168,7 +168,8 @@ class Coder():
             return f'cast_to_string({operand_code})'
         else:
             new_internal_type = self._internal_type(new_type_name)
-            return f'cast_to_{new_internal_type}({operand_code})'
+            suffix = '_round' if new_internal_type == 'int' else ''
+            return f'cast_to_{new_internal_type}{suffix}({operand_code})'
     
     def _column_code(self, column_ref):
         """ Generate code retrieving column of last result. 
