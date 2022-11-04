@@ -126,7 +126,7 @@ def simplify(query):
     # TODO: this is a hack - use query parser instead
     avg_ops = [
         op for s in re.split(',|from', query) 
-        for op in re.findall('avg\((.[^,(from)]*)\)', s)]
+        for op in re.findall('avg\((.*)\)', s)]
     for avg_op in avg_ops:
         old_avg = f'avg({avg_op})'
         new_avg = f'avg(cast ({avg_op} as float))'
