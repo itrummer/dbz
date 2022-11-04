@@ -123,7 +123,7 @@ def simplify(query):
         new_date = resolve_date(year, month, day, op, delta, unit)
         query = query.replace(m.group(0), new_date)
     
-    matches = re.finditer('avg\((.*)\)', query)
+    matches = re.finditer('avg\((.[^,]*)\)', query)
     for m in matches:
         old_avg = m.group(0)
         old_op = m.group(1)
