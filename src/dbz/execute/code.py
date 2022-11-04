@@ -295,7 +295,7 @@ class Coder():
         sql_type = sql_type.upper()
         return {
             'DECIMAL':'int', 'NUMERIC':'float', 'FLOAT':'float', 
-            'INTEGER':'int', 'BIGINT':'int', 
+            'DOUBLE':'float', 'INTEGER':'int', 'BIGINT':'int', 
             'CHAR':'string', 'VARCHAR':'string',
             'DATE':'int', 'BOOLEAN':'Boolean'}[sql_type]
 
