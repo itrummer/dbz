@@ -122,4 +122,13 @@ def simplify(query):
         unit = m.group(6)
         new_date = resolve_date(year, month, day, op, delta, unit)
         query = query.replace(m.group(0), new_date)
+    
+    matches = re.finditer('avg\((.*)\)', query)
+    for m in matches:
+        old_avg = m.group(0)
+        old_op = m.group(1)
+        new_op = f'cast ({old_op} as float)'
+        new_avg = f'avg({new_op})'
+        query = query.replace(old_avg, new_avg)
+    
     return query
