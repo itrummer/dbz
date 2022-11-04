@@ -124,12 +124,12 @@ def simplify(query):
         query = query.replace(m.group(0), new_date)
     
     # TODO: this is a hack - use query parser instead
-    matches = re.finditer('avg\((.[^,(from)]*)\)', query)
-    for m in matches:
-        old_avg = m.group(0)
-        old_op = m.group(1)
-        new_op = f'cast ({old_op} as float)'
-        new_avg = f'avg({new_op})'
+    avg_ops = [
+        op for s in re.split(',|from', query) 
+        for op in re.findall('avg\((.[^,(from)]*)\)', s)]
+    for avg_op in avg_ops:
+        old_avg = f'avg({avg_op})'
+        new_avg = f'avg(cast ({avg_op} as float))'
         query = query.replace(old_avg, new_avg)
     
     return query
