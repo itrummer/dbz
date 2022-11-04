@@ -369,9 +369,13 @@ class Coder():
         result = self._result_name(step['id'])
         condition = step['condition']
         pred_code = self._operation_code(condition)
-        parts = [f'p_idx = {pred_code}']
-        parts += [f'p_idx = scale_to_table(p_idx, "Boolean", in_rel_1)']
-        parts += [f'{result} = filter_table(in_rel_1, p_idx)']
+        parts = []
+        parts += [f'if not is_empty(in_rel_1):']
+        parts += [f'\tp_idx = {pred_code}']
+        parts += [f'\tp_idx = scale_to_table(p_idx, "Boolean", in_rel_1)']
+        parts += [f'\t{result} = filter_table(in_rel_1, p_idx)']
+        parts += ['else:']
+        parts += [f'\t{result} = in_rel_1']
         return '\n'.join(parts)
     
     def _LogicalJoin(self, step):
