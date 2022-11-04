@@ -429,13 +429,14 @@ class Coder():
         
         filter_preds = [c for c in conjuncts if not is_eq_col_pred(c)]
         if filter_preds:
-            parts += [f'in_rel_1 = {result}']
+            parts += [f'if not is_empty({result}):']
+            parts += [f'\tin_rel_1 = {result}']
             filter_codes = []
             for filter_pred in filter_preds:
                 filter_code = self._operation_code(filter_pred)
                 filter_codes += [filter_code]
-            parts += [f'p_idx = multiway_and([{", ".join(filter_codes)}])']
-            parts += [f'{result} = filter_table({result}, p_idx)']
+            parts += [f'\tp_idx = multiway_and([{", ".join(filter_codes)}])']
+            parts += [f'\t{result} = filter_table({result}, p_idx)']
         
         return '\n'.join(parts)
     
