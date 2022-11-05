@@ -117,7 +117,7 @@ class Synthesizer():
                     temperature=temperature,
                     #engine='davinci-codex',
                     engine='code-davinci-002',
-                    max_tokens=600)
+                    max_tokens=800)
                 completion = response['choices'][0]['text']
                 logging.debug(f'--- COMPLETION ---\n{completion}')
                 return completion
