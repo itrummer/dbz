@@ -91,7 +91,10 @@ def grouped_count(table, groups, operands, distinct):
     in_cols = [get_column(table, g) for g in groups]
     in_cols += [get_column(table, o) for o in operands]
     if operands:
-        do_count = logical_not(multiway_or([is_null(op) for op in operands]))
+        do_count = logical_not(
+            multiway_or(
+                [is_null(get_column(table, op)) for op in operands]
+        ))
         count_nr = map_column(do_count, lambda d:1 if d else 0)
     else:
         in_card = table_cardinality(table)

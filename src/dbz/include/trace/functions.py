@@ -65,6 +65,7 @@ def multiway_or(*args):
 def grouped_count(*args):
     get_column()
     logical_not()
+    multiway_or()
     is_null()
     map_column()
     table_cardinality()
