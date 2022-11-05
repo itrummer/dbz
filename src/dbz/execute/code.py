@@ -430,7 +430,7 @@ class Coder():
             'full':'full_outer_join'}
         join_def = type_to_def.get(join_type, 'equality_join')
         is_outer = join_type in ['left', 'right', 'full']
-        add_params = f'{in_1_arity}, {in_2_arity}' if is_outer else ''
+        add_params = f'{in_1_arity}, {in_2_arity}, ' if is_outer else ''
         op_code = f'{join_def}(in_rel_1, in_rel_2, {add_params}' +\
             f'{str(key_cols_1)}, {str(key_cols_2)})'
         parts = [f'{result} = {op_code}']
