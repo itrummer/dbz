@@ -389,8 +389,7 @@ class Coder():
         """
         inputs = step['inputs']
         assert(len(inputs) == 2)
-        in_ids = [i[0] for i in inputs]
-        in_steps = [self.id_to_step[s_id] for s_id in in_ids]
+        in_steps = [self.id_to_step[s_id] for s_id in inputs]
         in_arity = [self._get_arity(s) for s in in_steps]
         in_1_arity = in_arity[0]
         in_2_arity = in_arity[1]
