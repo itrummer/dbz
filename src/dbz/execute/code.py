@@ -389,9 +389,15 @@ class Coder():
         """
         inputs = step['inputs']
         assert(len(inputs) == 2)
-        in_1_id = inputs[0]
-        in_1_step = self.id_to_step[in_1_id]
-        in_1_arity = self._get_arity(in_1_step)
+        in_ids = [i[0] for i in inputs]
+        in_steps = [self.id_to_step[s_id] for s_id in in_ids]
+        in_arity = [self._get_arity(s) for s in in_steps]
+        in_1_arity = in_arity[0]
+        in_2_arity = in_arity[1]
+        
+        # in_1_id = inputs[0]
+        # in_1_step = self.id_to_step[in_1_id]
+        # in_1_arity = self._get_arity(in_1_step)
         
         step_id = step['id']
         result = self._result_name(step_id)
@@ -423,7 +429,9 @@ class Coder():
             'right':'right_outer_join', 
             'full':'full_outer_join'}
         join_def = type_to_def.get(join_type, 'equality_join')
-        op_code = f'{join_def}(in_rel_1, in_rel_2, ' +\
+        is_outer = join_type in ['left', 'right', 'full']
+        add_params = f'{in_1_arity}, {in_2_arity}' if is_outer else ''
+        op_code = f'{join_def}(in_rel_1, in_rel_2, {add_params}' +\
             f'{str(key_cols_1)}, {str(key_cols_2)})'
         parts = [f'{result} = {op_code}']
         
