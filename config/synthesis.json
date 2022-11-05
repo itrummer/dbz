@@ -229,9 +229,6 @@
 			"<JoinDefinition>":"left_outer", "<JoinDescription>":"left outer"}},
 	{"type":"generate", "task_id":"right_join", "context":["equi_join"], 
 		"template":"outer_join.py", "substitutions":{
-			"<JoinDefinition>":"right_outer", "<JoinDescription>":"right outer"}},
-	{"type":"generate", "task_id":"full_join", "context":["equi_join"], 
-		"template":"outer_join.py", "substitutions":{
-			"<JoinDefinition>":"full_outer", "<JoinDescription>":"full outer"}}
+			"<JoinDefinition>":"right_outer", "<JoinDescription>":"right outer"}}
 	]
 }
