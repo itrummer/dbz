@@ -102,6 +102,15 @@
 		"template":"column_type_test.py", "substitutions":{}},
 	{"type":"generate", "task_id":"table_type_test", "context":[],
 		"template":"table_type_test.py", "substitutions":{}},
+		
+	{"type":"generate", "task_id":"fill_int_column", "context":[],
+		"template":"fill_int_column.py", "substitutions":{}},
+	{"type":"generate", "task_id":"fill_float_column", "context":["fill_int_column"],
+		"template":"fill_float_column.py", "substitutions":{}},
+	{"type":"generate", "task_id":"fill_bool_column", "context":["fill_int_column"],
+		"template":"fill_Boolean_column.py", "substitutions":{}},
+	{"type":"generate", "task_id":"fill_string_column", "context":["fill_int_column"],
+		"template":"fill_string_column.py", "substitutions":{}},
 
 	{"type":"generate", "task_id":"load", "context":[],
 		"template":"load_data.py", "substitutions":{}},
@@ -125,16 +134,7 @@
 		"template":"binary_expression.py", 
 		"substitutions":{"<binary_op>":"multiplication"}},
 	{"type":"generate", "task_id":"get", "context":[],
-		"template":"get_value.py", "substitutions":{}},
-		
-	{"type":"generate", "task_id":"fill_int_column", "context":[],
-		"template":"fill_int_column.py", "substitutions":{}},
-	{"type":"generate", "task_id":"fill_float_column", "context":["fill_int_column"],
-		"template":"fill_float_column.py", "substitutions":{}},
-	{"type":"generate", "task_id":"fill_bool_column", "context":["fill_int_column"],
-		"template":"fill_Boolean_column.py", "substitutions":{}},
-	{"type":"generate", "task_id":"fill_string_column", "context":["fill_int_column"],
-		"template":"fill_string_column.py", "substitutions":{}},
+		"template":"get_value.py", "substitutions":{}},		
 
 	{"type":"generate", "task_id":"map", "context":[],
 		"template":"map.py", "substitutions":{}},
