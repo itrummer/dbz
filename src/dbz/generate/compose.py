@@ -102,7 +102,8 @@ class Composer():
             checks = self.idx2checks[task_idx]
             all_passed = True
             for check in checks:
-                self.logger.info(f'Checking generation task {task_idx} ...')
+                self.logger.info(
+                    f'Checking generation task {task_idx}/{self.nr_tasks} ...')
                 if self._check(candidate_comp, check):
                     passed_checks += [check]
                 else:

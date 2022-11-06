@@ -273,7 +273,7 @@ class Coder():
                 params = f'in_rel_1, {str(groups)}, {str(operands)}, {distinct}'
                 parts += [f'agg_tbl = grouped_count({params})']
 
-            params = f'agg_tbl, {str(groups)}'
+            params = f'agg_tbl, list(range({nr_group_cols}))'
             parts += [f'agg_tbl = sort_rows({params})']
             if not agg_idx:
                 parts += ['result_cols = [get_column(agg_tbl, i)' +\
