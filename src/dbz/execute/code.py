@@ -428,10 +428,15 @@ class Coder():
             'right':'right_outer_join', 
             'full':'full_outer_join'}
         join_def = type_to_def.get(join_type, 'equality_join')
-        is_outer = join_type in ['left', 'right', 'full']
-        add_params = f'{in_1_arity}, {in_2_arity}, ' if is_outer else ''
-        op_code = f'{join_def}(in_rel_1, in_rel_2, {add_params}' +\
-            f'{str(key_cols_1)}, {str(key_cols_2)})'
+        
+        if join_def == 'equality_join' and not key_cols_1 and not key_cols_2:
+            op_code = 'cross_product(in_rel_1, in_rel_2)'
+        else:
+            is_outer = join_type in ['left', 'right', 'full']
+            add_params = f'{in_1_arity}, {in_2_arity}, ' if is_outer else ''
+            op_code = f'{join_def}(in_rel_1, in_rel_2, {add_params}' +\
+                f'{str(key_cols_1)}, {str(key_cols_2)})'
+        
         parts = [f'{result} = {op_code}']
         
         filter_preds = [c for c in conjuncts if not is_eq_col_pred(c)]
