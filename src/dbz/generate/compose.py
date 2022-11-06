@@ -37,6 +37,7 @@ class Composer():
         self.task_order = [t['task_id'] for t in tasks.gen_tasks]
         self.nr_tasks = len(self.task_order)
         self.idx2checks = self._schedule_checks()
+        self.logger.info(f'Checking Schedule: {self.idx2checks}')
         self.composition = {tid:0 for tid in self.task_order}
         self.works_until = -1
         self.failure_info = None
@@ -101,6 +102,7 @@ class Composer():
             checks = self.idx2checks[task_idx]
             all_passed = True
             for check in checks:
+                self.logger.info(f'Checking generation task {task_idx} ...')
                 if self._check(candidate_comp, check):
                     passed_checks += [check]
                 else:
@@ -275,6 +277,9 @@ class Composer():
         
         for idx, old_check in enumerate(old_checks, 1):
             self.logger.info(f'Performing old check {idx}/{nr_checks} ...')
+            self.logger.info(
+                f'Best composition works until ' +\
+                f'task {self.works_until}/{self.nr_tasks}')
             if not self._check(candidate_comp, old_check):
                 return False
         
