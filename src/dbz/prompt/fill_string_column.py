@@ -1,7 +1,7 @@
 def fill_string_column(constant, nr_rows):
-    """ Returns a column, filled with <StringField> values.
+    """ Returns <Column>, filled with <StringField> values.
     
-    1. Create column filled with string values.
+    1. Create <Column> filled with string values.
     2. Ensure that column type is <StringField>.
     
     Args:

@@ -1,7 +1,7 @@
 def fill_float_column(constant, nr_rows):
-    """ Returns a column, filled with <FloatField> values.
+    """ Returns <Column>, filled with <FloatField> values.
     
-    1. Create column filled with float values.
+    1. Create <Column> filled with float values.
     2. Ensure that column type is <FloatField>.
     
     Args:
