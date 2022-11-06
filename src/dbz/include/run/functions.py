@@ -113,7 +113,7 @@ def grouped_count(table, groups, operands, distinct):
         dup_cnt = get_column(grouped_tbl, count_nr_idx)
         ones = fill_int_column(1, nr_rows(dup_cnt))
         no_dup_cnt = min(dup_cnt, ones)
-        set_column(grouped_tbl, count_nr_idx, no_dup_cnt)
+        grouped_tbl = set_column(grouped_tbl, count_nr_idx, no_dup_cnt)
         return group_by_sum(grouped_tbl, count_nr_idx, in_groups)
     else:
         return group_by_sum(in_table, count_nr_idx, in_groups)
@@ -255,7 +255,7 @@ def sort_wrapper(table, key_cols, ascending):
             if not asc:
                 col = get_column(table, col_idx)
                 col = multiply_by_scalar(col, -1)
-                set_column(table, col_idx, col)
+                table = set_column(table, col_idx, col)
     
     change_sign(table, key_cols, ascending)
     table = sort_rows(table, key_cols)
