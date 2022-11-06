@@ -647,7 +647,7 @@ class Coder():
                     f'col = map_column(col, ' +\
                     f'lambda d:str(ref_date + timedelta(days=d)))']
                 
-            parts += [f'set_column(last_result, {col_idx}, col)'] 
+            parts += [f'last_result = set_column(last_result, {col_idx}, col)'] 
         
         return '\n'.join(parts)
     
@@ -724,7 +724,7 @@ class Coder():
             suffix = '_round' if cast_type == 'int' else ''
             fct_name = f'cast_to_{cast_type}{suffix}'
             parts += [f'col = {fct_name}(col)']
-            parts += [f'set_column({result},{col_idx},col)']
+            parts += [f'{result} = set_column({result},{col_idx},col)']
         
         parts += [f'last_result = {result}']
         return '\n'.join(parts)
