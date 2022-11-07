@@ -256,10 +256,11 @@ def sort_wrapper(table, key_cols, ascending):
                 col = get_column(table, col_idx)
                 col = multiply_by_scalar(col, -1)
                 table = set_column(table, col_idx, col)
+        return table
     
-    change_sign(table, key_cols, ascending)
+    table = change_sign(table, key_cols, ascending)
     table = sort_rows(table, key_cols)
-    change_sign(table, key_cols, ascending)
+    table = change_sign(table, key_cols, ascending)
     return table
     
 
