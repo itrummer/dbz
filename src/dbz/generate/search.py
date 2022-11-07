@@ -87,10 +87,12 @@ if __name__ == '__main__':
             task = tasks.id2task[task_id]
             code_id = miner.mine(task, comp)
             logger.info(f'Mined code ID: {code_id}')
-            success = composer.update(task_id, code_id)
-            logger.info(f'Composer update successful: {success}.')
-            if success:
-                break
+            
+            if code_id is not None:
+                success = composer.update(task_id, code_id)
+                logger.info(f'Composer update successful: {success}.')
+                if success:
+                    break
             
         if round_ctr % 10 == 0:
             code = composer.final_code()

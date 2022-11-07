@@ -42,7 +42,7 @@ class CodeMiner():
             composition: maps tasks to operator IDs
         
         Returns:
-            ID of newly generated code in operator library
+            ID of newly generated code in operator library or None
         """
         task_id = task['task_id']
         prompt, _ = self.synthesizer.task_prompt(task, composition)
@@ -58,24 +58,26 @@ class CodeMiner():
         
         if code is None:
             if self.operators.get_ids(task_id):
-                while code is None:
-                    for temperature, use_context in synthesis_options:
-                        code = self.synthesizer.generate(
-                            task, temperature, 
-                            composition, use_context)
-                        code = self._normalize(code)
-                        
-                        if self.operators.is_known(code):
-                            code = None
-                        else:
-                            t_info = f'temperature: {temperature}'
-                            c_info = f'use_context: {use_context}'
-                            self.logger.info(
-                                f'New code found using {t_info}; {c_info}')
-                            break
+                for temperature, use_context in synthesis_options:
+                    code = self.synthesizer.generate(
+                        task, temperature, 
+                        composition, use_context)
+                    code = self._normalize(code)
+                    
+                    if self.operators.is_known(code):
+                        code = None
+                    else:
+                        t_info = f'temperature: {temperature}'
+                        c_info = f'use_context: {use_context}'
+                        self.logger.info(
+                            f'New code found using {t_info}; {c_info}')
+                        break
             else:
                 code = self.synthesizer.generate(task, 0.0, composition)
                 code = self._normalize(code)
+        
+        if code is None:
+            return None
         
         prior_cached = self.code_cache.get(prompt, [])
         self.code_cache[prompt] = prior_cached + [code]
