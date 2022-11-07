@@ -5,6 +5,7 @@ Created on Mar 29, 2022
 '''
 import csv
 import datetime
+import functools
 import math
 import numpy as np
 import operator
