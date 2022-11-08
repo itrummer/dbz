@@ -37,7 +37,6 @@ class Composer():
         self.task_order = [t['task_id'] for t in tasks.gen_tasks]
         self.nr_tasks = len(self.task_order)
         self.idx2checks = self._schedule_checks()
-        self.logger.info(f'Checking Schedule: {self.idx2checks}')
         self.composition = {tid:0 for tid in self.task_order}
         self.works_until = -1
         self.failure_info = None
@@ -303,7 +302,14 @@ class Composer():
             new_checks.sort(key=lambda c:len(c['requirements']))
             idx2checks[task_idx] = new_checks
         
-        self.logger.info(f'Scheduled checks: {idx2checks}')
+        self.logger.info(f'Scheduled Checks:')
+        for task_idx in range(self.nr_tasks):
+            task_id = self.task_order[task_idx]
+            self.logger.info(f'Task {task_idx} ({task_id}) Checks:')
+            checks = idx2checks[task_idx]
+            for check in checks:
+                self.logger.info(check)
+        
         return idx2checks
     
     def _selectivity(self, check):
