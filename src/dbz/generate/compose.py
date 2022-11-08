@@ -308,7 +308,16 @@ class Composer():
             self.logger.info(f'Task {task_idx} ({task_id}) Checks:')
             checks = idx2checks[task_idx]
             for check in checks:
-                self.logger.info(check)
+                check_type = check['type']
+                assert check_type in ['sql', 'code']
+                if check_type == 'sql':
+                    query = check['query']
+                    self.logger.info(f'SQL: {query}')
+                else:
+                    filename = check['file']
+                    self.logger.info(f'Code: {filename}')
+                requirements = check['requirements']
+                self.logger.info(f'  Requires {requirements}')
         
         return idx2checks
     
