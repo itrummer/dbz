@@ -18,11 +18,11 @@ def get_row(table):
 
 r = equality_join(t1, t2, [1], [1])
 assert table_cardinality(r) == 100
-assert get_row(table) == [1, 0, 1, 0]
+assert get_row(r) == [1, 0, 1, 0]
 
 r = equality_join(t1, t2, [0], [0])
 assert table_cardinality(r) == 100
-assert get_row(table) == [1, 0, 1, 0]
+assert get_row(r) == [1, 0, 1, 0]
 
 r = equality_join(t1, t2, [1], [0])
 assert table_cardinality(r) == 0
