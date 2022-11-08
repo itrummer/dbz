@@ -3,7 +3,8 @@ Created on Nov 8, 2022
 
 @author: immanueltrummer
 '''
-t = create_table([])
+c = fill_int_column(1, 0)
+t = create_table([c])
 assert is_empty(t)
 assert check_table_type(t)
 
