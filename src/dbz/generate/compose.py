@@ -119,8 +119,10 @@ class Composer():
             checks = self.idx2checks[task_idx]
             all_passed = True
             for check in checks:
+                label = check['label']
                 self.logger.info(
-                    f'Checking generation task {task_idx}/{self.nr_tasks} ...')
+                    f'Checking generation task ' +\
+                    f'{task_idx}/{self.nr_tasks} using {label}')
                 if self._check(candidate_comp, check):
                     self.passed_checks += [check]
                 else:
@@ -284,7 +286,8 @@ class Composer():
         
         passed = []
         for idx, old_check in enumerate(old_checks, 1):
-            self.logger.info(f'Performing old check {idx}/{nr_checks} ...')
+            label = old_check['label']
+            self.logger.info(f'Trying old check {idx}/{nr_checks}:  {label}')
             self.logger.info(
                 f'Best composition works until ' +\
                 f'task {self.works_until}/{self.nr_tasks}')

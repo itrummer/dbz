@@ -103,7 +103,8 @@ class Tasks():
         
         check_tasks = []
         for sql in self.config['checks']['queries']:
-            check_task = {'query':sql, 'type':'sql'}
+            label = f'SQL: {sql}'
+            check_task = {'query':sql, 'type':'sql', 'label':label}
             trace_code = engine.sql2code(sql, 'dummy_path')
             self._add_requirements(check_task, trace_code)
             self._add_rounding(check_task)
@@ -123,17 +124,19 @@ class Tasks():
                 
                 m = re.search('<SubstituteBy:((.)*)>', raw_code)
                 if m is None:
-                    codes = [raw_code]
+                    codes_placeholders = [(raw_code, '')]
                 else:
                     placeholder = m.group(0)
                     substitutes = m.group(1).split('|')
-                    codes = [raw_code.replace(placeholder, s) 
-                             for s in substitutes]
+                    codes_placeholders = [
+                        (raw_code.replace(placeholder, s), s)
+                        for s in substitutes]
                         
-                for code in codes:
+                for code, placeholder in codes_placeholders:
+                    label = f'{file_name} ({placeholder})'
                     check_task = {
                         'file': file_name, 'code':code, 
-                        'type':'code'}
+                        'type':'code', 'label':label}
                     trace_code = engine.add_context(code)
                     self._add_requirements(
                         check_task, trace_code)
