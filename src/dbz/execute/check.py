@@ -7,7 +7,6 @@ import argparse
 import dbz.execute.engine
 import dbz.execute.query
 import dbz.util
-import filecmp
 import logging
 import math
 import os
@@ -143,7 +142,11 @@ class Validator():
             print(os.system(f'head {ref_path}'))
             
             # Handle special case of empty files
-            if filecmp.cmp(check_path, ref_path):
+            with open(check_path) as file:
+                test_data = file.read()
+            with open(ref_path) as file:
+                ref_data = file.read()
+            if test_data == ref_data:
                 print(f'Validation successful!')
                 return True
 
