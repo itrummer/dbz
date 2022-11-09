@@ -39,7 +39,8 @@ class Composer():
         self.idx2checks = self._schedule_checks()
         self.composition = {tid:0 for tid in self.task_order}
         self.works_until = -1
-        self.failure_info = None
+        self.passed_checks = []
+        self.failed_checks = []
         self.nr_validations = 0
         
         sql_ref_info = config['sql_ref']
@@ -57,6 +58,22 @@ class Composer():
         
         self.validator = dbz.execute.check.Validator(
             self.paths, self.sql_ref)        
+    
+    def failure_info(self):
+        """ Returns information on last failure. 
+        
+        Returns:
+            failure info
+        """
+        task2nr_ops = {}
+        for task_id in self.task_order:
+            nr_ops = len(self.ops.get_ids(task_id))
+            task2nr_ops[task_id] = nr_ops
+
+        return FailureInfo(
+            self.passed_checks, 
+            self.failed_checks, 
+            task2nr_ops)
     
     def finished(self):
         """ Checks whether a complete engine was generated. 
@@ -91,11 +108,12 @@ class Composer():
         candidate_comp = self.composition.copy()
         candidate_comp[updated_task_id] = new_code_id
         
-        if not self._old_checks(candidate_comp, updated_idx):
+        self.passed_checks, self.failed_checks = self._old_checks(
+            candidate_comp, updated_idx)
+
+        if self.failed_checks:        
             return False
         
-        passed_checks = []
-        failed_checks = []
         candidate_until = self.works_until
         for task_idx in range(self.works_until+1, self.nr_tasks):
             checks = self.idx2checks[task_idx]
@@ -104,9 +122,9 @@ class Composer():
                 self.logger.info(
                     f'Checking generation task {task_idx}/{self.nr_tasks} ...')
                 if self._check(candidate_comp, check):
-                    passed_checks += [check]
+                    self.passed_checks += [check]
                 else:
-                    failed_checks += [check]
+                    self.failed_checks += [check]
                     all_passed = False
                     break
 
@@ -119,18 +137,7 @@ class Composer():
         if candidate_until > self.works_until:
             self.logger.info(f'Replacing prior operator')
             self.works_until = candidate_until
-            self.composition = candidate_comp
-            
-            if not self.finished():
-                task2nr_ops = {}
-                for task_id in self.task_order:
-                    nr_ops = len(self.ops.get_ids(task_id))
-                    task2nr_ops[task_id] = nr_ops
-
-                self.failure_info = FailureInfo(
-                    passed_checks, failed_checks, 
-                    task2nr_ops)
-            
+            self.composition = candidate_comp            
             return True
         else:
             return False
@@ -267,7 +274,7 @@ class Composer():
             updated_idx: index of updated operator in generation order
             
         Returns:
-            True iff all old checks are passed with new implementation
+            Tuple with list of passed checks and (first) failed check
         """
         old_checks = []
         for idx in range(updated_idx, self.works_until+2):
@@ -275,15 +282,18 @@ class Composer():
         old_checks.sort(key=lambda c:self._selectivity(c))
         nr_checks = len(old_checks)
         
+        passed = []
         for idx, old_check in enumerate(old_checks, 1):
             self.logger.info(f'Performing old check {idx}/{nr_checks} ...')
             self.logger.info(
                 f'Best composition works until ' +\
                 f'task {self.works_until}/{self.nr_tasks}')
-            if not self._check(candidate_comp, old_check):
-                return False
+            if self._check(candidate_comp, old_check):
+                passed += [old_check]
+            else:
+                return passed, [old_check]
         
-        return True
+        return passed, []
     
     def _schedule_checks(self):
         """ Schedule checks based on task order. 

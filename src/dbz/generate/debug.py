@@ -25,7 +25,7 @@ class Debugger():
         Returns:
             ranked list of pairs (ID of task to redo, composition context)
         """
-        failure_info = self.composer.failure_info
+        failure_info = self.composer.failure_info()
         self.logger.debug(f'Failure Info: {failure_info}')
         
         # Calculate marginal probability of unsolved tasks using Bayes formula:
