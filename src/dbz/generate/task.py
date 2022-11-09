@@ -119,6 +119,9 @@ class Tasks():
                     continue
                 
                 test_path = os.path.join(test_dir, file_name)
+                if os.path.isdir(test_path):
+                    continue
+                
                 with open(test_path) as file:
                     raw_code = file.read()
                 
