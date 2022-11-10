@@ -104,6 +104,7 @@ class Tasks():
         check_tasks = []
         for sql in self.config['checks']['queries']:
             label = f'SQL: {sql}'
+            print(f'Analyzing task {label} ...')
             check_task = {'query':sql, 'type':'sql', 'label':label}
             trace_code = engine.sql2code(sql, 'dummy_path')
             self._add_requirements(check_task, trace_code)
@@ -137,6 +138,7 @@ class Tasks():
                         
                 for code, placeholder in codes_placeholders:
                     label = f'{file_name} ({placeholder})'
+                    print(f'Analyzing task {label} ...')
                     check_task = {
                         'file': file_name, 'code':code, 
                         'type':'code', 'label':label}
