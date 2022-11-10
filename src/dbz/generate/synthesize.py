@@ -5,7 +5,6 @@ Created on Mar 6, 2022
 '''
 import logging
 import openai
-import random
 import time
 
 

@@ -31,11 +31,23 @@ if __name__ == '__main__':
     with open(args.custom) as file:
         custom = json.load(file)
     
-    pre_code = ''
-    if 'code_prefix_path' in custom:
-        pre_path = custom['code_prefix_path']
-        with open(pre_path) as file:
-            pre_code = file.read()
+    def load_referenced_code(code_path):
+        """ Load code referenced via given key. 
+        
+        Args:
+            code_path: path to code file (or empty)
+        
+        Returns:
+            empty string for empty path, file content otherwise
+        """
+        if not code_path:
+            return ''
+        else:
+            with open(code_path) as file:
+                return file.read()
+
+    prompt_code = load_referenced_code(custom['prompt_code_path'])
+    custom_code = load_referenced_code(custom['custom_code_path'])
     
     logging.basicConfig(level=int(args.log_level))
     logger = logging.getLogger('all')
@@ -53,9 +65,10 @@ if __name__ == '__main__':
     # <BooleanField>, <IntegerField>, <FloatField>, <StringField> 
     substitutions = custom['substitutions']
     synthesizer = dbz.generate.synthesize.Synthesizer(
-        operators, substitutions, pre_code)
+        operators, substitutions, prompt_code)
     miner = dbz.generate.mine.CodeMiner(
         operators, synthesizer, code_cache)
+    pre_code = prompt_code + '\n\n' + custom_code
     composer = dbz.generate.compose.Composer(
         config, operators, tasks, pre_code)
     debugger = dbz.generate.debug.Debugger(composer)
