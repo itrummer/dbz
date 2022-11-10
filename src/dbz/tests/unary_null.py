@@ -15,5 +15,5 @@ write_to_csv(create_table([check_null]), 'test_output/test.csv')
 assert same_content('test_output/test.csv', 'test_output/true10.csv')
 
 check_not_null = is_null(results[1])
-write_to_csv(create_table([check_null]), 'test_output/test.csv')
+write_to_csv(create_table([check_not_null]), 'test_output/test.csv')
 assert same_content('test_output/test.csv', 'test_output/false10.csv')
