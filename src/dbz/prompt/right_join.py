@@ -7,7 +7,7 @@ def right_outer_join(table_1, table_2, nr_cols_1, key_cols_1, key_cols_2):
         - If yes: add matching row pairs to join result.
         - If no: match with nr_cols_1 <Null> values.
     3. Transform into <Table>.
-    4. Return result table.
+    4.<TablePost>
 
     Args:
         table_1: <Table>.
