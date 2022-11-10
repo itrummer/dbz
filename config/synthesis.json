@@ -223,16 +223,13 @@
 	{"type":"generate", "task_id":"grouped_avg", "context":["grouped_sum"], 
 		"template":"grouped_aggregate.py", "substitutions":{"<aggregate>":"avg"}},
 	
-	{"type":"generate", "task_id":"equi_join", "context":[], 
-		"template":"inner_join.py", "substitutions":{"<JoinDefinition>":"equality", 
-		"<JoinDescription>":"inner equality"}},
+	{"type":"generate", "task_id":"equi_join", "context":[],
+		"template":"inner_join.py", "substitutions":{}},
 	{"type":"generate", "task_id":"cross_product", "context":[],
 		"template":"cross_product.py", "substitutions":{}},
-	{"type":"generate", "task_id":"left_join", "context":["equi_join"], 
-		"template":"outer_join.py", "substitutions":{
-			"<JoinDefinition>":"left_outer", "<JoinDescription>":"left outer"}},
-	{"type":"generate", "task_id":"right_join", "context":["equi_join"], 
-		"template":"outer_join.py", "substitutions":{
-			"<JoinDefinition>":"right_outer", "<JoinDescription>":"right outer"}}
+	{"type":"generate", "task_id":"left_join", "context":[], 
+		"template":"left_join.py", "substitutions":{}},
+	{"type":"generate", "task_id":"right_join", "context":[], 
+		"template":"right_join.py", "substitutions":{}}
 	]
 }
