@@ -423,17 +423,22 @@ class Coder():
             key_cols_2 += [col_idx_2]
 
         join_type = step['joinType']
+        if join_type == 'full':
+            raise ValueError('Full outer join is not supported!')
         type_to_def = {
             'left':'left_outer_join', 
-            'right':'right_outer_join', 
-            'full':'full_outer_join'}
+            'right':'right_outer_join'}
         join_def = type_to_def.get(join_type, 'equality_join')
         
         if join_def == 'equality_join' and not key_cols_1 and not key_cols_2:
             op_code = 'cross_product(in_rel_1, in_rel_2)'
         else:
-            is_outer = join_type in ['left', 'right', 'full']
-            add_params = f'{in_1_arity}, {in_2_arity}, ' if is_outer else ''
+            if join_type == 'left':
+                add_params = f'{in_2_arity}, '
+            elif join_type == 'right':
+                add_params = f'{in_1_arity}, '
+            else:
+                add_params = ''
             op_code = f'{join_def}(in_rel_1, in_rel_2, {add_params}' +\
                 f'{str(key_cols_1)}, {str(key_cols_2)})'
         
