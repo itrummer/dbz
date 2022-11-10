@@ -122,15 +122,11 @@
 
 	{"type":"generate", "task_id":"load", "context":[],
 		"template":"load_data.py", "substitutions":{}},
-	{"type":"generate", "task_id":"store", "context":[],
-		"template":"store_data.py", "substitutions":{}},
 	{"type":"generate", "task_id":"is_empty", "context":[], 
 		"template":"is_empty.py", "substitutions":{}},
 		
 	{"type":"generate", "task_id":"add_column", "context":[],
 		"template":"add_column.py", "substitutions":{}},
-	{"type":"generate", "task_id":"create_table", "context":[],
-		"template":"create_table.py", "substitutions":{}},	
 	{"type":"generate", "task_id":"get_column", "context":[],
 		"template":"get_column.py", "substitutions":{}},
 	{"type":"generate", "task_id":"set_column", "context":[],
