@@ -3,6 +3,9 @@ Created on Sep 25, 2022
 
 @author: immanueltrummer
 '''
+def same_content(path_1, path_2):
+    return True
+
 def cast_to_int_round(*args):
     round_column()
     cast_to_int()

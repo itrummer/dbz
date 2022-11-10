@@ -3,8 +3,7 @@ Created on Nov 6, 2022
 
 @author: immanueltrummer
 '''
-c = fill_int_column(1, 10)
-t = create_table([c, c])
-write_to_csv(t, 'dummy.csv')
-t = load_from_csv('dummy.csv')
+t = load_from_csv('test_input/test1.csv')
 assert check_table_type(t)
+write_to_csv(t, 'test_output/test.csv')
+assert same_content('test_output/test.csv', 'test_input/test1.csv')

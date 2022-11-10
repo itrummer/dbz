@@ -3,8 +3,7 @@ Created on Nov 6, 2022
 
 @author: immanueltrummer
 '''
-t = load_from_csv('test_data/test1.csv')
+t = load_from_csv('test_input/test1.csv')
 s = sort_rows(t, [3])
-c = get_column(s, 0)
-v = get_value(c, 0)
-assert v == 2
+write_to_csv(s, 'test_output/test.csv')
+assert same_content('test_output/test.csv', 'test_output/test1_sorted.csv')

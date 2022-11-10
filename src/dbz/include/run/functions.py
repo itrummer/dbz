@@ -3,6 +3,14 @@ Created on Aug 9, 2022
 
 @author: immanueltrummer
 '''
+def same_content(path_1, path_2):
+    """ Returns True iff both files have same content. """
+    with open(path_1) as file:
+        data_1 = file.read()
+    with open(path_2) as file:
+        data_2 = file.read()
+    return data_1 == data_2
+
 def cast_to_int_round(column):
     """ Try casting to integers - try rounding if unsuccessful. 
     

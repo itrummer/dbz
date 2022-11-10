@@ -1,5 +1,5 @@
 n = get_null()
 nc = fill_<SubstituteBy:Boolean|int|float|string>_column(n, 10)
-nc_is_null = is_null(nc)
-for i in range(10):
-    assert get_value(nc_is_null, i)
+t = create_table([nc])
+write_to_csv(t, 'test_output/test.csv')
+assert same_content('test_output/test.csv', 'test_output/null10.csv')

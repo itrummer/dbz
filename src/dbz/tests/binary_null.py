@@ -15,10 +15,12 @@ for in_1, in_2 in [(c1,c2), (c2,c1), (c1,c1), (c2,c2)]:
 
 for i in [0, 1, 2]:
     r = results[i]
-    for j in range(10):
-        assert get_value(r, j)
+    t = create_table([r])
+    write_to_csv(t, 'test_output/test.csv')
+    assert same_content('test_output/test.csv', 'test_output/true10.csv')
 
 for i in [3]:
     r = results[i]
-    for j in range(10):
-        assert not get_value(r, j)
+    t = create_table([r])
+    write_to_csv(t, 'test_output/test.csv')
+    assert same_content('test_output/test.csv', 'test_output/false10.csv')
