@@ -17,3 +17,4 @@ def equality_join(table_1, table_2, key_cols_1, key_cols_2):
     Returns:
         Joined rows with matching join keys.
     """
+    def index(
