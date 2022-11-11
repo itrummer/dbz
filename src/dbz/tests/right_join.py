@@ -18,8 +18,8 @@ assert same_content('test_output/test.csv', 'test_output/1010_100.csv')
 
 r = right_outer_join(t1, t2, 2, [1], [0])
 write_to_csv(r, 'test_output/test.csv')
-assert same_content('test_output/test.csv', 'test_output/nullnull10_100.csv')
+assert same_content('test_output/test.csv', 'test_output/nullnull10_10.csv')
 
 r = right_outer_join(t1, t2, 2, [0], [1])
 write_to_csv(r, 'test_output/test.csv')
-assert same_content('test_output/test.csv', 'test_output/nullnull10_100.csv')
+assert same_content('test_output/test.csv', 'test_output/nullnull10_10.csv')
