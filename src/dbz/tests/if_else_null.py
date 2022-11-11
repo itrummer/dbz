@@ -3,10 +3,10 @@ Created on Oct 22, 2022
 
 @author: immanueltrummer
 '''
-b_t = fill_Boolean_column(True, 1)
-b_n = fill_Boolean_column(get_null(), 1)
-i_1 = fill_int_column(1, 1)
-i_n = fill_int_column(get_null(), 1)
+b_t = fill_Boolean_column(True, 10)
+b_n = fill_Boolean_column(get_null(), 10)
+i_1 = fill_int_column(1, 10)
+i_n = fill_int_column(get_null(), 10)
 
 r = if_else(b_t,i_1,i_n)
 r = is_null(r)
