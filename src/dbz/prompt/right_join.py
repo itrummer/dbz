@@ -17,6 +17,6 @@ def right_outer_join(table_1, table_2, nr_cols_1, key_cols_1, key_cols_2):
         key_cols_2: indexes of join key columns in table 2.
 
     Returns:
-        Joined rows with matching join keys.
+        <Table>.
     """
     def index(
