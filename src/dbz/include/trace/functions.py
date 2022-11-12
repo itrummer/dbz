@@ -23,7 +23,7 @@ def cast_to_int_round(*args):
 
 def round_column(*args):
     fill_float_column()
-    scale_columns()
+    scale_columns([], [])
     addition()
     floor()
     return []
@@ -110,7 +110,7 @@ def multiply_by_scalar(*args):
     multiplication()
     return []
 
-def scale_columns(*args):
+def scale_columns(columns, types):
     nr_rows()
     get_value()
     fill_Boolean_column()
