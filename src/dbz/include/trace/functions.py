@@ -7,6 +7,10 @@ def create_table(*args):
     """ Creates table - defined by user. """
     return []
 
+def load_from_csv(*args):
+    """ Load table from disk - defined by user. """
+    return []
+
 def write_to_csv(*args):
     """ Write to disk - defined by user. """
 
