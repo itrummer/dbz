@@ -99,6 +99,7 @@ def multiply_by_scalar(*args):
     fill_int_column()
     fill_float_column()
     fill_string_column()
+    cast_to_float()
     multiplication()
     return []
 
