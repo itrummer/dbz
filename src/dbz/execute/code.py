@@ -804,6 +804,8 @@ class Coder():
                 operand = operands[0]
                 parts += [f'\tin_col = get_column(in_rel_1,{operand})']
                 parts += [f'\tval = calculate_{kind.lower()}(in_col)']
+                parts += ['\t# Ensure dependency to get_null() is registered']
+                parts += ['\tget_null()']
             else:
                 distinct = agg['distinct']
                 params = f'in_rel_1, {str(operands)}, {distinct}'
