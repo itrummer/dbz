@@ -139,7 +139,8 @@ def multiply_by_scalar(column, scalar):
     """
     scale_to = nr_rows(column)
     const_col = fill_float_column(scalar, scale_to)
-    return multiplication(column, const_col)
+    casted_col = cast_to_float(column)
+    return multiplication(casted_col, const_col)
 
 
 def scale_columns(columns, types):
