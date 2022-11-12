@@ -119,6 +119,8 @@
 		"template":"fill_Boolean_column.py", "substitutions":{}},
 	{"type":"generate", "task_id":"fill_string_column", "context":["fill_int_column"],
 		"template":"fill_string_column.py", "substitutions":{}},
+	{"type":"generate", "task_id":"floor", "context":[], 
+		"template":"floor", "substitutions":{}},
 
 	{"type":"generate", "task_id":"is_empty", "context":[], 
 		"template":"is_empty.py", "substitutions":{}},		
@@ -139,8 +141,6 @@
 
 	{"type":"generate", "task_id":"map", "context":[],
 		"template":"map.py", "substitutions":{}},
-	{"type":"generate", "task_id":"round", "context":[],
-		"template":"round.py", "substitutions":{}},
 	{"type":"generate", "task_id":"to_int", "context":[],
 		"template":"cast_to_int.py", "substitutions":{}},
 	{"type":"generate", "task_id":"to_float", "context":[],

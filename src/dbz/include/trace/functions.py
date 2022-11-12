@@ -21,6 +21,13 @@ def cast_to_int_round(*args):
     round_column()
     cast_to_int()
 
+def round_column(*args):
+    fill_float_column()
+    scale_columns()
+    addition()
+    floor()
+    return []
+
 def is_empty(*args):
     """ Code generator visits some branches only for non-empty tables. 
     

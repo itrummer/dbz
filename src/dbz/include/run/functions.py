@@ -11,6 +11,14 @@ def same_content(path_1, path_2):
         data_2 = file.read()
     return data_1 == data_2
 
+def round_column(column):
+    """ Map column to rounded values. """
+    value_05 = fill_float_column(0.5, 1)
+    scaled_cols = scale_columns([value_05, column])
+    added = addition(*scaled_cols)
+    floored = floor(added)
+    return floored
+
 def cast_to_int_round(column):
     """ Try casting to integers - try rounding if unsuccessful. 
     
