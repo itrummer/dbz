@@ -110,7 +110,7 @@ def multiply_by_scalar(*args):
     multiplication()
     return []
 
-def scale_columns(columns, types):
+def scale_columns(*args):
     nr_rows()
     get_value()
     fill_Boolean_column()
