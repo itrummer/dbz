@@ -120,7 +120,7 @@
 	{"type":"generate", "task_id":"fill_string_column", "context":["fill_int_column"],
 		"template":"fill_string_column.py", "substitutions":{}},
 	{"type":"generate", "task_id":"floor", "context":[], 
-		"template":"floor", "substitutions":{}},
+		"template":"floor.py", "substitutions":{}},
 
 	{"type":"generate", "task_id":"is_empty", "context":[], 
 		"template":"is_empty.py", "substitutions":{}},		
