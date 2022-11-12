@@ -108,13 +108,15 @@ class Coder():
                     f'operation: {operation}')
         
         op_internal_types = [self._internal_type(t) for t in op_types]
-        result_sql_type = operation['type']['type']
-        result_internal_type = self._internal_type(result_sql_type)
-        return f'fix_nulls(' +\
-            f'scale_columns([{left_op},{right_op}], {op_internal_types}),' +\
-            f'{op_name}(*' +\
-            f'scale_columns([{left_op},{right_op}], {op_internal_types})),' +\
-            f'"{result_internal_type}")'
+        # result_sql_type = operation['type']['type']
+        # result_internal_type = self._internal_type(result_sql_type)
+        # return f'fix_nulls(' +\
+            # f'scale_columns([{left_op},{right_op}], {op_internal_types}),' +\
+            # f'{op_name}(*' +\
+            # f'scale_columns([{left_op},{right_op}], {op_internal_types})),' +\
+            # f'"{result_internal_type}")'
+        return f'{op_name}(*scale_columns(' +\
+            f'[{left_op},{right_op}], {op_internal_types}))'
     
     def _case_code(self, operation):
         """ Generate code representing case statement.
@@ -529,6 +531,16 @@ class Coder():
         result = self._result_name(step['id'])
         parts = [f'{result} = {scan_code}']
         
+        col_types = step['outputType']['fields']
+        for col_idx, col_type in enumerate(col_types):
+            parts += [f'col = get_column({result},{col_idx})']
+            sql_type = col_type['type']
+            cast_type = self._internal_type(sql_type)
+            suffix = '_round' if cast_type == 'int' else ''
+            fct_name = f'cast_to_{cast_type}{suffix}'
+            parts += [f'col = {fct_name}(col)']
+            parts += [f'{result} = set_column({result},{col_idx},col)']
+        
         return '\n'.join(parts)
     
     def _LogicalValues(self, step):
@@ -720,16 +732,6 @@ class Coder():
         handler = f'_{rel_op}'
         parts += [getattr(self, handler)(step)]
         result = self._result_name(op_id)
-        
-        col_types = step['outputType']['fields']
-        for col_idx, col_type in enumerate(col_types):
-            parts += [f'col = get_column({result},{col_idx})']
-            sql_type = col_type['type']
-            cast_type = self._internal_type(sql_type)
-            suffix = '_round' if cast_type == 'int' else ''
-            fct_name = f'cast_to_{cast_type}{suffix}'
-            parts += [f'col = {fct_name}(col)']
-            parts += [f'{result} = set_column({result},{col_idx},col)']
         
         parts += [f'last_result = {result}']
         return '\n'.join(parts)
