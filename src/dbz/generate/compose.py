@@ -284,14 +284,18 @@ class Composer():
             old_checks += self.idx2checks[idx]
         old_checks.sort(key=lambda c:self._selectivity(c))
         nr_checks = len(old_checks)
+        works_until_id = self.task_order[self.works_until]
         
         passed = []
         for idx, old_check in enumerate(old_checks, 1):
             label = old_check['label']
-            self.logger.info(f'Trying old check {idx}/{nr_checks}:  {label}')
+            selectivity = self._selectivity(old_check)
             self.logger.info(
-                f'Best composition works until ' +\
-                f'task {self.works_until}/{self.nr_tasks}')
+                f'Trying old check {idx}/{nr_checks}: ' +\
+                f'{label} (selectivity: {selectivity})')
+            self.logger.info(
+                f'Best composition works until task {works_until_id} ' +\
+                f'({self.works_until}/{self.nr_tasks})')
             if self._check(candidate_comp, old_check):
                 passed += [old_check]
             else:
