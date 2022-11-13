@@ -305,20 +305,10 @@ class Composer():
         Returns:
             dictionary mapping task indexes to list of checks
         """
-        user_tasks = []
-        for task in self.tasks.gen_tasks:
-            fct_name = task['function_name']
-            fct_def = f'def {fct_name}('
-            if fct_def in self.pre_code:
-                task_id = task['task_id']
-                user_tasks += [task_id]
-        
         idx2checks = {}
         for task_idx in range(self.nr_tasks):
-            prior_tasks = user_tasks + [
-                self.task_order[i] for i in range(task_idx)]
-            next_tasks = user_tasks + [
-                self.task_order[i] for i in range(task_idx+1)]
+            prior_tasks = [self.task_order[i] for i in range(task_idx)]
+            next_tasks = [self.task_order[i] for i in range(task_idx+1)]
             prior_check_ids = self._applicable_checks(prior_tasks)
             next_check_ids = self._applicable_checks(next_tasks)
             new_check_ids = next_check_ids - prior_check_ids

@@ -14,11 +14,12 @@ import re
 class Tasks():
     """ Stores and analyzes generation and verification tasks. """
     
-    def __init__(self, config):
+    def __init__(self, config, pre_code):
         """ Loads and analyzes tasks.
         
         Args:
             config: JSON configuration file with task descriptions
+            pre_code: code prefix provided by users
         """
         self.logger = logging.getLogger('all')
         self.logger.info('Initializing Tasks')
@@ -26,13 +27,14 @@ class Tasks():
         test_access = self.config['test_access']
         data_dir = test_access['data_dir']
         self.paths = dbz.util.DbzPaths(
-            data_dir, includes='src/dbz/include/trace')
+            data_dir, includes='src/dbz/include/trace')        
         
         tasks = config['tasks']
         self.gen_tasks = [t for t in tasks if t['type'] == 'generate']
         self.id2task = {t['task_id']:t for t in self.gen_tasks}
         self._add_fct_names()
         self.check_tasks = self._check_tasks()
+        self._remove_user_tasks(pre_code)
     
     def _add_fct_names(self):
         """ Add names of generated functions to task descriptions. """
@@ -166,6 +168,31 @@ class Tasks():
                 return match.group(1)
         
         return None
+    
+    def _remove_user_tasks(self, pre_code):
+        """ Remove generation tasks solved by user code. 
+        
+        Args:
+            pre_code: code specified by users
+        """                
+        user_tasks = set()
+        for task in self.tasks.gen_tasks:
+            fct_name = task['function_name']
+            fct_def = f'def {fct_name}('
+            if fct_def in pre_code:
+                task_id = task['task_id']
+                user_tasks.add(task_id)
+        self.logger.info(f'Tasks Solved by User: {user_tasks}')
+        
+        self.gen_tasks = [
+            t for t in self.gen_tasks 
+            if t['task_id'] in user_tasks]
+        for check_task in self.check_tasks:
+            requirements = check_task['requirements']
+            requirements = [
+                r for r in requirements 
+                if r not in user_tasks]
+            check_task['requirements'] = requirements
         
     def _tracer_fct(self, fct_name, task_id):
         """ Write function for tracing required tasks. 

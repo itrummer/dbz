@@ -48,6 +48,7 @@ if __name__ == '__main__':
 
     prompt_code = load_referenced_code(custom['prompt_code_path'])
     custom_code = load_referenced_code(custom['custom_code_path'])
+    pre_code = prompt_code + '\n\n' + custom_code
     
     logging.basicConfig(level=int(args.log_level))
     logger = logging.getLogger('all')
@@ -59,7 +60,7 @@ if __name__ == '__main__':
     else:
         code_cache = {}
 
-    tasks = dbz.generate.task.Tasks(config)
+    tasks = dbz.generate.task.Tasks(config, pre_code)
     operators = dbz.generate.operator.Operators()
     # Substitutions: <Table>, <Column>, <TablePost>, <Null>, 
     # <BooleanField>, <IntegerField>, <FloatField>, <StringField> 
@@ -68,7 +69,6 @@ if __name__ == '__main__':
         operators, substitutions, prompt_code)
     miner = dbz.generate.mine.CodeMiner(
         operators, synthesizer, code_cache)
-    pre_code = prompt_code + '\n\n' + custom_code
     composer = dbz.generate.compose.Composer(
         config, operators, tasks, pre_code)
     debugger = dbz.generate.debug.Debugger(composer)
