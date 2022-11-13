@@ -176,7 +176,7 @@ class Tasks():
             pre_code: code specified by users
         """                
         user_tasks = set()
-        for task in self.tasks.gen_tasks:
+        for task in self.gen_tasks:
             fct_name = task['function_name']
             fct_def = f'def {fct_name}('
             if fct_def in pre_code:
