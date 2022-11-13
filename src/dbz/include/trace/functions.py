@@ -22,8 +22,8 @@ def cast_to_int_round(*args):
     cast_to_int()
 
 def round_column(*args):
+    nr_rows()
     fill_float_column()
-    scale_columns([], [])
     addition()
     floor()
     return []

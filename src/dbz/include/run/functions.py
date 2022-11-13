@@ -13,9 +13,9 @@ def same_content(path_1, path_2):
 
 def round_column(column):
     """ Map column to rounded values. """
-    value_05 = fill_float_column(0.5, 1)
-    scaled_cols = scale_columns([value_05, column], ['float', 'float'])
-    added = addition(*scaled_cols)
+    scale_to = nr_rows(column)
+    value_05 = fill_float_column(0.5, scale_to)
+    added = addition(column, value_05)
     floored = floor(added)
     return floored
 
