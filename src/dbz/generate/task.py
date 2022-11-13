@@ -186,7 +186,7 @@ class Tasks():
         
         self.gen_tasks = [
             t for t in self.gen_tasks 
-            if t['task_id'] in user_tasks]
+            if t['task_id'] not in user_tasks]
         for check_task in self.check_tasks:
             requirements = check_task['requirements']
             requirements = [
