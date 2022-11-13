@@ -135,7 +135,7 @@
 		"template":"nr_rows.py", "substitutions":{}},
 	{"type":"generate", "task_id":"is_null", "context":[],
 		"template":"is_null.py", "substitutions":{}},
-	{"type":"generate", "task_id":"multiplication", "context":[],
+	{"type":"generate", "task_id":"multiplication", "context":["floor"],
 		"template":"binary_expression.py", 
 		"substitutions":{"<binary_op>":"multiplication"}},
 
@@ -157,11 +157,11 @@
 	
 	{"type":"generate", "task_id":"substring", "context":[],
 		"template":"substring.py", "substitutions":{}},
-	{"type":"generate", "task_id":"addition", "context":[],
+	{"type":"generate", "task_id":"addition", "context":["floor"],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"addition"}},
-	{"type":"generate", "task_id":"subtraction", "context":[],
+	{"type":"generate", "task_id":"subtraction", "context":["floor"],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"subtraction"}},
-	{"type":"generate", "task_id":"division", "context":[],
+	{"type":"generate", "task_id":"division", "context":["floor"],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"division"}},
 	
 	{"type":"generate", "task_id":"filter", "context":[],
