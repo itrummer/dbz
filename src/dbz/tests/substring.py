@@ -6,5 +6,5 @@ Created on Nov 13, 2022
 c = fill_string_column('###This is a test####', 10)
 r = substring(c, 4, 14)
 t = create_table([r])
-write_to_csv('test_output/test.csv')
+write_to_csv(t, 'test_output/test.csv')
 assert same_content('test_output/test.csv', 'test_output/string.csv')
