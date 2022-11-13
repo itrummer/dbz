@@ -11,6 +11,7 @@ class Operators():
     def __init__(self):
         """ Initializes operator implementations. """
         self.ops_by_task = defaultdict(lambda:[])
+        self.known_normalized = set()
         self.code_temp = {}
     
     def add_op(self, task_id, code, temperature):
@@ -30,6 +31,8 @@ class Operators():
             self.code_temp[code] = next_temp
             return None
         else:
+            normalized_code = self._normalize(code)
+            self.known_normalized.add(normalized_code)
             self.code_temp[code] = temperature
             self.ops_by_task[task_id] += [code]
             return len(self.ops_by_task[task_id])-1
@@ -68,7 +71,22 @@ class Operators():
         Returns:
             True iff the code is new
         """
-        return code in self.code_temp
+        return self._normalize(code) in self.known_normalized
+
+    def _normalize(self, code):
+        """ Normalize code by removing comments and empty lines.
+        
+        Args:
+            code: code to normalize
+        
+        Returns:
+            normalized code version
+        """
+        code_lines = code.split('\n')
+        code_lines = filter(lambda l:l.lstrip(), code_lines)
+        code_lines = filter(lambda l:not l.lstrip().startswith('#'), code_lines)
+        return '\n'.join(code_lines)
+
 
 if __name__ == '__main__':
     

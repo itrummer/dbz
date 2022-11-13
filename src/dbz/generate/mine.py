@@ -62,7 +62,6 @@ class CodeMiner():
                     code = self.synthesizer.generate(
                         task, temperature, 
                         composition, use_context)
-                    code = self._normalize(code)
                     
                     if self.operators.is_known(code):
                         code = None
@@ -74,7 +73,6 @@ class CodeMiner():
                         break
             else:
                 code = self.synthesizer.generate(task, 0.0, composition)
-                code = self._normalize(code)
         
         if code is None:
             return None
@@ -84,20 +82,6 @@ class CodeMiner():
         
         self.logger.info(f'Mined code for task {task_id}:\n{code}')
         return self.operators.add_op(task_id, code, -1)
-    
-    def _normalize(self, code):
-        """ Normalize code by removing comments and empty lines.
-        
-        Args:
-            code: code to normalize
-        
-        Returns:
-            normalized code version
-        """
-        code_lines = code.split('\n')
-        code_lines = filter(lambda l:l.lstrip(), code_lines)
-        code_lines = filter(lambda l:not l.lstrip().startswith('#'), code_lines)
-        return '\n'.join(code_lines)
 
 
 if __name__ == '__main__':

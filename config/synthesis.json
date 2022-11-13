@@ -157,11 +157,11 @@
 	
 	{"type":"generate", "task_id":"substring", "context":[],
 		"template":"substring.py", "substitutions":{}},
-	{"type":"generate", "task_id":"addition", "context":["floor"],
+	{"type":"generate", "task_id":"addition", "context":["multiplication"],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"addition"}},
-	{"type":"generate", "task_id":"subtraction", "context":["floor"],
+	{"type":"generate", "task_id":"subtraction", "context":["multiplication"],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"subtraction"}},
-	{"type":"generate", "task_id":"division", "context":["floor"],
+	{"type":"generate", "task_id":"division", "context":["multiplication"],
 		"template":"binary_expression.py", "substitutions":{"<binary_op>":"division"}},
 	
 	{"type":"generate", "task_id":"filter", "context":[],
