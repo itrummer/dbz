@@ -188,10 +188,10 @@
 	{"type":"generate", "task_id":"and", "context":[], 
 		"template":"boolean_compound.py", 
 		"substitutions":{"<operator>":"and"}},
-	{"type":"generate", "task_id":"or", "context":[], 
+	{"type":"generate", "task_id":"or", "context":["and"], 
 		"template":"boolean_compound.py", 
 		"substitutions":{"<operator>":"or"}},
-	{"type":"generate", "task_id":"not", "context":[], 
+	{"type":"generate", "task_id":"not", "context":["and"], 
 		"template":"not.py", "substitutions":{}},
 	
 	{"type":"generate", "task_id":"sum", "context":[], 
