@@ -111,10 +111,6 @@ if __name__ == '__main__':
                 if success:
                     break
             
-        if round_ctr % 10 == 0:
-            code = composer.final_code()
-            logger.info(f'Current Library:\n{code}')
-                    
         sql_engine = composer.all_code()
         sql_engine_path = os.path.join(sys_code_dir, 'sql_engine.py')
         with open(sql_engine_path, 'w') as file:
