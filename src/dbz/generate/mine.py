@@ -4,30 +4,31 @@ Created on Sep 25, 2022
 @author: immanueltrummer
 '''
 import logging
+import os.path
 
 
 class CodeMiner():
     """ Mines code using GPT-3 Codex-based code synthesizer. """
     
     def __init__(
-            self, operators, synthesizer, 
-            code_cache, nr_levels=4, nr_samples=10):
+            self, operators, user_code_dir, 
+            synthesizer, code_cache, nr_levels=4):
         """ Initializes for given synthesizer.
         
         Args:
             operators: keeps track of generated operators
+            user_code_dir: directory containing user code
             synthesizer: used to generate operator code
             code_cache: maps prompts to lists of generated code
             nr_levels: how many temperature levels to consider
-            nr_samples: try to limit to this number of samples
         """
         self.logger = logging.getLogger('all')
         self.operators = operators
+        self.user_code_dir = user_code_dir
         self.synthesizer = synthesizer
         self.code_cache = code_cache
         
         self.nr_levels = nr_levels
-        self.nr_samples = nr_samples
         temperature_delta = 1.0 / nr_levels
         self.logger.debug(f'Temperature Delta: {temperature_delta}')
         self.temperatures = [
@@ -45,8 +46,50 @@ class CodeMiner():
             ID of newly generated code in operator library or None
         """
         task_id = task['task_id']
+        code = self._get_user_code(task_id)
+        
+        if code is None or self.operators.is_known(code):
+            
+            prompt, code = self._synthesize_code(task, composition)
+            if code is None:
+                return None
+            
+            prior_cached = self.code_cache.get(prompt, [])
+            self.code_cache[prompt] = prior_cached + [code]
+        
+        self.logger.info(f'Mined Code for Task {task_id}:\n{code}')
+        return self.operators.add_op(task_id, code, -1)
+    
+    def _get_user_code(self, task_id):
+        """ Try to retrieve user-specified code for task.
+        
+        Args:
+            task_id: ID of generation task
+        
+        Returns:
+            code specified by user or None
+        """
+        file_name = f'{task_id}.py'
+        full_path = os.path.join(self.user_code_dir, file_name)
+        try:
+            with open(full_path) as file:
+                code = file.read()
+                return code
+        except:
+            return None
+    
+    def _synthesize_code(self, task, composition):
+        """ Try to mine code via code synthesis. 
+        
+        Args:
+            task: description of generation task
+            composition: maps tasks to operator IDs
+        
+        Returns:
+            Prompt used, newly synthesized code (or None)
+        """
         prompt, _ = self.synthesizer.task_prompt(task, composition)
-        self.logger.info(f'Mining with Prompt:---\n{prompt}\n---\n')
+        self.logger.info(f'Mining with Prompt:\n---\n{prompt}\n---\n')
         cached = self.code_cache.get(prompt, [])
         code = next((c for c in cached if not self.operators.is_known(c)), None)
         
@@ -57,7 +100,7 @@ class CodeMiner():
                 synthesis_options += [(temperature, use_context)]
         
         if code is None:
-            if self.operators.get_ids(task_id):
+            if self.operators.nr_synthesized():
                 for temperature, use_context in synthesis_options:
                     code = self.synthesizer.generate(
                         task, temperature, 
@@ -74,14 +117,7 @@ class CodeMiner():
             else:
                 code = self.synthesizer.generate(task, 0.0, composition)
         
-        if code is None:
-            return None
-        
-        prior_cached = self.code_cache.get(prompt, [])
-        self.code_cache[prompt] = prior_cached + [code]
-        
-        self.logger.info(f'Mined code for task {task_id}:\n{code}')
-        return self.operators.add_op(task_id, code, -1)
+        return prompt, code
 
 
 if __name__ == '__main__':

@@ -59,6 +59,14 @@ class Composer():
         self.validator = dbz.execute.check.Validator(
             self.paths, self.sql_ref)        
     
+    def all_code(self):
+        """ Retrieves code for all operators. 
+        
+        Returns:
+            Code implementing operators of SQL execution engine
+        """
+        return self._composition_code(self.composition)
+    
     def failure_info(self):
         """ Returns information on last failure. 
         
@@ -82,17 +90,6 @@ class Composer():
             True if a working SQL engine was generated
         """
         return self.works_until == self.nr_tasks - 1
-    
-    def final_code(self):
-        """ Retrieves code for complete SQL engine. 
-        
-        Call only after composition is finished!
-        
-        Returns:
-            Code implementing operators of SQL execution engine
-        """
-        #assert self.finished(), 'No valid engine generated yet'
-        return self._composition_code(self.composition)
     
     def update(self, updated_task_id, new_code_id):
         """ Try new code candidate to improve current composition. 

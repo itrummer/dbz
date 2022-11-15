@@ -23,6 +23,7 @@ if __name__ == '__main__':
     parser.add_argument('custom', type=str, help='Path to customization file')
     parser.add_argument('log_level', type=str, help='Set logging level')
     parser.add_argument('code_cache', type=str, help='Path to code cache')
+    parser.add_argument('operators_dir', type=str, help='Path to operators')
     args = parser.parse_args()
     
     openai.api_key = args.ai_key
@@ -60,6 +61,9 @@ if __name__ == '__main__':
     else:
         code_cache = {}
 
+    sys_code_dir = os.path.join(args.operators_dir, 'system')
+    user_code_dir = os.path.join(args.operators_dir, 'user')
+
     tasks = dbz.generate.task.Tasks(config, pre_code)
     operators = dbz.generate.operator.Operators()
     # Substitutions: <Table>, <Column>, <TablePost>, <Null>, 
@@ -68,7 +72,7 @@ if __name__ == '__main__':
     synthesizer = dbz.generate.synthesize.Synthesizer(
         operators, substitutions, prompt_code)
     miner = dbz.generate.mine.CodeMiner(
-        operators, synthesizer, code_cache)
+        operators, user_code_dir, synthesizer, code_cache)
     composer = dbz.generate.compose.Composer(
         config, operators, tasks, pre_code)
     debugger = dbz.generate.debug.Debugger(composer)
@@ -110,8 +114,10 @@ if __name__ == '__main__':
         if round_ctr % 10 == 0:
             code = composer.final_code()
             logger.info(f'Current Library:\n{code}')
-    
+                    
+        sql_engine = composer.all_code()
+        sql_engine_path = os.path.join(sys_code_dir, 'sql_engine.py')
+        with open(sql_engine_path, 'w') as file:
+            file.write(sql_engine)
+
     print('Process complete.')
-    sql_engine = composer.final_code()
-    with open('sql_engine.py', 'w') as file:
-        file.write(sql_engine)
