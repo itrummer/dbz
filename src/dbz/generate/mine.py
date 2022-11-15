@@ -32,7 +32,7 @@ class CodeMiner():
         temperature_delta = 1.0 / nr_levels
         self.logger.debug(f'Temperature Delta: {temperature_delta}')
         self.temperatures = [
-            temperature_delta * s for s in range(1, nr_levels+1)]
+            temperature_delta * s for s in range(0, nr_levels+1)]
         self.logger.info(f'Temperatures Considered: {self.temperatures}')
     
     def mine(self, task, composition):
@@ -58,7 +58,7 @@ class CodeMiner():
             self.code_cache[prompt] = prior_cached + [code]
         
         self.logger.info(f'Mined Code for Task {task_id}:\n{code}')
-        return self.operators.add_op(task_id, code, -1)
+        return self.operators.add_op(task_id, code)
     
     def _get_user_code(self, task_id):
         """ Try to retrieve user-specified code for task.
@@ -100,22 +100,19 @@ class CodeMiner():
                 synthesis_options += [(temperature, use_context)]
         
         if code is None:
-            if self.operators.nr_synthesized():
-                for temperature, use_context in synthesis_options:
-                    code = self.synthesizer.generate(
-                        task, temperature, 
-                        composition, use_context)
-                    
-                    if self.operators.is_known(code):
-                        code = None
-                    else:
-                        t_info = f'temperature: {temperature}'
-                        c_info = f'use_context: {use_context}'
-                        self.logger.info(
-                            f'New code found using {t_info}; {c_info}')
-                        break
-            else:
-                code = self.synthesizer.generate(task, 0.0, composition)
+            for temperature, use_context in synthesis_options:
+                code = self.synthesizer.generate(
+                    task, temperature, 
+                    composition, use_context)
+                
+                if self.operators.is_known(code):
+                    code = None
+                else:
+                    t_info = f'temperature: {temperature}'
+                    c_info = f'use_context: {use_context}'
+                    self.logger.info(
+                        f'New code found using {t_info}; {c_info}')
+                    break
         
         return prompt, code
 
