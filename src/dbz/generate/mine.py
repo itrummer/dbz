@@ -48,7 +48,7 @@ class CodeMiner():
         task_id = task['task_id']
         code = self._get_user_code(task_id)
         
-        if code is None or self.operators.is_known(code):
+        if code is None:
             
             prompt, code = self._synthesize_code(task, composition)
             if code is None:

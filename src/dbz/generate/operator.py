@@ -12,7 +12,7 @@ class Operators():
     def __init__(self):
         """ Initializes operator implementations. """
         self.tid2ops = defaultdict(lambda:[])
-        self.normalized_codes = set()
+        self.normalized2id = {}
     
     def add_op(self, task_id, code):
         """ Adds operator implementation.
@@ -28,9 +28,22 @@ class Operators():
             return None
         else:
             normalized_code = self._normalize(code)
-            self.normalized_codes.add(normalized_code)
+            new_op_id = len(self.tid2ops[task_id])
+            self.normalized2id[normalized_code] = new_op_id
             self.tid2ops[task_id] += [code]
-            return len(self.tid2ops[task_id])-1
+            return new_op_id
+    
+    def get_code_id(self, code):
+        """ Retrieves ID of known code. 
+        
+        Args:
+            code: look up ID for this code (non-normalized)
+        
+        Returns:
+            ID of known code
+        """
+        normalized_code = self._normalize(code)
+        return self.normalized2id[normalized_code]
     
     def get_ids(self, task_id):
         """ Retrieves IDs of operator implementations.
@@ -65,7 +78,7 @@ class Operators():
         Returns:
             True iff the code is new
         """
-        return self._normalize(code) in self.normalized_codes
+        return self._normalize(code) in self.normalized2id
 
     def _normalize(self, code):
         """ Normalize code by removing comments and empty lines.
