@@ -82,10 +82,10 @@ class Synthesizer():
         if use_context:
             context = task['context']
             for c in context:
-                ops_tmp = self.operators.get_ops(c)
+                ops = self.operators.get_ops(c)
                 op_idx = composition[c]
-                op_tmp = ops_tmp[op_idx]
-                parts += [op_tmp[0]]
+                op = ops[op_idx]
+                parts += [op]
         
         file = task['template']
         substitutions = {**task['substitutions'], **self.def_substitutions}
