@@ -20,4 +20,3 @@ def left_outer_join(table_1, table_2, nr_cols_2, key_cols_1, key_cols_2):
     Returns:
         <Table>.
     """
-    def index(
