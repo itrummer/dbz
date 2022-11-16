@@ -218,11 +218,11 @@
 	
 	{"type":"generate", "task_id":"equi_join", "context":[],
 		"template":"inner_join.py", "substitutions":{}},
-	{"type":"generate", "task_id":"cross_product", "context":[],
+	{"type":"generate", "task_id":"cross_product", "context":["equi_join"],
 		"template":"cross_product.py", "substitutions":{}},
-	{"type":"generate", "task_id":"left_join", "context":[], 
+	{"type":"generate", "task_id":"left_join", "context":["equi_join"], 
 		"template":"left_join.py", "substitutions":{}},
-	{"type":"generate", "task_id":"right_join", "context":[], 
+	{"type":"generate", "task_id":"right_join", "context":["equi_join"], 
 		"template":"right_join.py", "substitutions":{}}
 	]
 }
