@@ -128,7 +128,7 @@ def grouped_count(table, groups, operands, distinct):
         grouped_tbl = group_by_sum(in_table, count_nr_idx, in_groups + in_ops)
         dup_cnt = get_column(grouped_tbl, count_nr_idx)
         ones = fill_int_column(1, nr_rows(dup_cnt))
-        no_dup_cnt = calculate_min(dup_cnt, ones)
+        no_dup_cnt = if_else(less_than(dup_cnt, ones), dup_cnt, ones)
         grouped_tbl = set_column(grouped_tbl, count_nr_idx, no_dup_cnt)
         return group_by_sum(grouped_tbl, count_nr_idx, in_groups)
     else:
