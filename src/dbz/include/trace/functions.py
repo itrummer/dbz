@@ -98,6 +98,7 @@ def grouped_count(*args):
     group_by_sum()
     set_column()
     group_by_sum()
+    calculate_min()
     return []
 
 def multiply_by_scalar(*args):
