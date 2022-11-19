@@ -35,7 +35,7 @@ if __name__ == '__main__':
     paths = dbz.util.DbzPaths(data_dir)
     python_path = test_access['python']
     engine = dbz.execute.engine.DbzEngine(
-        paths, operators, python_path)
+        paths, operators, python_path, True)
         
     queries = benchmark['queries']
     nr_queries = len(queries)
