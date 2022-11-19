@@ -724,8 +724,11 @@ class Coder():
         """
         op_id = step['id']
         rel_op = step['relOp']
+        label = f'# Operation ID: {op_id}; Operator: {rel_op}'
+        print(label)
+         
         parts = []
-        parts += [f'# Operation ID: {op_id}; Operator: {rel_op}']
+        parts += [label]
         inputs = [self._result_name(in_) for in_ in step['inputs']]
         for idx, in_code in enumerate(inputs, 1):
             parts += [f'in_rel_{idx} = {in_code}']
