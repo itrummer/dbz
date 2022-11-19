@@ -11,6 +11,7 @@ import logging
 import pandas as pd
 import psycopg2
 import subprocess
+import time
 
 
 class Engine(abc.ABC):
@@ -33,22 +34,26 @@ class Engine(abc.ABC):
 class DbzEngine(Engine):
     """ Executes given query plans. """
     
-    def __init__(self, paths, library, python_path):
+    def __init__(self, paths, library, python_path, collect_stats=False):
         """ Initializes with given paths.
         
         Args:
             paths: relevant paths for DB-zero
             library: library with operator code
             python_path: path to Python executable
+            collect_stats: whether to collect performance statistics
         """
         self.logger = logging.getLogger('all')
         self.paths = paths
         self.library = library
         self.python_path = python_path
+        self.collect_stats = collect_stats
+        
         self.planner = dbz.execute.plan.Planner(
             paths.schema, paths.planner, 
             paths.tmp_dir)
         self.coder = dbz.execute.code.Coder(paths, True)
+        self.stats = []
     
     def add_context(self, query_code, out_path=None):
         """ Add context to given piece of code.
@@ -81,8 +86,17 @@ class DbzEngine(Engine):
         Returns:
             true iff execution succeeds
         """
+        start_s = time.time()
         code = self.sql2code(sql, out)
-        return self.run(code)
+        plan_s = time.time() - start_s
+        success = self.run(code)
+        total_s = time.time() - start_s
+        if self.collect_stats:
+            self.stats += [{
+                "query":sql, "success":success, 
+                "planning_s":plan_s, "total_s":total_s
+            }]
+        return success
     
     def run(self, code):
         """ Execute given Python code.
