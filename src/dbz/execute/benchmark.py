@@ -4,6 +4,7 @@ Created on Nov 18, 2022
 @author: immanueltrummer
 '''
 import argparse
+import dbz.execute.check
 import dbz.execute.engine
 import dbz.util
 import json
@@ -22,13 +23,13 @@ if __name__ == '__main__':
     with open(args.engine) as file:
         operators = file.read()
         
-    # sql_ref_info = benchmark['sql_ref']
-    # pg_db = sql_ref_info['pg_db']
-    # pg_user = sql_ref_info['pg_user']
-    # pg_pwd = sql_ref_info['pg_pwd']
-    # pg_host = sql_ref_info['host']
-    # sql_ref = dbz.execute.engine.PgEngine(
-        # pg_db, pg_user, pg_pwd, pg_host)
+    sql_ref_info = benchmark['sql_ref']
+    pg_db = sql_ref_info['pg_db']
+    pg_user = sql_ref_info['pg_user']
+    pg_pwd = sql_ref_info['pg_pwd']
+    pg_host = sql_ref_info['host']
+    sql_ref = dbz.execute.engine.PgEngine(
+        pg_db, pg_user, pg_pwd, pg_host)
         
     test_access = benchmark['test_access']
     data_dir = test_access['data_dir']
@@ -36,7 +37,8 @@ if __name__ == '__main__':
     python_path = test_access['python']
     engine = dbz.execute.engine.DbzEngine(
         paths, operators, python_path, True)
-        
+
+    validator = dbz.execute.check.Validator(paths, sql_ref)        
     queries = benchmark['queries']
     nr_queries = len(queries)
     
@@ -45,6 +47,13 @@ if __name__ == '__main__':
         out_path = os.path.join(paths.tmp_dir, f'out{q_idx}')
         success = engine.execute(query, out_path)
         print(f'Execution Successful: {success}')
+        
+        if success:
+            print('Validating query result via reference engine.')
+            check = {'type':'sql', 'query':query}
+            valid = validator.validate(engine, check)
+            if not valid:
+                raise Exception('Validation not successful!')
 
     results = {"benchmark":benchmark, "results":engine.stats}
     with open('benchmark_results.json', 'w') as file:

@@ -63,37 +63,6 @@ class Tasks():
         exec(trace_code, {'requirements':requirements})
         check_task['requirements'] = requirements
     
-    def _add_rounding(self, check_task):
-        """ Add instructions for rounding before comparing results.
-        
-        Add rounding according to TPC-H specifications.
-        
-        Args:
-            check_task: describes test to perform
-        """
-        assert check_task['type'] == 'sql'
-        query = check_task['query'].lower()
-        first_select = query.split(' from ')[0]
-        result_items = first_select.split(',')
-        
-        within_USD_100_cols = [
-            i for i, s in enumerate(result_items) 
-            if not 'sum(l_quantity)' in s and 
-            not 'then 1 else 0 end' in s and 
-            'sum(' in s]
-        within_1_percent_cols = [
-            i for i, s in enumerate(result_items)
-            if 'avg(' in s or ' / ' in s]
-        
-        rounding = []
-        rounding += [{
-            "type":"absolute", "tolerance":100, 
-            "columns":within_USD_100_cols}]
-        rounding += [{
-            "type":"relative", "tolerance":0.01,
-            "columns":within_1_percent_cols}]
-        check_task['rounding'] = rounding
-    
     def _check_tasks(self):
         """ Generate list of checks with associated requirements. 
                 
@@ -110,7 +79,6 @@ class Tasks():
             check_task = {'query':sql, 'type':'sql', 'label':label}
             trace_code = engine.sql2code(sql, 'dummy_path')
             self._add_requirements(check_task, trace_code)
-            self._add_rounding(check_task)
             check_tasks += [check_task]
             print(f'SQL Check: {check_task}')
         

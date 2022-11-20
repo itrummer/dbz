@@ -45,7 +45,7 @@ class Validator():
             return self._sql_check(engine, check)
         else:
             return self._code_check(engine, check)
-
+    
     def _check_row_order(self, check):
         """ Determines whether check entails verifying the order of rows.
         
@@ -74,6 +74,41 @@ class Validator():
         code = check['code']
         code = engine.add_context(code)
         return engine.run(code)
+    
+    def _rounding(self, check_task):
+        """ Create instructions for rounding before comparing results.
+        
+        Add rounding according to TPC-H specifications.
+        
+        Args:
+            check_task: describes test to perform
+        
+        Returns:
+            a dictionary containing rounding instructions
+        """
+        assert check_task['type'] == 'sql'
+        query = check_task['query'].lower()
+        first_select = query.split(' from ')[0]
+        result_items = first_select.split(',')
+        
+        within_USD_100_cols = [
+            i for i, s in enumerate(result_items) 
+            if not 'sum(l_quantity)' in s and 
+            not 'then 1 else 0 end' in s and 
+            'sum(' in s]
+        within_1_percent_cols = [
+            i for i, s in enumerate(result_items)
+            if 'avg(' in s or ' / ' in s]
+        
+        rounding = []
+        rounding += [{
+            "type":"absolute", "tolerance":100, 
+            "columns":within_USD_100_cols}]
+        rounding += [{
+            "type":"relative", "tolerance":0.01,
+            "columns":within_1_percent_cols}]
+        
+        return rounding
     
     def _round_dfs(self, check_df, ref_df, round_how):
         """ Rounds test and reference data as per instructions.
@@ -126,8 +161,7 @@ class Validator():
             
             ref_success = self.sql_ref.execute(query, ref_path)
             if not ref_success:
-                print('Execution failed for reference engine - this should not happen!')
-                return False
+                raise Exception('Execution failed for reference engine!')
             
             success = engine.execute(query, check_path)
             print(f'Execution successful: {success}')
@@ -153,10 +187,10 @@ class Validator():
             check_df = pd.read_csv(check_path, header=None)
             ref_df = pd.read_csv(ref_path, header=None)
             
-            if 'rounding' in check:
-                for round_how in check['rounding']:
-                    check_df, ref_df = self._round_dfs(
-                        check_df, ref_df, round_how)
+            rounding = self._rounding(check)
+            for round_how in rounding:
+                check_df, ref_df = self._round_dfs(
+                    check_df, ref_df, round_how)
                             
             check_path = self._write_rounded(check_df, check_path)
             ref_path = self._write_rounded(ref_df, ref_path)
