@@ -8,7 +8,6 @@ import dbz.execute.check
 import dbz.execute.engine
 import dbz.util
 import json
-import os.path
 
 
 if __name__ == '__main__':
@@ -29,13 +28,13 @@ if __name__ == '__main__':
     pg_pwd = sql_ref_info['pg_pwd']
     pg_host = sql_ref_info['host']
     sql_ref = dbz.execute.engine.PgEngine(
-        pg_db, pg_user, pg_pwd, pg_host)
+        pg_db, pg_user, pg_pwd, pg_host, True)
         
     test_access = benchmark['test_access']
     data_dir = test_access['data_dir']
     paths = dbz.util.DbzPaths(data_dir)
     python_path = test_access['python']
-    engine = dbz.execute.engine.DbzEngine(
+    engine_to_benchmark = dbz.execute.engine.DbzEngine(
         paths, operators, python_path, True)
 
     validator = dbz.execute.check.Validator(paths, sql_ref)        
@@ -44,24 +43,20 @@ if __name__ == '__main__':
     
     for q_idx, query in enumerate(queries, 1):
         print(f'Executing Query {q_idx}/{nr_queries}: {query}')
-        out_path = os.path.join(paths.tmp_dir, f'out{q_idx}')
-        success = engine.execute(query, out_path)
-        print(f'Execution Successful: {success}')
-        
-        if success:
-            print('Validating query result via reference engine.')
-            check = {'type':'sql', 'query':query}
-            valid = validator.validate(engine, check)
-            if not valid:
-                raise Exception('Validation not successful!')
+        check = {'type':'sql', 'query':query}
+        valid = validator.validate(engine_to_benchmark, check)
+        if not valid:
+            raise Exception('Validation not successful!')
 
-    results = {"benchmark":benchmark, "results":engine.stats}
+    results = {
+        "benchmark":benchmark, 
+        "test_results":engine_to_benchmark.stats,
+        "ref_results":sql_ref.stats}
     with open('benchmark_results.json', 'w') as file:
         json.dump(results, file)
     
-    print('plan_s\ttotal_s\tsuccess')
-    for stats in engine.stats:
-        plan_s = stats['planning_s']
-        total_s = stats['total_s']
-        success = stats['success']
-        print(f'{plan_s}\t{total_s}\t{success}')
+    print('Results for test engine:')
+    engine_to_benchmark.print_stats()
+    print('---')
+    print('Results for reference engine:')
+    sql_ref.print_stats()

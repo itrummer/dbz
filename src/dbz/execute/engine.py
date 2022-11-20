@@ -17,6 +17,15 @@ import time
 class Engine(abc.ABC):
     """ An engine processes SQL queries. """
     
+    def __init__(self, collect_stats):
+        """ Initialize engine.
+        
+        Args:
+            collect_stats: whether to collect execution statistics
+        """
+        self.collect_stats = collect_stats
+        self.stats = []
+    
     @abc.abstractclassmethod
     def execute(self, sql, out):
         """ Executes given query and writes out result. 
@@ -29,6 +38,30 @@ class Engine(abc.ABC):
             True iff execution succeeds
         """
         raise NotImplementedError()
+    
+    def print_stats(self):
+        """ Print out execution statistics. """
+        print('plan_s\ttotal_s\tsuccess')
+        for stats in self.stats:
+            plan_s = stats['planning_s']
+            total_s = stats['total_s']
+            success = stats['success']
+            print(f'{plan_s}\t{total_s}\t{success}')
+    
+    def _record_stats(self, query, success, plan_s=-1, total_s=-1):
+        """ Records execution statistics if corresponding flag is enabled. 
+        
+        Args:
+            query: this SQL query was executed
+            success: whether query execution was successful
+            plan_s: seconds spent in query planning
+            total_s: total seconds spent in query evaluation
+        """
+        if self.collect_stats:
+            self.stats += [{
+                "query":query, "success":success, 
+                "planning_s":plan_s, "total_s":total_s
+            }]
 
 
 class DbzEngine(Engine):
@@ -43,17 +76,16 @@ class DbzEngine(Engine):
             python_path: path to Python executable
             collect_stats: whether to collect performance statistics
         """
+        super().__init__(collect_stats)
         self.logger = logging.getLogger('all')
         self.paths = paths
         self.library = library
         self.python_path = python_path
-        self.collect_stats = collect_stats
         
         self.planner = dbz.execute.plan.Planner(
             paths.schema, paths.planner, 
             paths.tmp_dir)
         self.coder = dbz.execute.code.Coder(paths, True)
-        self.stats = []
     
     def add_context(self, query_code, out_path=None):
         """ Add context to given piece of code.
@@ -91,11 +123,7 @@ class DbzEngine(Engine):
         plan_s = time.time() - start_s
         success = self.run(code)
         total_s = time.time() - start_s
-        if self.collect_stats:
-            self.stats += [{
-                "query":sql, "success":success, 
-                "planning_s":plan_s, "total_s":total_s
-            }]
+        self._record_stats(sql, success, plan_s, total_s)
         return success
     
     def run(self, code):
@@ -151,7 +179,7 @@ class DbzEngine(Engine):
 class PgEngine(Engine):
     """ Executes queries using Postgres. """
     
-    def __init__(self, db, user, pwd, host):
+    def __init__(self, db, user, pwd, host, collect_stats=False):
         """ Initializes Postgres database access. 
         
         Args:
@@ -159,7 +187,9 @@ class PgEngine(Engine):
             user: name of Postgres user
             pwd: password for Postgres database
             host: Postgres host path
+            collect_stats: whether to record execution statistics
         """
+        super().__init__(collect_stats)
         self.db = db
         self.user = user
         self.pwd = pwd
@@ -176,8 +206,11 @@ class PgEngine(Engine):
             with psycopg2.connect(
                 database=self.db, user=self.user, 
                 password=self.pwd, host=self.host) as connection:
+                start_s = time.time()
                 result = pd.read_sql_query(sql, connection)
                 result.to_csv(out, index=False, header=None)
+                total_s = time.time() - start_s
+                self._record_stats(sql, True, total_s=total_s)
                 return True
         except Exception as e:
             print(f'Exception while processing SQL query: {e}')
