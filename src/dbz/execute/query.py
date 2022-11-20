@@ -5,6 +5,99 @@ Created on Mar 11, 2022
 '''
 import datetime
 import re
+import sqlglot.expressions
+
+
+class Rewriter():
+    """ Rewrites queries for better performance. """
+    
+    def rewrite(self, query):
+        """ Rewrite input query.
+        
+        Args:
+            query: an SQL query
+        
+        Returns:
+            rewritten query
+        """
+        parsed = sqlglot.parse_one(query)
+        where = parsed.args.get('where', None)
+        if where is not None:
+            where_pred = where.args['this']
+            disjuncts = self._disjuncts(where_pred)
+            if len(disjuncts) > 1:
+                common = set(self._conjuncts(disjuncts[0]))
+                for disjunct in disjuncts[1:]:
+                    conjuncts = set(self._conjuncts(disjunct))
+                    common = common.intersection(conjuncts)
+                
+                where_items = list(common) + [where_pred]
+                new_where = self._conjunction(where_items)
+                parsed.args['where'].args['this'] = new_where
+        return parsed.sql()
+    
+    def _binary_operands(self, expression):
+        """ Decompose binary expression into operands.
+        
+        Args:
+            expression: binary expression
+        
+        Returns:
+            list of operand expressions
+        """
+        return [expression.args['this']] + [expression.args['expression']]
+    
+    def _conjunction(self, predicates):
+        """ Create conjunction of multiple predicates. 
+        
+        Args:
+            predicates: a list of predicates
+        
+        Returns:
+            a conjunction of input predicates
+        """
+        nr_predicates = len(predicates)
+        if nr_predicates == 0:
+            return sqlglot.parse_one('True')
+        else:
+            conjunction_sql = ' and '.join([f'({p.sql()})' for p in predicates])
+            return sqlglot.parse_one(conjunction_sql)
+    
+    def _conjuncts(self, predicate):
+        """ Extracts conjuncts from predicate.
+        
+        Args:
+            predicate: parsed predicate
+        
+        Returns:
+            list of conjuncts
+        """
+        if isinstance(predicate, sqlglot.expressions.And):
+            operands = self._binary_operands(predicate)
+            return [c for op in operands for c in self._conjuncts(op)]
+        elif isinstance(predicate, sqlglot.expressions.Paren):
+            operand = predicate.args['this']
+            return self._conjuncts(operand)
+        else:
+            return [predicate.copy()]
+    
+    def _disjuncts(self, predicate):
+        """ Extracts disjuncts from predicate.
+        
+        Args:
+            predicate: parsed predicate
+        
+        Returns:
+            list of disjuncts
+        """
+        if isinstance(predicate, sqlglot.expressions.Or):
+            operands = self._binary_operands(predicate)
+            return [d for op in operands for d in self._disjuncts(op)]
+        elif isinstance(predicate, sqlglot.expressions.Paren):
+            operand = predicate.args['this']
+            return self._disjuncts(operand)
+        else:
+            return [predicate.copy()]
 
 
 def clean(query):
@@ -132,4 +225,13 @@ def simplify(query):
         new_avg = f'avg(cast ({avg_op} as float))'
         query = query.replace(old_avg, new_avg)
     
-    return query
+    # TODO: move all simplifications into rewriter
+    rewriter = Rewriter()
+    return rewriter.rewrite(query)
+
+
+if __name__ == '__main__':
+    rewriter = Rewriter()
+    query = "select sum(l_extendedprice* (1 - l_discount)) as revenue from lineitem, part where ( p_partkey = l_partkey and p_brand = 'Brand#12' and p_container in ('SM CASE', 'SM BOX', 'SM PACK', 'SM PKG') and l_quantity >= 1 and l_quantity <= 1 + 10 and p_size between 1 and 5 and l_shipmode in ('AIR', 'AIR REG') and l_shipinstruct = 'DELIVER IN PERSON' ) or ( p_partkey = l_partkey and p_brand = 'Brand#23' and p_container in ('MED BAG', 'MED BOX', 'MED PKG', 'MED PACK') and l_quantity >= 10 and l_quantity <= 10 + 10 and p_size between 1 and 10 and l_shipmode in ('AIR', 'AIR REG') and l_shipinstruct = 'DELIVER IN PERSON' ) or ( p_partkey = l_partkey and p_brand = 'Brand#34' and p_container in ('LG CASE', 'LG BOX', 'LG PACK', 'LG PKG') and l_quantity >= 20 and l_quantity <= 20 + 10 and p_size between 1 and 15 and l_shipmode in ('AIR', 'AIR REG') and l_shipinstruct = 'DELIVER IN PERSON' )"
+    rewritten = rewriter.rewrite(query)
+    print(rewritten)
