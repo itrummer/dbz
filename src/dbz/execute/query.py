@@ -37,6 +37,7 @@ class Rewriter():
         
         query = parsed.sql()
         query = self._fix_dates(query)
+        query = self._strip_trailing_zeros(query)
         return query
     
     def _binary_operands(self, expression):
@@ -117,6 +118,24 @@ class Rewriter():
             replace_by = f"date '{date}'"
             query = query.replace(to_replace, replace_by)
 
+        return query
+    
+    def _strip_trailing_zeros(self, query):
+        """ Remove trailing zeros from float constants. 
+        
+        Args:
+            query: SQL query as string
+        
+        Returns:
+            SQL query without trailing zeros in float constants
+        """
+        floats = re.findall('(\d*\.\d*)0*', query)
+        for to_replace in floats:
+            replace_by = to_replace
+            while replace_by.endswith('0'):
+                replace_by = replace_by[:-1]
+            
+            query = query.replace(to_replace, replace_by)
         return query
 
 
