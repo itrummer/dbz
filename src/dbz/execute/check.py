@@ -125,7 +125,7 @@ class Validator():
             # Sort by all columns if no order specified
             order_names = query_info.order_names
             if not order_names:
-                return list(nr_result_cols)
+                return list(range(nr_result_cols))
             else:
                 # Do we know names of all select items?
                 select_names = query_info.select_names
