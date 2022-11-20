@@ -50,8 +50,9 @@ if __name__ == '__main__':
     with open('benchmark_results.json', 'w') as file:
         json.dump(results, file)
     
-    print('plan_s\ttotal_s')
+    print('plan_s\ttotal_s\tsuccess')
     for stats in engine.stats:
         plan_s = stats['planning_s']
         total_s = stats['total_s']
-        print(f'{plan_s}\t{total_s}')
+        success = stats['success']
+        print(f'{plan_s}\t{total_s}\t{success}')
