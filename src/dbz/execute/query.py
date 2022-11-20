@@ -227,7 +227,9 @@ def simplify(query):
     
     # TODO: move all simplifications into rewriter
     rewriter = Rewriter()
-    return rewriter.rewrite(query)
+    rewritten = rewriter.rewrite(query)
+    print(f'Rewritten Query: {rewritten}')
+    return rewritten
 
 
 if __name__ == '__main__':
