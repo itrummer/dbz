@@ -3,12 +3,13 @@ Created on Mar 6, 2022
 
 @author: immanueltrummer
 '''
+import dbz.analyze.component
 import logging
 import openai
 import time
 
 
-class Synthesizer():
+class Synthesizer(dbz.analyze.component.AnalyzedComponent):
     """ Synthesizes code for a DBMS engine. """
     
     def __init__(self, operators, substitutions, pre_code):
@@ -19,6 +20,7 @@ class Synthesizer():
             substitutions: maps placeholders to natural language instructions
             pre_code: a code prefix that is shown to GPT-3
         """
+        super().__init__()
         self.operators = operators
         self.def_substitutions = substitutions
         self.pre_code = pre_code
@@ -42,6 +44,14 @@ class Synthesizer():
             text = text.replace(placeholder, value)
         
         return text
+
+    def call_history(self):
+        """ Returns call history used for statistics.
+        
+        Returns:
+            a dictionary mapping components to lists of calls
+        """
+        return {"synthesizer":self.history}
     
     def generate(self, task, temperature, composition, use_context=True):
         """ Synthesize code piece as described in task.
@@ -55,13 +65,24 @@ class Synthesizer():
         Returns:
             prompt with generated code piece
         """
+        start_s = time.time()
         prompt, prompt_end = self.task_prompt(
             task, composition, use_context)
         stop = ['\n\n\n', '\ndef ', '\nif']
         if 'stop' in task:
             stop = task['stop']
         completion = self._complete(prompt, temperature, stop)
-                
+        
+        total_s = time.time() - start_s
+        task_id = task['task_id']
+        self.history += [{
+            "task_id":task_id,
+            "temperature":temperature,
+            "prompt":prompt, 
+            "prompt_end":prompt_end, 
+            "completion":completion,
+            "total_s":total_s}]
+
         return prompt_end + completion + ('\n'*2)
     
     def task_prompt(self, task, composition, use_context=True):

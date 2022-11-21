@@ -4,6 +4,7 @@ Created on Mar 9, 2022
 @author: immanueltrummer
 '''
 import argparse
+import dbz.analyze.component
 import dbz.execute.engine
 import dbz.execute.query
 import dbz.util
@@ -12,6 +13,7 @@ import math
 import os
 import pandas as pd
 import sqlglot.expressions
+import time
 import traceback
 
 
@@ -74,7 +76,7 @@ class QueryInfo():
         return [self._name(i) for i in select_items]
 
 
-class Validator():
+class Validator(dbz.analyze.component.AnalyzedComponent):
     """ Validates an engine implementation by comparing to reference. """
     
     def __init__(self, paths, sql_ref):
@@ -84,9 +86,21 @@ class Validator():
             paths: relevant paths for DB-zero
             sql_ref: generates reference results for SQL queries
         """
+        super.__init__()
         self.paths = paths
         self.sql_ref = sql_ref
         self.logger = logging.getLogger('all')
+    
+    def call_history(self):
+        """ Returns call history for all sub-components. 
+        
+        Returns:
+            dictionary mapping sub-component IDs to call logs
+        """
+        return {
+            "validator":self.history, 
+            "ref_engine":self.sql_ref.stats
+        }
     
     def validate(self, engine, check):
         """ Validate engine implementation by comparison to reference.
@@ -99,12 +113,22 @@ class Validator():
             True if validation succeeds.
         """
         print('Validation in progress ...')
+        start_s = time.time()
         check_type = check['type']
         assert check_type in ['sql', 'code']
         if check_type == 'sql':
-            return self._sql_check(engine, check)
+            success = self._sql_check(engine, check)
         else:
-            return self._code_check(engine, check)
+            success = self._code_check(engine, check)
+        
+        label = check['label']
+        total_s = time.time() - start_s
+        self.history += [{
+            "check_type":check_type,
+            "check_label":label,
+            "total_s":total_s
+            }]
+        return success
     
     def _check_order_columns(self, check, nr_result_cols):
         """ Returns columns to sort by before result comparison.

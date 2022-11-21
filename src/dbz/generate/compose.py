@@ -4,10 +4,12 @@ Created on Sep 25, 2022
 @author: immanueltrummer
 '''
 from dataclasses import dataclass
+import dbz.analyze.component
 import dbz.execute.check
 import dbz.execute.engine
 import logging
 import os.path
+import time
 
 
 @dataclass
@@ -18,7 +20,7 @@ class FailureInfo():
     task2nr_ops: dict
 
 
-class Composer():
+class Composer(dbz.analyze.component.AnalyzedComponent):
     """ Composes operator implementations into full SQL engine. """
     
     def __init__(self, config, operators, tasks, pre_code):
@@ -30,6 +32,7 @@ class Composer():
             tasks: manages generation tasks and checks
             pre_code: code prefix
         """
+        super().__init__()
         self.logger = logging.getLogger('all')
         self.ops = operators
         self.tasks = tasks
@@ -49,7 +52,7 @@ class Composer():
         pg_pwd = sql_ref_info['pg_pwd']
         pg_host = sql_ref_info['host']
         self.sql_ref = dbz.execute.engine.PgEngine(
-            pg_db, pg_user, pg_pwd, pg_host)
+            pg_db, pg_user, pg_pwd, pg_host, True)
         
         test_access = config['test_access']
         data_dir = test_access['data_dir']
@@ -57,7 +60,7 @@ class Composer():
         self.python = test_access['python']
         
         self.validator = dbz.execute.check.Validator(
-            self.paths, self.sql_ref)        
+            self.paths, self.sql_ref)
     
     def all_code(self):
         """ Retrieves code for all operators. 
@@ -66,6 +69,14 @@ class Composer():
             Code implementing operators of SQL execution engine
         """
         return self._composition_code(self.composition)
+    
+    def call_history(self):
+        """ Returns call history for this component and sub-components. 
+        
+        Returns:
+            dictionary mapping sub-components to call logs
+        """
+        return {"composer":self.history} | self.validator.call_history()
     
     def failure_info(self):
         """ Returns information on last failure. 
@@ -101,6 +112,7 @@ class Composer():
         Returns:
             True if the update resolved previous problems
         """
+        start_s = time.time()
         updated_idx = self.task_order.index(updated_task_id)
         candidate_comp = self.composition.copy()
         candidate_comp[updated_task_id] = new_code_id
@@ -108,7 +120,8 @@ class Composer():
         self.passed_checks, self.failed_checks = self._old_checks(
             candidate_comp, updated_idx)
 
-        if self.failed_checks:        
+        if self.failed_checks:
+            self._record_call(updated_task_id, start_s, False)
             return False
         
         candidate_until = self.works_until
@@ -136,9 +149,11 @@ class Composer():
         if candidate_until > self.works_until:
             self.logger.info(f'Replacing prior operator')
             self.works_until = candidate_until
-            self.composition = candidate_comp            
+            self.composition = candidate_comp
+            self._record_call(updated_task_id, start_s, True)
             return True
         else:
+            self._record_call(updated_task_id, start_s, False)
             return False
     
     def _applicable_checks(self, tasks):
@@ -299,6 +314,21 @@ class Composer():
                 return passed, [old_check]
         
         return passed, []
+    
+    def _record_call(self, task_id, start_s, success):
+        """ Add entry describing update to call history.
+        
+        Args:
+            task_id: ID of updated task
+            start_s: start time of call
+            success: whether update was successful
+        """
+        total_s = time.time() - start_s
+        self.history += [{
+            "task_id":task_id,
+            "total_s":total_s,
+            "success":success
+            }]
     
     def _schedule_checks(self):
         """ Schedule checks based on task order. 
