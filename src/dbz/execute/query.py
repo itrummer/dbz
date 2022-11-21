@@ -176,7 +176,10 @@ class Rewriter():
         Returns:
             list of transitive equality predicates
         """
-        equalities = list(where.find_all(sqlglot.expressions.EQ))
+        conjuncts = self._conjuncts(where)
+        equalities = [
+            c for c in conjuncts if isinstance(c,sqlglot.expressions.EQ)]
+        # equalities = list(where.find_all(sqlglot.expressions.EQ))
         eq_ops_pairs = [set(self._binary_operands(eq)) for eq in equalities]
         all_ops = [op for eq in equalities for op in self._binary_operands(eq)]
         op2class = {op:set([op]) for op in all_ops}
@@ -193,7 +196,7 @@ class Rewriter():
                         op2class[op] = new_class
                     changed = True
         
-        trans_preds = []
+        trans_preds = set()
         for eq_class in op2class.values():
             if len(eq_class) > 2:
                 for op_1 in eq_class:
@@ -205,9 +208,9 @@ class Rewriter():
                             op_1_sql < op_2_sql and \
                             not ops in eq_ops_pairs:
                             p = sqlglot.parse_one(f'{op_1_sql} = {op_2_sql}')
-                            trans_preds += [p]
+                            trans_preds.add(p)
         
-        return trans_preds
+        return list(trans_preds)
                             
 
 def clean(query):
@@ -344,6 +347,7 @@ def simplify(query):
 
 if __name__ == '__main__':
     rewriter = Rewriter()
+    #query = "select supp_nation, cust_nation, l_year, sum(volume) as revenue from ( select n1.n_name as supp_nation, n2.n_name as cust_nation, extract(year from l_shipdate) as l_year, l_extendedprice * (1 - l_discount) as volume from supplier, lineitem, orders, customer, nation n1, nation n2 where s_suppkey = l_suppkey and o_orderkey = l_orderkey and c_custkey = o_custkey and s_nationkey = n1.n_nationkey and c_nationkey = n2.n_nationkey and ( (n1.n_name = 'FRANCE' and n2.n_name = 'GERMANY') or (n1.n_name = 'GERMANY' and n2.n_name = 'FRANCE') ) and l_shipdate between date '1995-01-01' and date '1996-12-31' ) as shipping group by supp_nation, cust_nation, l_year order by supp_nation, cust_nation, l_year"
     query = "select nation, o_year, sum(amount) as sum_profit from ( select n_name as nation, extract(year from o_orderdate) as o_year, l_extendedprice * (1 - l_discount) - ps_supplycost * l_quantity as amount from part, supplier, lineitem, partsupp, orders, nation where s_suppkey = l_suppkey and ps_suppkey = l_suppkey and ps_partkey = l_partkey and p_partkey = l_partkey and o_orderkey = l_orderkey and s_nationkey = n_nationkey and p_name like '%green%' ) as profit group by nation, o_year order by nation, o_year desc"
     rewritten = rewriter.rewrite(query)
     print(rewritten)
