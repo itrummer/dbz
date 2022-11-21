@@ -21,20 +21,7 @@ class Rewriter():
             rewritten query
         """
         parsed = sqlglot.parse_one(query)
-        where = parsed.args.get('where', None)
-        if where is not None:
-            where_pred = where.args['this']
-            disjuncts = self._disjuncts(where_pred)
-            if len(disjuncts) > 1:
-                common = set(self._conjuncts(disjuncts[0]))
-                for disjunct in disjuncts[1:]:
-                    conjuncts = set(self._conjuncts(disjunct))
-                    common = common.intersection(conjuncts)
-                
-                where_items = list(common) + [where_pred]
-                new_where = self._conjunction(where_items)
-                parsed.args['where'].args['this'] = new_where
-        
+        parsed = parsed.transform(self._rewrite_select)
         query = parsed.sql()
         query = self._fix_dates(query)
         query = self._strip_trailing_zeros(query)
@@ -50,6 +37,26 @@ class Rewriter():
             list of operand expressions
         """
         return [expression.args['this']] + [expression.args['expression']]
+    
+    def _common_preds(self, where):
+        """ Extract common unary predicates from disjunctive where clause. 
+        
+        Args:
+            where: where clause in tree representation
+        
+        Returns:
+            list of predicates that appear in all disjuncts
+        """
+        disjuncts = self._disjuncts(where)
+        if len(disjuncts) > 1:
+            common = set(self._conjuncts(disjuncts[0]))
+            for disjunct in disjuncts[1:]:
+                conjuncts = set(self._conjuncts(disjunct))
+                common = common.intersection(conjuncts)
+            
+            return list(common)
+        else:
+            return []
     
     def _conjunction(self, predicates):
         """ Create conjunction of multiple predicates. 
@@ -120,6 +127,28 @@ class Rewriter():
 
         return query
     
+    def _rewrite_select(self, select):
+        """ Rewrite select expression (leave others unchanged).
+        
+        Args:
+            select: possible select expression as tree
+        
+        Returns:
+            rewritten select expression or input node
+        """
+        if isinstance(select, sqlglot.expressions.Select):
+            # select = select.copy()
+            where = select.args.get('where', None)
+            if where is not None:
+                where_pred = where.args['this']
+                common_preds = self._common_preds(where_pred)
+                trans_preds = self._transitive_preds(where_pred)
+                where_items = common_preds + trans_preds + [where_pred]
+                new_where = self._conjunction(where_items)
+                select.args['where'].args['this'] = new_where
+        
+        return select
+    
     def _strip_trailing_zeros(self, query):
         """ Remove trailing zeros from float constants. 
         
@@ -137,7 +166,49 @@ class Rewriter():
             
             query = query.replace(to_replace, replace_by)
         return query
-
+    
+    def _transitive_preds(self, where):
+        """ Extracts transitive binary predicates.
+        
+        Args:
+            where: where clause in tree representation
+        
+        Returns:
+            list of transitive equality predicates
+        """
+        equalities = list(where.find_all(sqlglot.expressions.EQ))
+        eq_ops_pairs = [set(self._binary_operands(eq)) for eq in equalities]
+        all_ops = [op for eq in equalities for op in self._binary_operands(eq)]
+        op2class = {op:set([op]) for op in all_ops}
+        
+        changed = True
+        while changed:
+            changed = False
+            for eq in equalities:
+                ops = self._binary_operands(eq)
+                classes = [op2class[op] for op in ops]
+                if ops[0] not in classes[1] or ops[1] not in classes[0]:
+                    new_class = classes[0].union(classes[1])
+                    for op in new_class:
+                        op2class[op] = new_class
+                    changed = True
+        
+        trans_preds = []
+        for eq_class in op2class.values():
+            if len(eq_class) > 2:
+                for op_1 in eq_class:
+                    op_1_sql = op_1.sql()
+                    for op_2 in eq_class:
+                        op_2_sql = op_2.sql()
+                        ops = set([op_1, op_2])
+                        if not (op_1 == op_2) and \
+                            op_1_sql < op_2_sql and \
+                            not ops in eq_ops_pairs:
+                            p = sqlglot.parse_one(f'{op_1_sql} = {op_2_sql}')
+                            trans_preds += [p]
+        
+        return trans_preds
+                            
 
 def clean(query):
     """ Cleans up query representation.
@@ -273,6 +344,6 @@ def simplify(query):
 
 if __name__ == '__main__':
     rewriter = Rewriter()
-    query = "select sum(l_extendedprice* (1 - l_discount)) as revenue from lineitem, part where ( p_partkey = l_partkey and p_brand = 'Brand#12' and p_container in ('SM CASE', 'SM BOX', 'SM PACK', 'SM PKG') and l_quantity >= 1 and l_quantity <= 1 + 10 and p_size between 1 and 5 and l_shipmode in ('AIR', 'AIR REG') and l_shipinstruct = 'DELIVER IN PERSON' ) or ( p_partkey = l_partkey and p_brand = 'Brand#23' and p_container in ('MED BAG', 'MED BOX', 'MED PKG', 'MED PACK') and l_quantity >= 10 and l_quantity <= 10 + 10 and p_size between 1 and 10 and l_shipmode in ('AIR', 'AIR REG') and l_shipinstruct = 'DELIVER IN PERSON' ) or ( p_partkey = l_partkey and p_brand = 'Brand#34' and p_container in ('LG CASE', 'LG BOX', 'LG PACK', 'LG PKG') and l_quantity >= 20 and l_quantity <= 20 + 10 and p_size between 1 and 15 and l_shipmode in ('AIR', 'AIR REG') and l_shipinstruct = 'DELIVER IN PERSON' )"
+    query = "select nation, o_year, sum(amount) as sum_profit from ( select n_name as nation, extract(year from o_orderdate) as o_year, l_extendedprice * (1 - l_discount) - ps_supplycost * l_quantity as amount from part, supplier, lineitem, partsupp, orders, nation where s_suppkey = l_suppkey and ps_suppkey = l_suppkey and ps_partkey = l_partkey and p_partkey = l_partkey and o_orderkey = l_orderkey and s_nationkey = n_nationkey and p_name like '%green%' ) as profit group by nation, o_year order by nation, o_year desc"
     rewritten = rewriter.rewrite(query)
     print(rewritten)
