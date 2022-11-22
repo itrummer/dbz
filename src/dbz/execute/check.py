@@ -126,7 +126,8 @@ class Validator(dbz.analyze.component.AnalyzedComponent):
         self.history += [{
             "check_type":check_type,
             "check_label":label,
-            "total_s":total_s
+            "total_s":total_s,
+            "success":success
             }]
         return success
     
