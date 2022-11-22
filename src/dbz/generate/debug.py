@@ -4,10 +4,12 @@ Created on Sep 25, 2022
 @author: immanueltrummer
 '''
 from collections import Counter
+import dbz.analyze.component
 import logging
+import time
 
 
-class Debugger():
+class Debugger(dbz.analyze.component.AnalyzedComponent):
     """ Traces unsolved checks based to faulty operator implementations. """
     
     def __init__(self, composer):
@@ -16,8 +18,17 @@ class Debugger():
         Args:
             composer: composes the SQL execution engine
         """
+        super().__init__()
         self.composer = composer
         self.logger = logging.getLogger('all')
+    
+    def call_history(self):
+        """ Returns call history for analysis.
+        
+        Returns:
+            dictionary mapping component IDs to calls
+        """
+        return {'debugger':self.call_history()}
     
     def to_redo(self):
         """ Suggests generation task to redo and corresponding context. 
@@ -25,6 +36,7 @@ class Debugger():
         Returns:
             ranked list of pairs (task ID, probability)
         """
+        start_s = time.time()
         failure_info = self.composer.failure_info()
         self.logger.debug(f'Failure Info: {failure_info}')
         
@@ -48,6 +60,9 @@ class Debugger():
         tasks_weights = list(task2p_unsolved.items())
         tasks_weights.sort(key=lambda t_w:t_w[1], reverse=True)
         self.logger.info(f'Tasks and weights by priority: {tasks_weights}')
+        
+        total_s = time.time() - start_s
+        self.history += [{"total_s":total_s, "tasks_weights":tasks_weights}]
         return tasks_weights
     
     def _nr_passed_checks(self, passed_checks):

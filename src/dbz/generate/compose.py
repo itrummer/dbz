@@ -121,7 +121,7 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             candidate_comp, updated_idx)
 
         if self.failed_checks:
-            self._record_call(updated_task_id, start_s, False)
+            self._record_call(updated_idx, updated_task_id, start_s, False)
             return False
         
         candidate_until = self.works_until
@@ -150,10 +150,10 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             self.logger.info(f'Replacing prior operator')
             self.works_until = candidate_until
             self.composition = candidate_comp
-            self._record_call(updated_task_id, start_s, True)
+            self._record_call(updated_idx, updated_task_id, start_s, True)
             return True
         else:
-            self._record_call(updated_task_id, start_s, False)
+            self._record_call(updated_idx, updated_task_id, start_s, False)
             return False
     
     def _applicable_checks(self, tasks):
@@ -315,16 +315,18 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         
         return passed, []
     
-    def _record_call(self, task_id, start_s, success):
+    def _record_call(self, task_idx, task_id, start_s, success):
         """ Add entry describing update to call history.
         
         Args:
+            task_idx: index of updated task in task order
             task_id: ID of updated task
             start_s: start time of call
             success: whether update was successful
         """
         total_s = time.time() - start_s
         self.history += [{
+            "task_idx":task_idx,
             "task_id":task_id,
             "total_s":total_s,
             "success":success

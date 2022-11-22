@@ -172,6 +172,10 @@ if __name__ == '__main__':
         with open(sql_engine_path, 'w') as file:
             file.write(sql_engine)
 
-    history = {**synthesizer.call_history(), **composer.call_history()}
+    history = {
+        **synthesizer.call_history(), 
+        **composer.call_history(), 
+        **debugger.call_history()
+        }
     write_history(history, history_path)
     print('Process complete.')
