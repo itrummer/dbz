@@ -15,6 +15,25 @@ import json
 import logging
 import openai
 import os.path
+import time
+
+
+def timeout(start_s, timeout_s):
+    """ Check for timeout, given start time and limit. 
+    
+    Args:
+        start_s: start time in epoch seconds
+        timeout_s: number of seconds until timeout
+    
+    Returns:
+        True iff a timeout occurred
+    """
+    total_s = time.time() - start_s
+    if timeout_s > 0 and total_s > timeout_s:
+        print('Reached Timeout!')
+        return True
+    else:
+        return False
 
 
 def write_history(history, history_path):
@@ -45,8 +64,10 @@ if __name__ == '__main__':
     parser.add_argument('log_level', type=str, help='Set logging level')
     parser.add_argument('code_cache', type=str, help='Path to code cache')
     parser.add_argument('operators_dir', type=str, help='Path to operators')
+    parser.add_argument('timeout_s', type=int, help='Timeout in seconds or -1')
     args = parser.parse_args()
     
+    start_s = time.time()
     openai.api_key = args.ai_key
     with open(args.config) as file:
         config = json.load(file)
@@ -119,12 +140,18 @@ if __name__ == '__main__':
         with open(args.code_cache, 'w') as file:
             json.dump(miner.code_cache, file)
         
+        if timeout(start_s, args.timeout_s):
+            break
+        
         comp = composer.composition
         redo_tasks_weighted = debugger.to_redo()
         redo_tasks = [t for t, _ in redo_tasks_weighted]
         redo_iters = [(t_id, i) for t_id in redo_tasks for i in range(3)]
         
         for task_id, i in redo_iters:
+            if timeout(start_s, args.timeout_s):
+                break
+
             logger.info(f'Redoing {task_id} from {redo_tasks} ({i})')
             task = tasks.id2task[task_id]
             code_id = miner.mine(task, comp)
