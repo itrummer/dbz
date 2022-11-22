@@ -78,6 +78,7 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
         self.history += [{
             "task_id":task_id,
             "temperature":temperature,
+            "use_context":use_context,
             "prompt":prompt, 
             "prompt_end":prompt_end, 
             "completion":completion,

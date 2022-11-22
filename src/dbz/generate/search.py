@@ -16,6 +16,26 @@ import logging
 import openai
 import os.path
 
+
+def write_history(history, history_path):
+    """ Append history to file at given path.
+    
+    Args:
+        history: append this history
+        history_path: append to this file
+    """
+    prior_history = collections.defaultdict(lambda:[])
+    if os.path.exists(history_path):
+        with open (history_path) as file:
+            prior_history = json.load(file)
+    
+    for component, calls in history.items():
+        history[component] = prior_history[component] + calls
+    
+    with open(history_path, 'w') as file:
+        json.dump(history, file)
+
+
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
@@ -91,18 +111,21 @@ if __name__ == '__main__':
     composer.update(first_task_id, 0)
     
     round_ctr = 0
-    while not composer.finished():
+    success = True
+    while success and not composer.finished():
         round_ctr += 1
         logger.info(f'Starting Debugging Round {round_ctr} ...')
 
         with open(args.code_cache, 'w') as file:
             json.dump(miner.code_cache, file)
         
-        redo_tasks = debugger.to_redo()
         comp = composer.composition
-        for task_id, _ in redo_tasks:
-            logger.info(
-                f'Redoing task {task_id} from {redo_tasks}; context: {comp}')
+        redo_tasks_weighted = debugger.to_redo()
+        redo_tasks = [t for t, _ in redo_tasks_weighted]
+        redo_iters = [(t_id, i) for t_id in redo_tasks for i in range(3)]
+        
+        for task_id, i in redo_iters:
+            logger.info(f'Redoing {task_id} from {redo_tasks} ({i})')
             task = tasks.id2task[task_id]
             code_id = miner.mine(task, comp)
             logger.info(f'Mined code ID: {code_id}')
@@ -112,22 +135,16 @@ if __name__ == '__main__':
                 logger.info(f'Composer update successful: {success}.')
                 if success:
                     break
+        
+        if not success:
+            print('Giving up - please add operator code in "user" directory!')
+            print(f'Operators ranked by likelihood of mistake: {redo_tasks}')
             
         sql_engine = composer.all_code()
         sql_engine_path = os.path.join(sys_code_dir, 'sql_engine.py')
         with open(sql_engine_path, 'w') as file:
             file.write(sql_engine)
 
-    prior_history = collections.defaultdict(lambda:[])
-    if os.path.exists(history_path):
-        with open (history_path) as file:
-            prior_history = json.load(file)
-    
     history = synthesizer.call_history() | composer.call_history()
-    for component, calls in history.items():
-        history[component] = prior_history[component] + calls
-    
-    with open(history_path, 'w') as file:
-        json.dump(history, file)
-    
+    write_history(history, history_path)
     print('Process complete.')

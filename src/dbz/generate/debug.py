@@ -23,7 +23,7 @@ class Debugger():
         """ Suggests generation task to redo and corresponding context. 
         
         Returns:
-            ranked list of pairs (ID of task to redo, composition context)
+            ranked list of pairs (task ID, probability)
         """
         failure_info = self.composer.failure_info()
         self.logger.debug(f'Failure Info: {failure_info}')
