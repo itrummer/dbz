@@ -28,7 +28,7 @@ class Debugger(dbz.analyze.component.AnalyzedComponent):
         Returns:
             dictionary mapping component IDs to calls
         """
-        return {'debugger':self.call_history()}
+        return {'debugger':self.history}
     
     def to_redo(self):
         """ Suggests generation task to redo and corresponding context. 
