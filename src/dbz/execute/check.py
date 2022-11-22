@@ -86,7 +86,7 @@ class Validator(dbz.analyze.component.AnalyzedComponent):
             paths: relevant paths for DB-zero
             sql_ref: generates reference results for SQL queries
         """
-        super.__init__()
+        super().__init__()
         self.paths = paths
         self.sql_ref = sql_ref
         self.logger = logging.getLogger('all')
