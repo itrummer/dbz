@@ -76,7 +76,7 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         Returns:
             dictionary mapping sub-components to call logs
         """
-        return {"composer":self.history} | self.validator.call_history()
+        return {"composer":self.history, **self.validator.call_history()}
     
     def failure_info(self):
         """ Returns information on last failure. 
