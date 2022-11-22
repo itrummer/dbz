@@ -6,8 +6,7 @@ Created on Nov 21, 2022
 import abc
 
 
-@abc.ABC
-class AnalyzedComponent():
+class AnalyzedComponent(abc.ABC):
     """ A system component whose call history is recorded and analyzed. """
     
     def __init__(self):
