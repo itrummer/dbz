@@ -102,6 +102,13 @@
 		]
 	},
 	"tasks":[
+	{"type":"generate", "task_id":"load_data", "context":[],
+		"template":"load_data.py", "substitutions":{}},
+	{"type":"generate", "task_id":"store_data", "context":[],
+		"template":"store_data.py", "substitutions":{}},
+	{"type":"generate", "task_id":"create_table", "context":[],
+		"template":"create_table.py", "substitutions":{}},
+
 	{"type":"generate", "task_id":"column_type_test", "context":[],
 		"template":"column_type_test.py", "substitutions":{}},
 	{"type":"generate", "task_id":"table_type_test", "context":[],
