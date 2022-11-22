@@ -4,6 +4,7 @@ Created on Mar 9, 2022
 @author: immanueltrummer
 '''
 import argparse
+import collections
 import dbz.generate.compose
 import dbz.generate.debug
 import dbz.generate.mine
@@ -61,6 +62,7 @@ if __name__ == '__main__':
     else:
         code_cache = {}
 
+    history_path = os.path.join(args.operators_dir, 'history.json')
     sys_code_dir = os.path.join(args.operators_dir, 'system')
     user_code_dir = os.path.join(args.operators_dir, 'user')
 
@@ -116,4 +118,16 @@ if __name__ == '__main__':
         with open(sql_engine_path, 'w') as file:
             file.write(sql_engine)
 
+    prior_history = collections.defaultdict(lambda:[])
+    if os.path.exists(history_path):
+        with open (history_path) as file:
+            prior_history = json.load(file)
+    
+    history = synthesizer.call_history() | composer.call_history()
+    for component, calls in history.items():
+        history[component] = prior_history[component] + calls
+    
+    with open(history_path, 'w') as file:
+        json.dump(history, file)
+    
     print('Process complete.')
