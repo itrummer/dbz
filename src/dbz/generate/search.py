@@ -18,6 +18,22 @@ import os.path
 import time
 
 
+def load_referenced_code(code_path):
+    """ Load code referenced via given key. 
+    
+    Args:
+        code_path: path to code file (or empty)
+    
+    Returns:
+        empty string for empty path, file content otherwise
+    """
+    if not code_path:
+        return ''
+    else:
+        with open(code_path) as file:
+            return file.read()
+
+
 def timeout(start_s, timeout_s):
     """ Check for timeout, given start time and limit. 
     
@@ -67,27 +83,14 @@ if __name__ == '__main__':
     parser.add_argument('timeout_s', type=int, help='Timeout in seconds or -1')
     args = parser.parse_args()
     
+    print(f'Using timeout {args.timeout} seconds!')
+    
     start_s = time.time()
     openai.api_key = args.ai_key
     with open(args.config) as file:
         config = json.load(file)
     with open(args.custom) as file:
         custom = json.load(file)
-    
-    def load_referenced_code(code_path):
-        """ Load code referenced via given key. 
-        
-        Args:
-            code_path: path to code file (or empty)
-        
-        Returns:
-            empty string for empty path, file content otherwise
-        """
-        if not code_path:
-            return ''
-        else:
-            with open(code_path) as file:
-                return file.read()
 
     prompt_code = load_referenced_code(custom['prompt_code_path'])
     custom_code = load_referenced_code(custom['custom_code_path'])
@@ -173,8 +176,9 @@ if __name__ == '__main__':
             file.write(sql_engine)
 
     history = {
-        **synthesizer.call_history(), 
         **composer.call_history(), 
+        **miner.call_history(),
+        **synthesizer.call_history(), 
         **debugger.call_history()
         }
     write_history(history, history_path)

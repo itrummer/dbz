@@ -1,14 +1,13 @@
 def right_outer_join(table_1, table_2, nr_cols_1, key_cols_1, key_cols_2):
     """ Join two tables by right outer join.
     
-    1. Index table_1 on key_cols_1:
+    - Index table_1 on key_cols_1:
       - Map each key to one or multiple rows.
-    2. Iterate over rows from table_2:
+    - Iterate over rows from table_2:
       - Check whether index contains key:
         - If yes: add matching row pairs to join result.
         - If no: match with nr_cols_1 <Null> values.
-    3. Transform into <Table>.
-    4.<TablePost>
+    - Transform into <Table>.<TablePost>
 
     Args:
         table_1: <Table>.

@@ -3,11 +3,13 @@ Created on Sep 25, 2022
 
 @author: immanueltrummer
 '''
+import dbz.analyze.component
 import logging
 import os.path
+import time
 
 
-class CodeMiner():
+class CodeMiner(dbz.analyze.component.AnalyzedComponent):
     """ Mines code using GPT-3 Codex-based code synthesizer. """
     
     def __init__(
@@ -22,6 +24,7 @@ class CodeMiner():
             code_cache: maps prompts to lists of generated code
             nr_levels: how many temperature levels to consider
         """
+        super().__init__()
         self.logger = logging.getLogger('all')
         self.operators = operators
         self.user_code_dir = user_code_dir
@@ -34,6 +37,15 @@ class CodeMiner():
         self.temperatures = [
             temperature_delta * s for s in range(0, nr_levels+1)]
         self.logger.info(f'Temperatures Considered: {self.temperatures}')
+    
+    def call_history(self):
+        """ Returns history of mining calls.
+        
+        Returns:
+            dictionary mapping component IDs to lists of calls
+        """
+        return {"miner":self.history}
+        
     
     def mine(self, task, composition):
         """ Mine code as specified in given generation task.
@@ -88,6 +100,7 @@ class CodeMiner():
         Returns:
             Prompt used, newly synthesized code (or None)
         """
+        start_s = time.time()
         prompt, _ = self.synthesizer.task_prompt(task, composition)
         self.logger.info(f'Mining with Prompt:\n---\n{prompt}\n---\n')
         cached = self.code_cache.get(prompt, [])
@@ -108,10 +121,18 @@ class CodeMiner():
                 if self.operators.is_known(code):
                     code = None
                 else:
+                    total_s = time.time() - start_s
                     t_info = f'temperature: {temperature}'
                     c_info = f'use_context: {use_context}'
-                    self.logger.info(
-                        f'New code found using {t_info}; {c_info}')
+                    self.logger.info(f'New code found via {t_info}; {c_info}')
+                    task_id = task['task_id']
+                    self.history += [{
+                        "task_id":task_id,
+                        "temperature":temperature,
+                        "use_context":use_context,
+                        "total_s":total_s,
+                        "code":code
+                        }]
                     break
         
         return prompt, code

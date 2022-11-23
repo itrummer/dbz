@@ -1,8 +1,7 @@
 def sort_rows(table, key_columns):
     """ Sort rows by key columns. 
     
-    1. Sort rows by key columns.
-    2.<TablePost>
+    - Sort rows by key columns.<TablePost>
 
     Args:
         table: <Table>.
