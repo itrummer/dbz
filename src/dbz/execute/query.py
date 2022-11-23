@@ -338,6 +338,15 @@ def simplify(query):
         new_avg = f'avg(cast ({avg_op} as float))'
         query = query.replace(old_avg, new_avg)
     
+    # Sum over products can exceed integer range due to scaling - fix:
+    sum_ops = [
+        op for s in re.split(',|from', query)
+        for op in re.findall('sum\((.*\*.*\*.*)\)', s)]
+    for sum_op in sum_ops:
+        old_sum = f'sum({sum_op})'
+        new_sum = f'sum(cast ({sum_op} as float))'
+        query = query.replace(old_sum, new_sum)
+    
     # TODO: move all simplifications into rewriter
     rewriter = Rewriter()
     rewritten = rewriter.rewrite(query)
