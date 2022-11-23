@@ -83,7 +83,7 @@ if __name__ == '__main__':
     parser.add_argument('timeout_s', type=int, help='Timeout in seconds or -1')
     args = parser.parse_args()
     
-    print(f'Using timeout {args.timeout} seconds!')
+    print(f'Using timeout {args.timeout_s} seconds!')
     
     start_s = time.time()
     openai.api_key = args.ai_key
