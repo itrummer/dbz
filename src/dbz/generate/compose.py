@@ -328,6 +328,7 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         self.history += [{
             "task_idx":task_idx,
             "task_id":task_id,
+            "start_s":start_s,
             "total_s":total_s,
             "success":success
             }]

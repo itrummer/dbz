@@ -62,7 +62,10 @@ class Debugger(dbz.analyze.component.AnalyzedComponent):
         self.logger.info(f'Tasks and weights by priority: {tasks_weights}')
         
         total_s = time.time() - start_s
-        self.history += [{"total_s":total_s, "tasks_weights":tasks_weights}]
+        self.history += [{
+            "start_s":start_s, "total_s":total_s, 
+            "tasks_weights":tasks_weights
+            }]
         return tasks_weights
     
     def _nr_passed_checks(self, passed_checks):

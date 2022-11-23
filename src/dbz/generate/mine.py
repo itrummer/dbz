@@ -130,6 +130,7 @@ class CodeMiner(dbz.analyze.component.AnalyzedComponent):
                         "task_id":task_id,
                         "temperature":temperature,
                         "use_context":use_context,
+                        "start_s":start_s,
                         "total_s":total_s,
                         "code":code
                         }]

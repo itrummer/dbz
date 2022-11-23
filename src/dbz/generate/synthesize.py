@@ -12,18 +12,20 @@ import time
 class Synthesizer(dbz.analyze.component.AnalyzedComponent):
     """ Synthesizes code for a DBMS engine. """
     
-    def __init__(self, operators, substitutions, pre_code):
+    def __init__(self, operators, substitutions, prompt_prefix, prompt_suffix):
         """ Initialize for given natural language instructions.
         
         Args:
             operators: manages operator implementations
             substitutions: maps placeholders to natural language instructions
-            pre_code: a code prefix that is shown to GPT-3
+            prompt_prefix: a code snippet used as prompt prefix
+            prompt_suffix: a code snippet used as prompt suffix
         """
         super().__init__()
         self.operators = operators
         self.def_substitutions = substitutions
-        self.pre_code = pre_code
+        self.prompt_prefix = prompt_prefix
+        self.prompt_suffix = prompt_suffix
 
     @staticmethod    
     def load_prompt(file_name, substitutions):
@@ -82,6 +84,7 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             "prompt":prompt, 
             "prompt_end":prompt_end, 
             "completion":completion,
+            "start_s":start_s,
             "total_s":total_s}]
 
         return prompt_end + completion + ('\n'*2)
@@ -98,8 +101,8 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             pair containing full prompt and last prompt piece
         """
         parts = []
-        if self.pre_code:
-            parts += [self.pre_code]
+        if self.prompt_prefix:
+            parts += [self.prompt_prefix]
         
         if use_context:
             context = task['context']
@@ -110,8 +113,11 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
                 parts += [op]
         
         file = task['template']
-        substitutions = {**task['substitutions'], **self.def_substitutions}
-        prompt_end = Synthesizer.load_prompt(file, substitutions)
+        substitutions = {
+            **task['substitutions'], 
+            **self.def_substitutions}
+        prompt_end = Synthesizer.load_prompt(
+            file, substitutions) + self.prompt_suffix
         parts += [prompt_end]
         
         return '\n\n'.join(parts), prompt_end
@@ -136,7 +142,6 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
                 response = openai.Completion.create(
                     prompt=prompt, stop=stop,
                     temperature=temperature,
-                    #engine='davinci-codex',
                     engine='code-davinci-002',
                     max_tokens=800)
                 completion = response['choices'][0]['text']

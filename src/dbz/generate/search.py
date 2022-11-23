@@ -92,9 +92,10 @@ if __name__ == '__main__':
     with open(args.custom) as file:
         custom = json.load(file)
 
-    prompt_code = load_referenced_code(custom['prompt_code_path'])
+    prompt_prefix = load_referenced_code(custom['prompt_prefix_path'])
+    prompt_suffix = load_referenced_code(custom['prompt_suffix_path'])
     custom_code = load_referenced_code(custom['custom_code_path'])
-    pre_code = prompt_code + '\n\n' + custom_code
+    pre_code = prompt_prefix + '\n\n' + custom_code
     
     logging.basicConfig(level=int(args.log_level))
     logger = logging.getLogger('all')
@@ -116,7 +117,7 @@ if __name__ == '__main__':
     # <BooleanField>, <IntegerField>, <FloatField>, <StringField> 
     substitutions = custom['substitutions']
     synthesizer = dbz.generate.synthesize.Synthesizer(
-        operators, substitutions, prompt_code)
+        operators, substitutions, prompt_prefix, prompt_suffix)
     miner = dbz.generate.mine.CodeMiner(
         operators, user_code_dir, synthesizer, code_cache)
     composer = dbz.generate.compose.Composer(
