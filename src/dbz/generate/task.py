@@ -50,12 +50,12 @@ class Tasks():
             gen_task['prompt_embedding'] = embedding
         
         for t_idx, task in enumerate(self.gen_tasks):
-            embedding = task['embedding']
+            embedding = task['prompt_embedding']
             prior_tasks = [self.gen_tasks[i] for i in range(t_idx)]
             task2similarity = {}
             for prior_task in prior_tasks:
                 prior_id = prior_task['task_id']
-                prior_embedding = prior_task['embedding']
+                prior_embedding = prior_task['prompt_embedding']
                 similarity = openai.embeddings_utils.cosine_similarity(
                     embedding, prior_embedding)
                 task2similarity[prior_id] = similarity
