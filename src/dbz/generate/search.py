@@ -111,7 +111,7 @@ if __name__ == '__main__':
     sys_code_dir = os.path.join(args.operators_dir, 'system')
     user_code_dir = os.path.join(args.operators_dir, 'user')
 
-    tasks = dbz.generate.task.Tasks(config, pre_code)
+    tasks = dbz.generate.task.Tasks(config)
     operators = dbz.generate.operator.Operators()
     # Substitutions: <Table>, <Column>, <TablePost>, <Null>, 
     # <BooleanField>, <IntegerField>, <FloatField>, <StringField> 

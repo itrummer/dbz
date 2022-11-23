@@ -7,6 +7,7 @@ import dbz.execute.engine
 import dbz.generate.synthesize
 import json
 import logging
+import openai.embeddings_utils
 import os.path
 import re
 
@@ -14,7 +15,7 @@ import re
 class Tasks():
     """ Stores and analyzes generation and verification tasks. """
     
-    def __init__(self, config, pre_code):
+    def __init__(self, config):
         """ Loads and analyzes tasks.
         
         Args:
@@ -27,14 +28,43 @@ class Tasks():
         test_access = self.config['test_access']
         data_dir = test_access['data_dir']
         self.paths = dbz.util.DbzPaths(
-            data_dir, includes='src/dbz/include/trace')        
+            data_dir, includes='src/dbz/include/trace')
         
         tasks = config['tasks']
         self.gen_tasks = [t for t in tasks if t['type'] == 'generate']
+        self._order_tasks()
+        self._add_context()
         self.id2task = {t['task_id']:t for t in self.gen_tasks}
         self._add_fct_names()
         self.check_tasks = self._check_tasks()
-        self._remove_user_tasks(pre_code)
+    
+    def _add_context(self):
+        """ Assign each generation task to most similar prior task. """
+        for gen_task in self.gen_tasks:
+            file_name = gen_task['template']
+            substitutions = gen_task['substitutions']
+            prompt = dbz.generate.synthesize.Synthesizer.load_prompt(
+                file_name, substitutions)
+            embedding = openai.embeddings_utils.get_embedding(
+                prompt, engine='code-search-babbage-code-001')
+            gen_task['prompt_embedding'] = embedding
+        
+        for t_idx, task in enumerate(self.gen_tasks):
+            embedding = task['embedding']
+            prior_tasks = [self.gen_tasks[i] for i in range(t_idx)]
+            task2similarity = {}
+            for prior_task in prior_tasks:
+                prior_id = prior_task['task_id']
+                prior_embedding = prior_task['embedding']
+                similarity = openai.embeddings_utils.cosine_similarity(
+                    embedding, prior_embedding)
+                task2similarity[prior_id] = similarity
+            
+            ranking = list(task2similarity.items())
+            ranking.sort(key=lambda p:p[1], reverse=True)
+            task['similar_tasks'] = ranking
+            task_id = task['task_id']
+            self.logger.info(f'Similar to {task_id}: {ranking[:2]}')
     
     def _add_fct_names(self):
         """ Add names of generated functions to task descriptions. """
@@ -137,30 +167,9 @@ class Tasks():
         
         return None
     
-    def _remove_user_tasks(self, pre_code):
-        """ Remove generation tasks solved by user code. 
-        
-        Args:
-            pre_code: code specified by users
-        """                
-        user_tasks = set()
-        for task in self.gen_tasks:
-            fct_name = task['function_name']
-            fct_def = f'def {fct_name}('
-            if fct_def in pre_code:
-                task_id = task['task_id']
-                user_tasks.add(task_id)
-        self.logger.info(f'Tasks Solved by User: {user_tasks}')
-        
-        self.gen_tasks = [
-            t for t in self.gen_tasks 
-            if t['task_id'] not in user_tasks]
-        for check_task in self.check_tasks:
-            requirements = check_task['requirements']
-            requirements = [
-                r for r in requirements 
-                if r not in user_tasks]
-            check_task['requirements'] = requirements
+    def _order_tasks(self):
+        """ Optimize order of code generation tasks. """
+        pass
         
     def _tracer_fct(self, fct_name, task_id):
         """ Write function for tracing required tasks. 
