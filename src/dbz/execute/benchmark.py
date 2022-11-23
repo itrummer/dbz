@@ -43,7 +43,8 @@ if __name__ == '__main__':
     
     for q_idx, query in enumerate(queries, 1):
         print(f'Executing Query {q_idx}/{nr_queries}: {query}')
-        check = {'type':'sql', 'query':query}
+        label = f'SQL: {query}'
+        check = {'type':'sql', 'query':query, "label":label}
         valid = validator.validate(engine_to_benchmark, check)
         if not valid:
             raise Exception('Validation not successful!')
