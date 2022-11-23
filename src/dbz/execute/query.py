@@ -22,6 +22,8 @@ class Rewriter():
         """
         parsed = sqlglot.parse_one(query)
         parsed = parsed.transform(self._rewrite_select)
+        parsed = parsed.transform(self._rewrite_avg)
+        parsed = parsed.transform(self._rewrite_sum)
         query = parsed.sql()
         query = self._fix_dates(query)
         query = self._strip_trailing_zeros(query)
@@ -127,6 +129,22 @@ class Rewriter():
 
         return query
     
+    def _rewrite_avg(self, avg):
+        """ Rewrite average aggregate (leaves others unchanged). 
+        
+        Args:
+            avg: an average aggregate as tree
+        
+        Returns:
+            rewritten average aggregate or input node
+        """
+        if isinstance(avg, sqlglot.expressions.Avg):
+            avg_op = avg.args['this']
+            casted_sql = f'avg(cast ({avg_op} as float))'
+            return sqlglot.parse_one(casted_sql)
+        
+        return avg
+    
     def _rewrite_select(self, select):
         """ Rewrite select expression (leave others unchanged).
         
@@ -148,6 +166,29 @@ class Rewriter():
                 select.args['where'].args['this'] = new_where
         
         return select
+    
+    def _rewrite_sum(self, sum_):
+        """ Rewrite sum aggregate by casting operand to float, if required.
+        
+        Due to scaling decimals, sum operands with multiple products caused
+        an integer overflow.
+        
+        Args:
+            sum_: possible sum aggregate as tree
+        
+        Returns:
+            rewritten sum aggregate or input node
+        """
+        if isinstance(sum_, sqlglot.expressions.Sum):
+            sum_operand = sum_.args['this']
+            products = sum_operand.find_all(sqlglot.expressions.Mul)
+            nr_products = len(list(products))
+            if nr_products > 1:
+                operand_sql = sum_operand.sql()
+                casted_op_sum = f'sum(cast({operand_sql} as float))'
+                return sqlglot.parse_one(casted_op_sum)
+        
+        return sum_
     
     def _strip_trailing_zeros(self, query):
         """ Remove trailing zeros from float constants. 
@@ -329,25 +370,6 @@ def simplify(query):
         new_date = resolve_date(year, month, day, op, delta, unit)
         query = query.replace(m.group(0), new_date)
     
-    # TODO: this is a hack - use query parser instead
-    avg_ops = [
-        op for s in re.split(',|from', query) 
-        for op in re.findall('avg\((.*)\)', s)]
-    for avg_op in avg_ops:
-        old_avg = f'avg({avg_op})'
-        new_avg = f'avg(cast ({avg_op} as float))'
-        query = query.replace(old_avg, new_avg)
-    
-    # Sum over products can exceed integer range due to scaling - fix:
-    sum_ops = [
-        op for s in re.split(',|from', query)
-        for op in re.findall('sum\((.*\*.*\*.*)\)', s)]
-    for sum_op in sum_ops:
-        old_sum = f'sum({sum_op})'
-        new_sum = f'sum(cast ({sum_op} as float))'
-        query = query.replace(old_sum, new_sum)
-    
-    # TODO: move all simplifications into rewriter
     rewriter = Rewriter()
     rewritten = rewriter.rewrite(query)
     print(f'Rewritten Query: {rewritten}')
@@ -356,7 +378,11 @@ def simplify(query):
 
 if __name__ == '__main__':
     rewriter = Rewriter()
+    query = "select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_extendedprice * (1 - l_discount)) as sum_disc_price, sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order from lineitem where l_shipdate <= date '1998-12-01' - interval '90' day group by l_returnflag, l_linestatus order by l_returnflag, l_linestatus"
     #query = "select supp_nation, cust_nation, l_year, sum(volume) as revenue from ( select n1.n_name as supp_nation, n2.n_name as cust_nation, extract(year from l_shipdate) as l_year, l_extendedprice * (1 - l_discount) as volume from supplier, lineitem, orders, customer, nation n1, nation n2 where s_suppkey = l_suppkey and o_orderkey = l_orderkey and c_custkey = o_custkey and s_nationkey = n1.n_nationkey and c_nationkey = n2.n_nationkey and ( (n1.n_name = 'FRANCE' and n2.n_name = 'GERMANY') or (n1.n_name = 'GERMANY' and n2.n_name = 'FRANCE') ) and l_shipdate between date '1995-01-01' and date '1996-12-31' ) as shipping group by supp_nation, cust_nation, l_year order by supp_nation, cust_nation, l_year"
-    query = "select nation, o_year, sum(amount) as sum_profit from ( select n_name as nation, extract(year from o_orderdate) as o_year, l_extendedprice * (1 - l_discount) - ps_supplycost * l_quantity as amount from part, supplier, lineitem, partsupp, orders, nation where s_suppkey = l_suppkey and ps_suppkey = l_suppkey and ps_partkey = l_partkey and p_partkey = l_partkey and o_orderkey = l_orderkey and s_nationkey = n_nationkey and p_name like '%green%' ) as profit group by nation, o_year order by nation, o_year desc"
+    #query = "select nation, o_year, sum(amount) as sum_profit from ( select n_name as nation, extract(year from o_orderdate) as o_year, l_extendedprice * (1 - l_discount) - ps_supplycost * l_quantity as amount from part, supplier, lineitem, partsupp, orders, nation where s_suppkey = l_suppkey and ps_suppkey = l_suppkey and ps_partkey = l_partkey and p_partkey = l_partkey and o_orderkey = l_orderkey and s_nationkey = n_nationkey and p_name like '%green%' ) as profit group by nation, o_year order by nation, o_year desc"
+    #query = "select ps_partkey, sum(ps_supplycost * ps_availqty) as value_ from partsupp, supplier, nation where ps_suppkey = s_suppkey and s_nationkey = n_nationkey and n_name = 'GERMANY' group by ps_partkey having sum(ps_supplycost * ps_availqty) > ( select sum(ps_supplycost * ps_availqty) * 0.0001000000 from partsupp, supplier, nation where ps_suppkey = s_suppkey and s_nationkey = n_nationkey and n_name = 'GERMANY' ) order by value_ desc"
     rewritten = rewriter.rewrite(query)
     print(rewritten)
+    # simplified = simplify(query)
+    # print(simplified)
