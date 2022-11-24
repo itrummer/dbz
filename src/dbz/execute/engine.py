@@ -82,9 +82,9 @@ class DbzEngine(Engine):
         self.library = library
         self.python_path = python_path
         
+        self.rewriter = dbz.execute.query.Rewriter(paths.schema)
         self.planner = dbz.execute.plan.Planner(
-            paths.schema, paths.planner, 
-            paths.tmp_dir)
+            paths.schema, paths.planner, paths.tmp_dir)
         self.coder = dbz.execute.code.Coder(paths, True)
     
     def add_context(self, query_code, out_path=None):
@@ -156,7 +156,7 @@ class DbzEngine(Engine):
         Returns:
             a piece of code processing the query
         """
-        sql = dbz.execute.query.simplify(sql)
+        sql = self.rewriter.rewrite(sql)
         self.logger.info(f'Simplified query: {sql}')
         plan = self.planner.plan(sql)
         self.logger.debug(f'Plan: {plan}')
