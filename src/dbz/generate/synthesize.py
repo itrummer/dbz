@@ -105,7 +105,7 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             parts += [self.prompt_prefix]
         
         if use_context:
-            context = task['context']
+            context = [t[0] for t in task['similar_tasks']][:1]
             for c in context:
                 ops = self.operators.get_ops(c)
                 op_idx = composition[c]

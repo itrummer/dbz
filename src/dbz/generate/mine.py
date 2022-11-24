@@ -107,7 +107,7 @@ class CodeMiner(dbz.analyze.component.AnalyzedComponent):
         code = next((c for c in cached if not self.operators.is_known(c)), None)
         
         synthesis_options = []
-        context_flags = [True, False] if task['context'] else [True]
+        context_flags = [True, False] if task['similar_tasks'] else [True]
         for temperature in self.temperatures:
             for use_context in context_flags:
                 synthesis_options += [(temperature, use_context)]
