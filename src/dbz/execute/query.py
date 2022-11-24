@@ -8,22 +8,8 @@ import re
 import sqlglot.expressions
 import sqlglot.optimizer
 
-from sqlglot.optimizer.annotate_types import annotate_types
-from sqlglot.optimizer.canonicalize import canonicalize
-from sqlglot.optimizer.eliminate_ctes import eliminate_ctes
-from sqlglot.optimizer.eliminate_joins import eliminate_joins
-from sqlglot.optimizer.eliminate_subqueries import eliminate_subqueries
-from sqlglot.optimizer.expand_multi_table_selects import expand_multi_table_selects
-from sqlglot.optimizer.isolate_table_selects import isolate_table_selects
-from sqlglot.optimizer.merge_subqueries import merge_subqueries
-from sqlglot.optimizer.normalize import normalize
-from sqlglot.optimizer.optimize_joins import optimize_joins
-from sqlglot.optimizer.pushdown_predicates import pushdown_predicates
-from sqlglot.optimizer.pushdown_projections import pushdown_projections
 from sqlglot.optimizer.qualify_columns import qualify_columns
 from sqlglot.optimizer.qualify_tables import qualify_tables
-from sqlglot.optimizer.quote_identities import quote_identities
-from sqlglot.optimizer.unnest_subqueries import unnest_subqueries
 
 
 class Rewriter():
@@ -36,7 +22,6 @@ class Rewriter():
             schema_path: path to file containing DDL commands
         """
         self.schema = self._read_schema(schema_path)
-        print(self.schema)
     
     def rewrite(self, query):
         """ Rewrite input query.
@@ -50,25 +35,9 @@ class Rewriter():
         query = self._simplify_dates(query)
         ast = sqlglot.parse_one(query)
         
-        rules = (
-            qualify_tables,
-            isolate_table_selects,
-            qualify_columns,
-            pushdown_projections,
-            normalize,
-            unnest_subqueries,
-            expand_multi_table_selects,
-            pushdown_predicates,
-            optimize_joins,
-            eliminate_subqueries,
-            merge_subqueries,
-            eliminate_joins,
-            eliminate_ctes,
-            annotate_types,
-            canonicalize,
-            quote_identities,
-        )        
-        ast = sqlglot.optimizer.optimize(ast, schema=self.schema, rules=rules)
+        rules = (qualify_tables, qualify_columns)
+        ast = sqlglot.optimizer.optimize(
+            ast, schema=self.schema, rules=rules)
         
         ast = ast.transform(self._rewrite_select)
         ast = ast.transform(self._rewrite_avg)
@@ -144,6 +113,25 @@ class Rewriter():
         else:
             return [predicate.copy()]
     
+    def _connected_tables(self, where_pred):
+        """ Returns tables connected via equality predicates.
+        
+        Args:
+            where_pred: predicate in WHERE clause
+        
+        Returns:
+            list of table pairs (sets), linked by equality condition
+        """
+        equalities = list(where_pred.find_all(sqlglot.expressions.EQ))
+        eq_operands = [self._binary_operands(e) for e in equalities]
+        connected_tables = []
+        for eq_pair in eq_operands:
+            if all(isinstance(o, sqlglot.expressions.Column) for o in eq_pair):
+                table_pair = set([op.args['table'].sql() for op in eq_pair])
+                connected_tables += [table_pair]
+        
+        return connected_tables
+    
     def _disjuncts(self, predicate):
         """ Extracts disjuncts from predicate.
         
@@ -161,6 +149,20 @@ class Rewriter():
             return self._disjuncts(operand)
         else:
             return [predicate.copy()]
+    
+    def _expanded_where(self, where):
+        """ Try to expand where clause via new predicates.
+        
+        Args:
+            where: original where clause
+        
+        Returns:
+            where clause expanded by unary or binary predicates
+        """
+        common_preds = self._common_preds(where)
+        trans_preds = self._transitive_preds(where)
+        where_items = common_preds + trans_preds + [where]
+        return self._conjunction(where_items)
     
     def _fix_dates(self, query):
         """ Fix representation of dates for Java-based planner. 
@@ -242,6 +244,32 @@ class Rewriter():
         table_name = schema.args['this'].sql()
         return table_name, column_dict
     
+    def _reordered_from(self, from_items, where_pred):
+        """ Tries reordering from items to avoid Cartesian product joins. 
+        
+        Args:
+            from_items: list of items in FROM clause
+            where_pred: predicate in WHERE clause
+        
+        Returns:
+            list of FROM clause items, possibly reordered
+        """
+        nr_items = len(from_items)
+        if nr_items < 2 or not all(
+            isinstance(i, sqlglot.expressions.Table) for i in from_items):
+            return from_items
+        
+        connected_tables = self._connected_tables(where_pred)
+        for _ in range(nr_items):
+            joined_first = set([
+                i.args['this'].sql() for i in from_items[:2]])
+            if joined_first in connected_tables:
+                break
+            else:
+                from_items = from_items[1:] + [from_items[0]]
+                
+        return from_items
+    
     def _resolve_date(self, year, month, day, op, delta, unit):
         """ Resolve date expression into new date.
         
@@ -311,15 +339,18 @@ class Rewriter():
             rewritten select expression or input node
         """
         if isinstance(select, sqlglot.expressions.Select):
-            # select = select.copy()
-            where = select.args.get('where', None)
-            if where is not None:
-                where_pred = where.args['this']
-                common_preds = self._common_preds(where_pred)
-                trans_preds = self._transitive_preds(where_pred)
-                where_items = common_preds + trans_preds + [where_pred]
-                new_where = self._conjunction(where_items)
+            where_clause = select.args.get('where', None)
+            if where_clause is not None:
+
+                where_pred = where_clause.args['this']
+                new_where = self._expanded_where(where_pred)
                 select.args['where'].args['this'] = new_where
+            
+                from_clause = select.args.get('from', None)
+                if from_clause is not None:
+                    from_items = from_clause.args['expressions']
+                    optimized = self._reordered_from(from_items, new_where)
+                    from_clause.args['expressions'] = optimized
         
         return select
     
