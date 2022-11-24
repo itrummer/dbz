@@ -263,6 +263,8 @@ class Coder():
         for agg_idx, agg in enumerate(aggs):
             distinct = agg['distinct']
             kind = agg['agg']['kind']
+            if kind == 'SINGLE_VALUE':
+                kind = 'MIN'
             operands = agg['operands']
             if kind in ['SUM', 'AVG', 'MIN', 'MAX']:
                 assert len(operands) == 1
