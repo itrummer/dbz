@@ -161,8 +161,11 @@ class Rewriter():
         """
         common_preds = self._common_preds(where)
         trans_preds = self._transitive_preds(where)
-        where_items = common_preds + trans_preds + [where]
-        return self._conjunction(where_items)
+        if common_preds or trans_preds:
+            where_items = common_preds + trans_preds + [where]
+            return self._conjunction(where_items)
+        else:
+            return where
     
     def _fix_dates(self, query):
         """ Fix representation of dates for Java-based planner. 
