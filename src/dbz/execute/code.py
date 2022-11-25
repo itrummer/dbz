@@ -19,6 +19,7 @@ class Coder():
         self.paths = paths
         self.id_to_step = {}
         self.print_results = print_results
+        self.id2like = {}
     
     def plan_code(self, plan):
         """ Translates plan into code.
@@ -34,15 +35,21 @@ class Coder():
             step_id = step['id']
             self.id_to_step[step_id] = step
         
-        lines = []
+        self.id2like = {}
+        step_lines = []
         for step in plan['rels']:
-            lines += [self._step_code(step)]
+            step_lines += [self._step_code(step)]
         
         final_step = plan['rels'][-1]
-        lines += [self._post_code(final_step)]
+        step_lines += [self._post_code(final_step)]
+        
+        compilation_lines = []
+        for like_id, like_pattern in self.id2like.items():
+            line = f'pattern{like_id} = re.compile("{like_pattern}")'
+            compilation_lines += [line]
 
-        return '\n'.join(lines)
-    
+        return '\n'.join(compilation_lines + step_lines)
+
     def _assignment(self, step, op_code):
         """ Returns code for assigning operation result to variable.
         
@@ -319,9 +326,11 @@ class Coder():
         """
         operands = node['operands']
         to_test = self._operation_code(operands[0])
-        like_expr = self._operation_code(operands[1])
-        like_expr = f'get_value({like_expr},0).replace(\'%\', \'.*\')'
-        pred_code = f'lambda s:re.match({like_expr}, s) is not None'
+        pattern = self._operation_code(operands[1]).replace('%','.*')
+        next_id = max(self.id2like.keys())+1 if self.id2like else 0
+        self.id2like[next_id] = pattern
+        pattern_name = f'pattern{next_id}'
+        pred_code = f'lambda s:{pattern_name}.match(s) is not None'
         return f'map_column({to_test}, {pred_code})'
     
     def _literal_code(self, literal, embed=True):
