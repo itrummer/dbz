@@ -33,14 +33,17 @@ class Rewriter():
             rewritten query
         """
         query = self._simplify_dates(query)
-        ast = sqlglot.parse_one(query)
+        parsed = sqlglot.parse_one(query)
         
         rules = (qualify_tables, qualify_columns)
-        ast = sqlglot.optimizer.optimize(
-            ast, schema=self.schema, rules=rules)
+        annotated = sqlglot.optimizer.optimize(
+            parsed, schema=self.schema, rules=rules)
+        optimized = annotated.transform(self._rewrite_select)
         
-        ast = ast.transform(self._rewrite_select)
-        ast = ast.transform(self._rewrite_avg)
+        if annotated == optimized:
+            optimized = parsed
+        
+        ast = optimized.transform(self._rewrite_avg)
         ast = ast.transform(self._rewrite_sum)
         
         query = ast.sql()
