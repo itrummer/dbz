@@ -389,9 +389,12 @@ class Coder():
         else:
             conjuncts = [condition]
 
+        # Heuristic: sort predicates in ascending order of code length
+        pred_codes = [self._operation_code(c) for c in conjuncts]
+        pred_codes.sort(key=lambda c:len(c))
+
         parts = []
-        for conjunct in conjuncts:
-            pred_code = self._operation_code(conjunct)
+        for pred_code in pred_codes:
             parts += [f'if not is_empty(in_rel_1):']
             parts += [f'\tp_idx = {pred_code}']
             parts += [f'\tp_idx = scale_to_table(p_idx, "Boolean", in_rel_1)']
