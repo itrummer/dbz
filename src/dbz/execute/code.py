@@ -326,7 +326,7 @@ class Coder():
         """
         operands = node['operands']
         to_test = self._operation_code(operands[0])
-        pattern = self._operation_code(operands[1]).replace('%','.*')
+        pattern = operands[1].args['this'].replace('%','.*')
         next_id = max(self.id2like.keys())+1 if self.id2like else 0
         self.id2like[next_id] = pattern
         pattern_name = f'pattern{next_id}'
