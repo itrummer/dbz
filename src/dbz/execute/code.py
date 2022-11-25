@@ -163,10 +163,13 @@ class Coder():
         scale_after = 0 if scale_after is None else scale_after
         if not (scale_before == scale_after):
             diff = scale_after - scale_before
-            operand_code = f'multiply_by_scalar({operand_code},1e{diff})'
-            if new_type_name in ['varchar', 'float'] and diff < 0:
-                operand_code = f'map_column({operand_code},' +\
-                    f'lambda i:round(i,-{diff}))'
+            if diff > 0:
+                operand_code = f'multiply_by_scalar({operand_code},1e{diff})'
+            else:
+                operand_code = f'divide_by_scalar({operand_code},1e{-diff})'
+            # if new_type_name in ['varchar', 'float'] and diff < 0:
+                # operand_code = f'map_column({operand_code},' +\
+                    # f'lambda i:round(i,-{diff}))'
         
         if old_type_name == 'char' and new_type_name == 'char':
             pad_to = new_type['precision']

@@ -21,6 +21,14 @@ def cast_to_int_round(*args):
     round_column()
     cast_to_int()
 
+def divide_by_scalar(*args):
+    nr_rows()
+    fill_int_column()
+    fill_float_column()
+    cast_to_float()
+    division()
+    return []
+
 def round_column(*args):
     nr_rows()
     fill_float_column()
@@ -64,13 +72,6 @@ def if_else(*args):
             # val
     return []
 
-def fix_nulls(inputs, result, result_type):
-    nr_rows()
-    is_null()
-    multiway_or()
-    get_null()
-    if_else()
-
 def multiway_and(*args):
     nr_rows()
     fill_Boolean_column()
@@ -104,10 +105,8 @@ def grouped_count(*args):
 
 def multiply_by_scalar(*args):
     nr_rows()
-    fill_Boolean_column()
     fill_int_column()
     fill_float_column()
-    fill_string_column()
     cast_to_float()
     multiplication()
     return []

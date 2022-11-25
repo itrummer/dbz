@@ -11,6 +11,7 @@ def same_content(path_1, path_2):
         data_2 = file.read()
     return data_1 == data_2
 
+
 def round_column(column):
     """ Map column to rounded values. """
     scale_to = nr_rows(column)
@@ -18,6 +19,7 @@ def round_column(column):
     added = addition(column, value_05)
     floored = floor(added)
     return floored
+
 
 def cast_to_int_round(column):
     """ Try casting to integers - try rounding if unsuccessful. 
@@ -32,6 +34,23 @@ def cast_to_int_round(column):
         return cast_to_int(round_column(column))
     except:
         return cast_to_int(column)
+
+
+def divide_by_scalar(column, scalar):
+    """ Divides column by a scalar.
+    
+    Args:
+        column: a column containing numerical values
+        scalar: an integer or float constant
+    
+    Returns:
+        column resulting from division
+    """
+    scale_to = nr_rows(column)
+    const_col = fill_float_column(scalar, scale_to)
+    casted_col = cast_to_float(column)
+    return division(casted_col, const_col)
+
 
 def multiway_and(operands):
     """ Calculates a logical and between multiple operands.
@@ -63,34 +82,6 @@ def multiway_or(operands):
     for op in operands:
         result = logical_or(result, op)
     return result
-
-
-def fix_nulls(inputs, result, result_type):
-    """ Returns result with NULL values wherever any input is NULL.
-    
-    Args:
-        inputs: a list of input columns
-        result: a raw result that may not handle NULL values correctly
-        result_type: data type of result column
-    
-    Returns:
-        fixed result version: NULL wherever any input is NULL
-    """
-    input_null = multiway_or([is_null(in_col) for in_col in inputs])
-    
-    assert result_type in ['Boolean', 'int', 'float', 'string']
-    scale_to = nr_rows(result)
-    if result_type == 'Boolean':
-        scaled_null = fill_Boolean_column(get_null(), scale_to)
-    elif result_type == 'int':
-        scaled_null = fill_int_column(get_null(), scale_to)
-    elif result_type == 'float':
-        scaled_null = fill_float_column(get_null(), scale_to)
-    else:
-        scaled_null = fill_string_column(get_null(), scale_to)
-
-    return if_else(input_null, scaled_null, result)
-
 
 def grouped_count(table, groups, operands, distinct):
     """ Calculate count with group-by clause.
