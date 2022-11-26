@@ -41,7 +41,7 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             t['task_id'] for t in tasks.gen_tasks]
         self.nr_tasks = len(self.task_order)
         self.fct2tid = {
-            t['task_id']:t['function_name'] 
+            t['function_name']:t['task_id'] 
             for t in tasks.gen_tasks}
         self.idx2checks = self._schedule_checks()
         self.composition = {tid:0 for tid in self.task_order}
