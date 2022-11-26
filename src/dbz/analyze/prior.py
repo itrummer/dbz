@@ -22,7 +22,8 @@ if __name__ == '__main__':
     
     query_times = []
     for query in queries:
-        command = f'timeout {args.timeout}' + args.script + f' "{query}"'
+        command = f'timeout {args.timeout} ' + args.script + f' "{query}"'
+        print(command)
         start_s = time.time()
         os.system(command)
         total_s = time.time() - start_s
