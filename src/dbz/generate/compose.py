@@ -37,8 +37,12 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         self.ops = operators
         self.tasks = tasks
         self.pre_code = pre_code
-        self.task_order = [t['task_id'] for t in tasks.gen_tasks]
+        self.task_order = [
+            t['task_id'] for t in tasks.gen_tasks]
         self.nr_tasks = len(self.task_order)
+        self.fct2tid = {
+            t['task_id']:t['function_name'] 
+            for t in tasks.gen_tasks}
         self.idx2checks = self._schedule_checks()
         self.composition = {tid:0 for tid in self.task_order}
         self.works_until = -1
@@ -223,6 +227,9 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             for task_id in check['requirements']:
                 code_id = composition[task_id]
                 min_comp[task_id] = code_id
+            min_comp = self._expand_composition(min_comp, composition)
+            check['last_used_ids'] = min_comp.keys()
+            
             library = self._composition_code(min_comp)
             test_engine = dbz.execute.engine.DbzEngine(
                 self.paths, library, self.python)
@@ -263,6 +270,48 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             code = self.ops.get_ops(task_id)[code_id]
             parts += [code]
         return '\n\n'.join(parts)
+    
+    def _expand_composition(self, min_comp, full_comp):
+        """ Update list of dependencies in task using code. 
+        
+        Args:
+            min_comp: composition with code for required tasks
+            full_comp: composition integrating all prior tasks
+        
+        Returns:
+            composition expanded by required tasks
+        """
+        changed = True
+        while changed:
+            changed = False
+            for task_id, code_id in min_comp.items():
+                code = self.ops.get_ops(task_id)[code_id]
+                used_ids = self._used_task_ids(code)
+                for used_id in used_ids:
+                    if used_id not in min_comp:
+                        used_code_id = full_comp[used_id]
+                        min_comp[used_id] = used_code_id
+                        changed = True
+        
+        return min_comp
+    
+    def _used_task_ids(self, code):
+        """ Returns IDs of tasks whose functions are called.
+        
+        Args:
+            code: analyze this piece of code
+        
+        Returns:
+            set of task IDs
+        """
+        task_ids = set()
+        for fct_name, task_id in self.fct2tid.items():
+            def_pattern = f'def {fct_name}('
+            pattern = f'{fct_name}('
+            if pattern in code and not def_pattern in code:
+                task_ids.add(task_id)
+        
+        return task_ids
     
     def _get_key(self, composition, check):
         """ Calculates composition key used for check result caching. 

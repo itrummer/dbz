@@ -94,12 +94,7 @@ class Tasks(dbz.analyze.component.AnalyzedComponent):
     def _add_fct_names(self):
         """ Add names of generated functions to task descriptions. """
         for gen_task in self.gen_tasks:
-            file_name = gen_task['template']
-            substitutions = gen_task['substitutions']
-            prompt = dbz.generate.synthesize.Synthesizer.load_prompt(
-                file_name, substitutions)
-            
-            name = self._fct_name(prompt)
+            name = dbz.generate.synthesize.Synthesizer.function_name(gen_task)
             if name is not None:
                 gen_task['function_name'] = name
             
@@ -174,23 +169,6 @@ class Tasks(dbz.analyze.component.AnalyzedComponent):
                     print(f'Added Code Check: {check_task}')
                     
         return check_tasks
-
-    def _fct_name(self, prompt):
-        """ Extract name of function to generate from prompt.
-        
-        Args:
-            prompt: text of prompt initiating code generation
-        
-        Returns:
-            name of Python function to generate
-        """
-        lines = prompt.split('\n')
-        for line in lines:
-            match = re.match('def\s(.*)\(.*', line)
-            if match is not None:
-                return match.group(1)
-        
-        return None
     
     def _prompt_length(self, task):
         """ Calculate length of code generation prompt.

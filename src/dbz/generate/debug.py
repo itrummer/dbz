@@ -49,7 +49,7 @@ class Debugger(dbz.analyze.component.AnalyzedComponent):
         
         failed_checks = failure_info.failed_checks
         assert len(failed_checks) == 1
-        redo_candidates = failed_checks[0]['requirements']
+        redo_candidates = failed_checks[0]['last_used_ids']
         task2p_unsolved = {}
         for task_id in redo_candidates:
             p_unsolved = self._p_unsolved(
@@ -79,7 +79,7 @@ class Debugger(dbz.analyze.component.AnalyzedComponent):
         """
         task2nr = Counter()
         for check in passed_checks:
-            task2nr.update(check['requirements'])
+            task2nr.update(check['last_used_ids'])
         
         return task2nr
     

@@ -150,7 +150,7 @@ if __name__ == '__main__':
         comp = composer.composition
         redo_tasks_weighted = debugger.to_redo()
         redo_tasks = [t for t, _ in redo_tasks_weighted]
-        redo_iters = [(t_id, i) for t_id in redo_tasks for i in range(3)]
+        redo_iters = [(t_id, i) for t_id in redo_tasks for i in range(5)]
         
         for task_id, i in redo_iters:
             if timeout(start_s, args.timeout_s):

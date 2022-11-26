@@ -22,6 +22,7 @@ class CodeMiner(dbz.analyze.component.AnalyzedComponent):
             user_code_dir: directory containing user code
             synthesizer: used to generate operator code
             code_cache: maps prompts to lists of generated code
+            fct2tid: maps function names to task IDs
             nr_levels: how many temperature levels to consider
         """
         super().__init__()

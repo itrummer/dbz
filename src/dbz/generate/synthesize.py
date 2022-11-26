@@ -6,6 +6,7 @@ Created on Mar 6, 2022
 import dbz.analyze.component
 import logging
 import openai
+import re
 import time
 
 
@@ -46,6 +47,28 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             text = text.replace(placeholder, value)
         
         return text
+
+    @staticmethod
+    def function_name(task):
+        """ Determine name of generated function.
+        
+        Args:
+            task: extract function name from this task's prompt
+        
+        Returns:
+            name of Python function associated with task
+        """
+        substitutions = task['substitutions']
+        file_name = task['template']
+        prompt = Synthesizer.load_prompt(file_name, substitutions)
+        
+        lines = prompt.split('\n')
+        for line in lines:
+            match = re.match('def\s(.*)\(.*', line)
+            if match is not None:
+                return match.group(1)
+        
+        return None
 
     def call_history(self):
         """ Returns call history used for statistics.
