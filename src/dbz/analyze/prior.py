@@ -20,9 +20,13 @@ if __name__ == '__main__':
         queries = file.read()
         queries = queries.split(';')
     
+    query_times = []
     for query in queries:
         command = f'timeout {args.timeout}' + args.script + f' "{query}"'
         start_s = time.time()
         os.system(command)
         total_s = time.time() - start_s
+        query_times += [total_s]
         print(f'Total Seconds: {total_s}')
+    
+    print('\n'.join(query_times))
