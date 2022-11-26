@@ -12,7 +12,7 @@ if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
     parser.add_argument('script', type=str, help='Script for executing query')
-    parser.add_argument('queries', types=str, help='Path to file with queries')
+    parser.add_argument('queries', type=str, help='Path to file with queries')
     parser.add_argument('timeout', type=str, help='Per-query timeout in seconds')
     args = parser.parse_args()
 
