@@ -102,6 +102,28 @@
 			"src/dbz/tests"
 		]
 	},
+	"groups": [
+	{"name":"test", "tasks":[
+		"column_type_test", "table_type_test"]},
+	{"name":"io", "tasks":[
+		"load_data", "store_data"]},
+	{"name":"basic", "tasks":[
+		"get_null", "get", "create_table", "fill_int_column", "fill_float_column", 
+		"fill_bool_column", "fill_string_column", "is_empty", "add_column",
+		"get_column", "set_column", "nr_rows", "is_null", "map", "to_int", 
+		"to_float", "to_string", "to_bool", "substring", "first_rows"]},
+	{"name":"arithmetic", "tasks":[
+		"floor", "addition", "subtraction", "multiplication", "division"]},
+	{"name":"Boolean", "tasks":[
+		"filter", "less_than", "greater_than", "equal", "not_equal", 
+		"less_than_or_equal", "greater_than_or_equal", "and", "or", 
+		"not", "case"]},
+	{"name":"aggregates", "tasks":[
+		"sum", "min", "max", "avg", "count_distinct", "grouped_sum", 
+		"grouped_min", "grouped_max", "grouped_avg"]},
+	{"name":"complex", "tasks":[
+		"sort", "equi_join", "left_join", "right_join", "cross_product"]}
+	],
 	"tasks":[
 	{"type":"generate", "task_id":"load_data", "context":[],
 		"template":"load_data.py", "substitutions":{}},

@@ -15,24 +15,24 @@ import re
 class Tasks():
     """ Stores and analyzes generation and verification tasks. """
     
-    def __init__(self, config):
+    def __init__(self, config, substitutions):
         """ Loads and analyzes tasks.
         
         Args:
             config: JSON configuration file with task descriptions
+            substitutions: custom prompt substitutions
             pre_code: code prefix provided by users
         """
         self.logger = logging.getLogger('all')
         self.logger.info('Initializing Tasks')
         self.config = config
+        self.substitutions = substitutions
         test_access = self.config['test_access']
         data_dir = test_access['data_dir']
         self.paths = dbz.util.DbzPaths(
             data_dir, includes='src/dbz/include/trace')
         
-        tasks = config['tasks']
-        self.gen_tasks = [t for t in tasks if t['type'] == 'generate']
-        self._order_tasks()
+        self.gen_tasks = self._ordered_tasks(config)
         self._add_context()
         self.id2task = {t['task_id']:t for t in self.gen_tasks}
         self._add_fct_names()
@@ -42,7 +42,7 @@ class Tasks():
         """ Assign each generation task to most similar prior task. """
         for gen_task in self.gen_tasks:
             file_name = gen_task['template']
-            substitutions = gen_task['substitutions']
+            substitutions = {**gen_task['substitutions'], **self.substitutions}
             prompt = dbz.generate.synthesize.Synthesizer.load_prompt(
                 file_name, substitutions)
             embedding = openai.embeddings_utils.get_embedding(
@@ -167,9 +167,41 @@ class Tasks():
         
         return None
     
-    def _order_tasks(self):
-        """ Optimize order of code generation tasks. """
-        pass
+        def _prompt_length(task):
+            """ Calculate length of code generation prompt.
+            
+            Args:
+                task: calculate prompt length for this task
+            
+            Returns:
+                length of prompt in characters
+            """
+            file_name = task['template']
+            substitutions = {**task['substitutions'], **self.substitutions}
+            prompt = dbz.generate.synthesize.Synthesizer.load_prompt(
+                file_name, substitutions)
+            return len(prompt)
+    
+    def _ordered_tasks(self):
+        """ Optimize order of code generation tasks.
+        
+        Returns:
+            ordered list of generation tasks
+        """
+        tasks = self.config['tasks']
+        gen_tasks = [t for t in tasks if t['type'] == 'generate']
+        id2task = {t['task_id']:t for t in gen_tasks}
+        
+        ordered_tasks = []
+        groups = config['groups']
+        for group in groups:
+            self.logger.info(f'Group: {group["name"]}')
+            group_task_ids = group['tasks']
+            group_tasks = [id2task[t_id] for t_id in group_task_ids]
+            group_tasks.sort(key=lambda t:self._prompt_length(t))
+            ordered_tasks += group_tasks
+        
+        return ordered_tasks
         
     def _tracer_fct(self, fct_name, task_id):
         """ Write function for tracing required tasks. 

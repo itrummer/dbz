@@ -111,11 +111,11 @@ if __name__ == '__main__':
     sys_code_dir = os.path.join(args.operators_dir, 'system')
     user_code_dir = os.path.join(args.operators_dir, 'user')
 
-    tasks = dbz.generate.task.Tasks(config)
     operators = dbz.generate.operator.Operators()
     # Substitutions: <Table>, <Column>, <TablePost>, <Null>, 
     # <BooleanField>, <IntegerField>, <FloatField>, <StringField> 
     substitutions = custom['substitutions']
+    tasks = dbz.generate.task.Tasks(config, substitutions)
     synthesizer = dbz.generate.synthesize.Synthesizer(
         operators, substitutions, prompt_prefix, prompt_suffix)
     miner = dbz.generate.mine.CodeMiner(
