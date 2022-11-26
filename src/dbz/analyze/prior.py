@@ -31,4 +31,4 @@ if __name__ == '__main__':
         query_times += [total_s]
         print(f'Total Seconds: {total_s}')
     
-    print('\n'.join(query_times))
+    print('\n'.join([str(t) for t in query_times]))
