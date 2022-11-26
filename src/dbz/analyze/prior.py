@@ -19,6 +19,7 @@ if __name__ == '__main__':
     with open(args.queries) as file:
         queries = file.read()
         queries = queries.split(';')
+        print(queries)
     
     query_times = []
     for query in queries:
