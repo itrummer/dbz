@@ -115,7 +115,7 @@
 	{"name":"arithmetic", "tasks":[
 		"floor", "addition", "subtraction", "multiplication", "division"]},
 	{"name":"Boolean", "tasks":[
-		"filter", "less_than", "greater_than", "equal", "not_equal", 
+		"filter", "less_than", "greater_than", "equal_to", "not_equal_to", 
 		"less_than_or_equal", "greater_than_or_equal", "and", "or", 
 		"not", "case"]},
 	{"name":"aggregates", "tasks":[
