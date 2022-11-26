@@ -284,15 +284,18 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         changed = True
         while changed:
             changed = False
+            expanded_comp = min_comp.copy()
             for task_id, code_id in min_comp.items():
                 code = self.ops.get_ops(task_id)[code_id]
                 used_ids = self._used_task_ids(code)
                 for used_id in used_ids:
                     if used_id not in min_comp:
                         used_code_id = full_comp[used_id]
-                        min_comp[used_id] = used_code_id
+                        expanded_comp[used_id] = used_code_id
                         changed = True
-        
+                
+            min_comp = expanded_comp
+
         return min_comp
     
     def _used_task_ids(self, code):
