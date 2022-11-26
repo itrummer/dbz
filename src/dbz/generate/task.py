@@ -33,6 +33,8 @@ class Tasks():
             data_dir, includes='src/dbz/include/trace')
         
         self.gen_tasks = self._ordered_tasks()
+        self.logger.info(
+            f'Ordered Tasks: {[t["task_id"] for t in self.gen_tasks]}')
         self._add_context()
         self.id2task = {t['task_id']:t for t in self.gen_tasks}
         self._add_fct_names()
