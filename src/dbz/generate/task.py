@@ -193,7 +193,7 @@ class Tasks():
         id2task = {t['task_id']:t for t in gen_tasks}
         
         ordered_tasks = []
-        groups = config['groups']
+        groups = self.config['groups']
         for group in groups:
             self.logger.info(f'Group: {group["name"]}')
             group_task_ids = group['tasks']
