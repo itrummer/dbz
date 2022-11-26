@@ -18,18 +18,20 @@ import os.path
 import time
 
 
-def load_referenced_code(code_path):
+def load_referenced_code(code_dir, file_name):
     """ Load code referenced via given key. 
     
     Args:
-        code_path: path to code file (or empty)
+        code_dir: path of code directory
+        file_name: name of code file (or empty)
     
     Returns:
         empty string for empty path, file content otherwise
     """
-    if not code_path:
+    if not file_name:
         return ''
     else:
+        code_path = os.path.join(code_dir, file_name)
         with open(code_path) as file:
             return file.read()
 
@@ -76,10 +78,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('config', type=str, help='Path to synthesis')
     parser.add_argument('ai_key', type=str, help='Access key to OpenAI')
-    parser.add_argument('custom', type=str, help='Path to customization file')
+    parser.add_argument('engine_dir', type=str, help='Directory of new engine')
     parser.add_argument('log_level', type=str, help='Set logging level')
-    parser.add_argument('code_cache', type=str, help='Path to code cache')
-    parser.add_argument('operators_dir', type=str, help='Path to operators')
     parser.add_argument('timeout_s', type=int, help='Timeout in seconds or -1')
     args = parser.parse_args()
     
@@ -89,27 +89,35 @@ if __name__ == '__main__':
     openai.api_key = args.ai_key
     with open(args.config) as file:
         config = json.load(file)
-    with open(args.custom) as file:
+    
+    customization_dir = os.path.join(args.engine_dir, 'customization')
+    customization_path = os.path.join(customization_dir, 'customization.json')
+    code_cache_path = os.path.join(args.engine_dir, 'code_cache.json')
+    
+    with open(customization_path) as file:
         custom = json.load(file)
 
-    prompt_prefix = load_referenced_code(custom['prompt_prefix_path'])
-    prompt_suffix = load_referenced_code(custom['prompt_suffix_path'])
-    custom_code = load_referenced_code(custom['custom_code_path'])
+    prompt_prefix = load_referenced_code(
+        customization_dir, custom['prompt_prefix_path'])
+    prompt_suffix = load_referenced_code(
+        customization_dir, custom['prompt_suffix_path'])
+    custom_code = load_referenced_code(
+        customization_dir, custom['custom_code_path'])
     pre_code = prompt_prefix + '\n\n' + custom_code
     
     logging.basicConfig(level=int(args.log_level))
     logger = logging.getLogger('all')
     logger.setLevel(int(args.log_level))
     
-    if os.path.exists(args.code_cache):
-        with open(args.code_cache) as file:
+    if os.path.exists(code_cache_path):
+        with open(code_cache_path) as file:
             code_cache = json.load(file)
     else:
         code_cache = {}
 
-    history_path = os.path.join(args.operators_dir, 'history.json')
-    sys_code_dir = os.path.join(args.operators_dir, 'system')
-    user_code_dir = os.path.join(args.operators_dir, 'user')
+    history_path = os.path.join(args.engine_dir, 'history.json')
+    sys_code_dir = os.path.join(args.engine_dir, 'system')
+    user_code_dir = os.path.join(args.engine_dir, 'user')
 
     operators = dbz.generate.operator.Operators()
     # Substitutions: <Table>, <Column>, <TablePost>, <Null>, 
@@ -141,7 +149,7 @@ if __name__ == '__main__':
         round_ctr += 1
         logger.info(f'Starting Debugging Round {round_ctr} ...')
 
-        with open(args.code_cache, 'w') as file:
+        with open(code_cache_path, 'w') as file:
             json.dump(miner.code_cache, file)
         
         if timeout(start_s, args.timeout_s):
