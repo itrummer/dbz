@@ -167,20 +167,20 @@ class Tasks():
         
         return None
     
-        def _prompt_length(task):
-            """ Calculate length of code generation prompt.
-            
-            Args:
-                task: calculate prompt length for this task
-            
-            Returns:
-                length of prompt in characters
-            """
-            file_name = task['template']
-            substitutions = {**task['substitutions'], **self.substitutions}
-            prompt = dbz.generate.synthesize.Synthesizer.load_prompt(
-                file_name, substitutions)
-            return len(prompt)
+    def _prompt_length(self, task):
+        """ Calculate length of code generation prompt.
+        
+        Args:
+            task: calculate prompt length for this task
+        
+        Returns:
+            length of prompt in characters
+        """
+        file_name = task['template']
+        substitutions = {**task['substitutions'], **self.substitutions}
+        prompt = dbz.generate.synthesize.Synthesizer.load_prompt(
+            file_name, substitutions)
+        return len(prompt)
     
     def _ordered_tasks(self):
         """ Optimize order of code generation tasks.
