@@ -3,6 +3,7 @@ Created on Sep 25, 2022
 
 @author: immanueltrummer
 '''
+import dbz.analyze.component
 import dbz.execute.engine
 import dbz.generate.synthesize
 import json
@@ -10,9 +11,10 @@ import logging
 import openai.embeddings_utils
 import os.path
 import re
+import time
 
 
-class Tasks():
+class Tasks(dbz.analyze.component.AnalyzedComponent):
     """ Stores and analyzes generation and verification tasks. """
     
     def __init__(self, config, substitutions):
@@ -23,6 +25,11 @@ class Tasks():
             substitutions: custom prompt substitutions
             pre_code: code prefix provided by users
         """
+        super().__init__()
+        start_s = time.time()
+        self.nr_prompts = 0
+        self.nr_characters = 0
+        
         self.logger = logging.getLogger('all')
         self.logger.info('Initializing Tasks')
         self.config = config
@@ -39,6 +46,20 @@ class Tasks():
         self.id2task = {t['task_id']:t for t in self.gen_tasks}
         self._add_fct_names()
         self.check_tasks = self._check_tasks()
+        total_s = time.time() - start_s
+        self.history += [{
+            "total_s":total_s, 
+            "nr_prompts":self.nr_prompts, 
+            "nr_chars":self.nr_characters
+            }]
+    
+    def call_history(self):
+        """ Returns history of task analysis calls.
+        
+        Returns:
+            a dictionary mapping component IDs to call lists
+        """
+        return {"tasks":self.history}
     
     def _add_context(self):
         """ Assign each generation task to most similar prior task. """
@@ -50,6 +71,8 @@ class Tasks():
             embedding = openai.embeddings_utils.get_embedding(
                 prompt, engine='code-search-babbage-code-001')
             gen_task['prompt_embedding'] = embedding
+            self.nr_prompts += 1
+            self.nr_characters += len(prompt)
         
         for t_idx, task in enumerate(self.gen_tasks):
             embedding = task['prompt_embedding']

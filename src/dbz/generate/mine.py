@@ -45,7 +45,6 @@ class CodeMiner(dbz.analyze.component.AnalyzedComponent):
             dictionary mapping component IDs to lists of calls
         """
         return {"miner":self.history}
-        
     
     def mine(self, task, composition):
         """ Mine code as specified in given generation task.

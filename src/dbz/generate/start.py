@@ -176,7 +176,11 @@ if __name__ == '__main__':
         with open(sql_engine_path, 'w') as file:
             file.write(sql_engine)
 
+    total_s = time.time() - start_s
+    g_call = {"start_s":start_s, "total_s":total_s}
     history = {
+        "genesis":[g_call],
+        **tasks.call_history(),
         **composer.call_history(), 
         **miner.call_history(),
         **synthesizer.call_history(), 
