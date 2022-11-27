@@ -21,12 +21,17 @@ if __name__ == '__main__':
     nr_calls = len(history['genesis'])
     nr_interventions = nr_calls-1
     
-    comp2time = {}
+    stats = {}
     for component, calls in history.items():
+        nr_calls = len(calls)
+        nr_calls_key = f'nr_calls_{component}'
+        stats[nr_calls_key] = nr_calls
+        
         total_s = sum(call['total_s'] for call in calls)
-        comp2time[component] = total_s
+        total_s_key = f'total_s_{component}'
+        stats[component] = total_s
     
     print(f'--- {args.engine_dir} ---')
     print(f'Nr. calls: {nr_calls}')
     print(f'Nr. interventions: {nr_interventions}')
-    print(f'Time by Component: {comp2time}')
+    print(f'Statistics: {stats}')
