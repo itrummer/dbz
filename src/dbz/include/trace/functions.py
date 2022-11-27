@@ -3,17 +3,6 @@ Created on Sep 25, 2022
 
 @author: immanueltrummer
 '''
-def create_table(*args):
-    """ Creates table - defined by user. """
-    return []
-
-def load_from_csv(*args):
-    """ Load table from disk - defined by user. """
-    return []
-
-def write_to_csv(*args):
-    """ Write to disk - defined by user. """
-
 def same_content(path_1, path_2):
     return True
 
