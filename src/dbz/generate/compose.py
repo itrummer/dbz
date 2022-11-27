@@ -43,6 +43,7 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         self.fct2tid = {
             t['function_name']:t['task_id'] 
             for t in tasks.gen_tasks}
+        self.logger.info(f'Function names to task IDs: {self.fct2tid}')
         self.idx2checks = self._schedule_checks()
         self.composition = {tid:0 for tid in self.task_order}
         self.works_until = -1
