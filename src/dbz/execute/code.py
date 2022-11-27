@@ -585,7 +585,7 @@ class Coder():
                 out_row += [out_field]
             out_rows += [out_row]
         
-        to_path = f'{self.paths.tmp_dir}/{result}'
+        to_path = f'{self.paths.tmp_dir}/{result}.csv'
         df = pd.DataFrame(out_rows)
         df.to_csv(to_path, header=False, index=False)
         
