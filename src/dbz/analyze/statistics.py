@@ -19,8 +19,14 @@ if __name__ == '__main__':
         history = json.load(file)
     
     nr_calls = len(history['genesis'])
-    total_s = sum(call['total_s'] for call in history['genesis'])
+    nr_interventions = nr_calls-1
+    
+    comp2time = {}
+    for component, calls in history.items():
+        total_s = sum(call['total_s'] for call in calls)
+        comp2time[component] = total_s
     
     print(f'--- {args.engine_dir} ---')
     print(f'Nr. calls: {nr_calls}')
-    print(f'Time: {total_s} seconds')
+    print(f'Nr. interventions: {nr_interventions}')
+    print(f'Time by Component: {comp2time}')
