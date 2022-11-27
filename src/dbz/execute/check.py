@@ -258,8 +258,8 @@ class Validator(dbz.analyze.component.AnalyzedComponent):
         """
         try:
             query = check['query']
-            ref_path = f'{self.paths.tmp_dir}/ref'
-            check_path = f'{self.paths.tmp_dir}/check'
+            ref_path = f'{self.paths.tmp_dir}/ref.csv'
+            check_path = f'{self.paths.tmp_dir}/check.csv'
             
             ref_success = self.sql_ref.execute(query, ref_path)
             if not ref_success:
@@ -271,7 +271,6 @@ class Validator(dbz.analyze.component.AnalyzedComponent):
                 print('Validation Failed!')
                 return False
             
-            ref_path = f'{self.paths.tmp_dir}/ref'
             print('Start of test result:')
             print(os.system(f'head {check_path}'))
             print('Start of reference result:')
