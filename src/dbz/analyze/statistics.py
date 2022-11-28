@@ -39,7 +39,7 @@ if __name__ == '__main__':
     nr_generated_chars = sum(len(c['completion']) for c in s_calls)
     nr_processed_chars = sum(len(c['prompt']) for c in s_calls) + nr_generated_chars
     generated_lines = [l for c in s_calls for l in c['completion'].split('\n')]
-    nr_generated_lines = len(l for l in generated_lines if l)
+    nr_generated_lines = len([l for l in generated_lines if l])
     stats['nr_generated_chars'] = nr_generated_chars
     stats['nr_processed_chars'] = nr_processed_chars
     stats['nr_generated_lines'] = generated_lines
