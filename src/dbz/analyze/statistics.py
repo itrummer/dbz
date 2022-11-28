@@ -4,8 +4,10 @@ Created on Nov 27, 2022
 @author: immanueltrummer
 '''
 import argparse
+import collections
 import json
 import os.path
+import statistics
 
 
 if __name__ == '__main__':
@@ -34,13 +36,50 @@ if __name__ == '__main__':
     
     # Analyzing synthesized code
     s_calls = history['synthesizer']
-    generated_chars = sum(len(c['completion']) for c in s_calls)
-    generated_lines = sum(c['completion'].count('\n') for c in s_calls)
-    processed_chars = sum(len(c['prompt']) for c in s_calls) + generated_chars
-    stats['generated_chars'] = generated_chars
-    stats['generated_lines'] = generated_lines
-    stats['processed_chars'] = processed_chars
+    nr_generated_chars = sum(len(c['completion']) for c in s_calls)
+    nr_processed_chars = sum(len(c['prompt']) for c in s_calls) + nr_generated_chars
+    generated_lines = [l for c in s_calls for l in c['completion'].split('\n')]
+    nr_generated_lines = len(l for l in generated_lines if l)
+    stats['nr_generated_chars'] = nr_generated_chars
+    stats['nr_processed_chars'] = nr_processed_chars
+    stats['nr_generated_lines'] = generated_lines
+    
+    # More code generation analysis
+    stats['embedding_chars'] = sum(c['nr_chars'] for c in stats['tasks'])
+    temperatures = [c['temperature'] for c in history['miner']]
+    stats['temperature'] = statistics.mean(temperatures)
+    
+    # Analyzing final code
+    def code_size(code_path):
+        """ Analyzes code path.
+        
+        Args:
+            code_path: path to file containing code
+        
+        Returns:
+            tuple: number of characters, number of lines
+        """
+        with open(code_path) as file:
+            code = file.read()
+            nr_chars = len(code)
+            lines = [l for l in code.split('\n') if l]
+            nr_lines = len(lines)
+            return nr_chars, nr_lines
+    
+    engine_path = os.path.join(args.engine_dir, 'system', 'sql_engine.py')
+    include_dir = os.path.join('src', 'dbz', 'include', 'run')
+    function_path = os.path.join(include_dir, 'functions.py')
+    imports_path = os.path.join(include_dir, 'imports.py')
+    
+    engine_chars, engine_lines = code_size(engine_path)
+    function_chars, function_lines = code_size(function_path)
+    imports_chars, imports_lines = code_size(imports_path)
+    
+    stats['final_chars'] = engine_chars - function_chars - imports_chars
+    stats['final_lines'] = engine_lines - function_lines - imports_lines
     
     print(f'--- {args.engine_dir} ---')
-    for k, v in stats.items():
+    stats_items = list(stats.items())
+    stats_items.sort(key=lambda i:i[0])
+    for k, v in stats_items:
         print(f'{k}\t:{v}')
