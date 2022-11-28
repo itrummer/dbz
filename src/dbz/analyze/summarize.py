@@ -4,7 +4,6 @@ Created on Nov 27, 2022
 @author: immanueltrummer
 '''
 import argparse
-import collections
 import json
 import os.path
 import statistics
