@@ -41,7 +41,7 @@ if __name__ == '__main__':
     nr_generated_lines = len([l for l in generated_lines if l])
     stats['nr_generated_chars'] = nr_generated_chars
     stats['nr_processed_chars'] = nr_processed_chars
-    stats['nr_generated_lines'] = generated_lines
+    stats['nr_generated_lines'] = nr_generated_lines
     
     # More code generation analysis
     stats['embedding_chars'] = sum(c['nr_chars'] for c in history['tasks'])
