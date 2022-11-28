@@ -45,7 +45,7 @@ if __name__ == '__main__':
     stats['nr_generated_lines'] = generated_lines
     
     # More code generation analysis
-    stats['embedding_chars'] = sum(c['nr_chars'] for c in stats['tasks'])
+    stats['embedding_chars'] = sum(c['nr_chars'] for c in history['tasks'])
     temperatures = [c['temperature'] for c in history['miner']]
     stats['temperature'] = statistics.mean(temperatures)
     
