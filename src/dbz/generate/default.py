@@ -22,7 +22,8 @@ class DefaultOperators():
         self.signatures_path = signatures_path
         with open(signatures_path) as file:
             self.signatures = json.load(file)
-        self.operator_path = os.path.join(target_dir, 'default_operator.py')
+        self.operator_path = os.path.join(
+            target_dir, 'system', 'default_operator.py')
         self._enable_defaults(default_dir, self.operator_path)
     
     def generate_default(self, task_id):
@@ -82,7 +83,7 @@ class DefaultOperators():
                 part = file.read()
                 parts += [part]
         
-        code = '\n'.join(part)
+        code = '\n'.join(parts)
         with open(operator_path, 'w') as file:
             file.write(code)
     
