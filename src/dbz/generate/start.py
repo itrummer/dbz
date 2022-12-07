@@ -18,6 +18,29 @@ import os.path
 import time
 
 
+def enable_defaults(default_dir, target_dir):
+    """ Enable default operator implementations.
+    
+    Args:
+        default_dir: base operators on engine in this directory
+        target_dir: create default operators in this directory
+    """
+    sql_path = os.path.join(default_dir, 'system', 'sql_engine.py')
+    wrapper_path = os.path.join('include', 'default', 'wrapper.py')
+    part_paths = [sql_path, wrapper_path]
+    
+    parts = []
+    for part_path in part_paths:
+        with open(part_path) as file:
+            part = file.read()
+            parts += [part]
+    
+    code = '\n'.join(part)
+    target_path = os.path.join(target_dir, 'default_operator.py')
+    with open(target_path, 'w') as file:
+        file.write(code)
+        
+
 def load_referenced_code(code_dir, file_name):
     """ Load code referenced via given key. 
     
@@ -76,24 +99,32 @@ def write_history(history, history_path):
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('config', type=str, help='Path to synthesis')
+    parser.add_argument('config_dir', type=str, help='Configuration directory')
     parser.add_argument('ai_key', type=str, help='Access key to OpenAI')
     parser.add_argument('engine_dir', type=str, help='Directory of new engine')
     parser.add_argument('log_level', type=str, help='Set logging level')
     parser.add_argument('timeout_s', type=int, help='Timeout in seconds or -1')
+    parser.add_argument('default_dir', type=str, help='Default engine path')
     args = parser.parse_args()
     
     print(f'Using timeout {args.timeout_s} seconds!')
     
     start_s = time.time()
     openai.api_key = args.ai_key
-    with open(args.config) as file:
-        config = json.load(file)
-    
+
+    signatures_path = os.path.join(args.config_dir, 'signatures.json')
+    synthesis_path = os.path.join(args.config_dir, 'synthesis.json')
     customization_dir = os.path.join(args.engine_dir, 'customization')
     customization_path = os.path.join(customization_dir, 'customization.json')
     code_cache_path = os.path.join(args.engine_dir, 'code_cache.json')
+    history_path = os.path.join(args.engine_dir, 'history.json')
+    sys_code_dir = os.path.join(args.engine_dir, 'system')
+    user_code_dir = os.path.join(args.engine_dir, 'user')
+
+    enable_defaults(args.default_dir, sys_code_dir)
     
+    with open(synthesis_path) as file:
+        synthesis = json.load(file)
     with open(customization_path) as file:
         custom = json.load(file)
 
@@ -115,21 +146,17 @@ if __name__ == '__main__':
     else:
         code_cache = {}
 
-    history_path = os.path.join(args.engine_dir, 'history.json')
-    sys_code_dir = os.path.join(args.engine_dir, 'system')
-    user_code_dir = os.path.join(args.engine_dir, 'user')
-
     operators = dbz.generate.operator.Operators()
     # Substitutions: <Table>, <Column>, <TablePost>, <Null>, 
     # <BooleanField>, <IntegerField>, <FloatField>, <StringField> 
     substitutions = custom['substitutions']
-    tasks = dbz.generate.task.Tasks(config, substitutions)
+    tasks = dbz.generate.task.Tasks(synthesis, substitutions)
     synthesizer = dbz.generate.synthesize.Synthesizer(
         operators, substitutions, prompt_prefix, prompt_suffix)
     miner = dbz.generate.mine.CodeMiner(
         operators, user_code_dir, synthesizer, code_cache)
     composer = dbz.generate.compose.Composer(
-        config, operators, tasks, pre_code)
+        synthesis, operators, tasks, pre_code)
     debugger = dbz.generate.debug.Debugger(composer)
     
     composition = {}
@@ -176,6 +203,8 @@ if __name__ == '__main__':
                     break
         
         if not success:
+            
+            logger.info('')
             print('Giving up - please add operator code in "user" directory!')
             print(f'Operators ranked by likelihood of mistake: {redo_tasks}')
             

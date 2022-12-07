@@ -46,7 +46,7 @@ if __name__ == '__main__':
     # More code generation analysis
     stats['embedding_chars'] = sum(c['nr_chars'] for c in history['tasks'])
     temperatures = [c['temperature'] for c in history['miner']]
-    stats['temperature'] = statistics.mean(temperatures)
+    stats['avg_temperature'] = statistics.mean(temperatures)
     
     # Analyzing final code
     def code_size(code_path):

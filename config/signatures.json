@@ -1,0 +1,263 @@
+{
+	"load_data":{
+		"function_name":"load_from_csv", 
+		"inputs":[{"name":"path_to_csv", "type":"value:string"}],
+		"outputs":[{"type":"table"}]},
+	"store_data":{
+		"function_name":"write_to_csv", 
+		"inputs":[{"name":"table", "type":"table"}, 
+			{"name":"path_to_csv", "type":"value:string"}],
+		"outputs":[]},
+	"create_table":{
+		"function_name":"create_table", 
+		"inputs":[{"name":"columnar_data", "type":"list:column"}],
+		"outputs":[{"type":"table"}]},
+	"column_type_test":{
+		"function_name":"check_column_type", 
+		"inputs":[{"name":"column", "type":"column"}],
+		"outputs":[{"type":"value:bool"}]},
+	"table_type_test":{
+		"function_name":"check_table_type", 
+		"inputs":[{"name":"table", "type":"table"}],
+		"outputs":[{"type":"value:bool"}]},
+	"get_null":{
+		"function_name":"get_null", 
+		"inputs":[],
+		"outputs":[{"type":"value:null"}]},
+	"get":{
+		"function_name":"get_value", 
+		"inputs":[{"name":"column", "type":"column"}, 
+			{"name":"index", "type":"value:int"}],
+		"outputs":[{"type":"value"}]},
+	"fill_int_column":{
+		"function_name":"fill_int_column", 
+		"inputs":[{"name":"constant", "type":"value:int"}, 
+			{"name":"nr_rows", "type":"value:int"}],
+		"outputs":[{"type":"column"}]},
+	"fill_float_column":{
+		"function_name":"fill_float_column", 
+		"inputs":[{"name":"constant", "type":"value:float"}, 
+			{"name":"nr_rows", "type":"value:int"}],
+		"outputs":[{"type":"column"}]},
+	"fill_bool_column":{
+		"function_name":"fill_Boolean_column", 
+		"inputs":[{"name":"constant", "type":"value:bool"}, 
+			{"name":"nr_rows", "type":"value:int"}],
+		"outputs":[{"type":"column"}]},
+	"fill_string_column":{
+		"function_name":"fill_string_column", 
+		"inputs":[{"name":"constant", "type":"value:string"}, 
+			{"name":"nr_rows", "type":"value:int"}],
+		"outputs":[{"type":"column"}]},
+	"floor":{
+		"function_name":"floor", 
+		"inputs":[{"name":"column", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"is_empty":{
+		"function_name":"is_empty", 
+		"inputs":[{"name":"table", "type":"table"}],
+		"outputs":[{"type":"value:bool"}]},
+	"get_column":{
+		"function_name":"get_column", 
+		"inputs":[{"name":"table", "type":"table"}],
+		"outputs":[{"type":"column"}]},
+	"set_column":{
+		"function_name":"set_column", 
+		"inputs":[{"name":"table", "type":"table"}, 
+			{"name":"column_idx", "type":"value:int"},
+			{"name":"column", "type":"column"}],
+		"outputs":[{"type":"table"}]},
+	"nr_rows":{
+		"function_name":"nr_rows", 
+		"inputs":[{"name":"column", "type":"column"}],
+		"outputs":[{"type":"value:int"}]},
+	"is_null":{
+		"function_name":"is_null", 
+		"inputs":[{"name":"column", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"multiplication":{
+		"function_name":"multiplication", 
+		"inputs":[{"name":"column_1", "type":"column"},
+			{"name":"column_2", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"addition":{
+		"function_name":"addition", 
+		"inputs":[{"name":"column_1", "type":"column"},
+			{"name":"column_2", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"subtraction":{
+		"function_name":"subtraction", 
+		"inputs":[{"name":"column_1", "type":"column"},
+			{"name":"column_2", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"division":{
+		"function_name":"division", 
+		"inputs":[{"name":"column_1", "type":"column"},
+			{"name":"column_2", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"map":{
+		"function_name":"map_column", 
+		"inputs":[{"name":"column", "type":"column"},
+			{"name":"map_fct", "type":"function"}],
+		"outputs":[{"type":"column"}]},
+	"to_int":{
+		"function_name":"cast_to_int", 
+		"inputs":[{"name":"column", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"to_float":{
+		"function_name":"cast_to_float", 
+		"inputs":[{"name":"column", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"to_string":{
+		"function_name":"cast_to_string", 
+		"inputs":[{"name":"column", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"to_bool":{
+		"function_name":"cast_to_Boolean", 
+		"inputs":[{"name":"column", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"sort":{
+		"function_name":"sort_rows", 
+		"inputs":[{"name":"table", "type":"table"},
+			{"name":"key_columns", "type":"list:int"}],
+		"outputs":[{"type":"table"}]},
+	"first_rows":{
+		"function_name":"first_rows", 
+		"inputs":[{"name":"table", "type":"table"}, 
+			{"name":"n", "type":"value:int"}],
+		"outputs":[{"type":"table"}]},
+	"substring":{
+		"function_name":"substring", 
+		"inputs":[{"name":"column", "type":"column"},
+			{"name":"start", "type":"value:int"},
+			{"name":"length", "type":"value:int"}],
+		"outputs":[{"type":"column"}]},
+	"filter":{
+		"function_name":"filter_table", 
+		"inputs":[{"name":"table", "type":"table"},
+			{"name":"row_idx", "type":"column"}],
+		"outputs":[{"type":"table"}]},
+	"less_than":{
+		"function_name":"less_than", 
+		"inputs":[{"name":"column_1", "type":"column"},
+			{"name":"column_2", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"greater_than":{
+		"function_name":"greater_than", 
+		"inputs":[{"name":"column_1", "type":"column"},
+			{"name":"column_2", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"equal_to":{
+		"function_name":"equal", 
+		"inputs":[{"name":"column_1", "type":"column"},
+			{"name":"column_2", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"not_equal_to":{
+		"function_name":"not_equal", 
+		"inputs":[{"name":"column_1", "type":"column"},
+			{"name":"column_2", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"less_than_or_equal":{
+		"function_name":"less_than_or_equal", 
+		"inputs":[{"name":"column_1", "type":"column"},
+			{"name":"column_2", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"greater_than_or_equal":{
+		"function_name":"greater_than_or_equal", 
+		"inputs":[{"name":"column_1", "type":"column"},
+			{"name":"column_2", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"and":{
+		"function_name":"logical_and", 
+		"inputs":[{"name":"column_1", "type":"column"},
+			{"name":"column_2", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"or":{
+		"function_name":"logical_or", 
+		"inputs":[{"name":"column_1", "type":"column"},
+			{"name":"column_2", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"not":{
+		"function_name":"logical_not", 
+		"inputs":[{"name":"column", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"sum":{
+		"function_name":"calculate_sum", 
+		"inputs":[{"name":"column", "type":"column"}],
+		"outputs":[{"type":"value"}]},
+	"min":{
+		"function_name":"calculate_min", 
+		"inputs":[{"name":"column", "type":"column"}],
+		"outputs":[{"type":"value"}]},
+	"max":{
+		"function_name":"calculate_max", 
+		"inputs":[{"name":"column", "type":"column"}],
+		"outputs":[{"type":"value"}]},
+	"avg":{
+		"function_name":"calculate_avg", 
+		"inputs":[{"name":"column", "type":"column"}],
+		"outputs":[{"type":"value"}]},
+	"count_distinct":{
+		"function_name":"count_distinct", 
+		"inputs":[{"name":"table", "type":"table"},
+			{"name":"column_indexes", "type":"list:int"}],
+		"outputs":[{"type":"value:int"}]},
+	"case":{
+		"function_name":"if_else", 
+		"inputs":[{"name":"predicate_column", "type":"column"},
+			{"name":"if_value_column", "type":"column"},
+			{"name":"else_value_column", "type":"column"}],
+		"outputs":[{"type":"column"}]},
+	"grouped_sum":{
+		"function_name":"group_by_sum", 
+		"inputs":[{"name":"table", "type":"table"},
+			{"name":"agg_column", "type":"value:int"},
+			{"name":"group_columns", "type":"list:int"}],
+		"outputs":[{"type":"table"}]},
+	"grouped_min":{
+		"function_name":"group_by_min", 
+		"inputs":[{"name":"table", "type":"table"},
+			{"name":"agg_column", "type":"value:int"},
+			{"name":"group_columns", "type":"list:int"}],
+		"outputs":[{"type":"table"}]},
+	"grouped_max":{
+		"function_name":"group_by_max", 
+		"inputs":[{"name":"table", "type":"table"},
+			{"name":"agg_column", "type":"value:int"},
+			{"name":"group_columns", "type":"list:int"}],
+		"outputs":[{"type":"table"}]},
+	"grouped_avg":{
+		"function_name":"group_by_avg", 
+		"inputs":[{"name":"table", "type":"table"},
+			{"name":"agg_column", "type":"value:int"},
+			{"name":"group_columns", "type":"list:int"}],
+		"outputs":[{"type":"table"}]},
+	"equi_join":{
+		"function_name":"equality_join", 
+		"inputs":[{"name":"table_1", "type":"table"},
+			{"name":"table_2", "type":"table"},
+			{"name":"key_cols_1", "type":"list:int"},
+			{"name":"key_cols_2", "type":"list:int"}],
+		"outputs":[{"type":"table"}]},
+	"cross_product":{
+		"function_name":"cross_product", 
+		"inputs":[{"name":"table_1", "type":"table"},
+			{"name":"table_2", "type":"table"}],
+		"outputs":[{"type":"table"}]},
+	"left_join":{
+		"function_name":"left_outer_join",
+		"inputs":[{"name":"table_1", "type":"table"},
+			{"name":"table_2", "type":"table"},
+			{"name":"nr_cols_2", "type":"value:int"},
+			{"name":"key_cols_1", "type":"list:int"},
+			{"name":"key_cols_2", "type":"list:int"}],
+		"outputs":[{"type":"table"}]},
+	"right_join":{
+		"function_name":"right_outer_join",
+		"inputs":[{"name":"table_1", "type":"table"},
+			{"name":"table_2", "type":"table"},
+			{"name":"nr_cols_1", "type":"value:int"},
+			{"name":"key_cols_1", "type":"list:int"},
+			{"name":"key_cols_2", "type":"list:int"}],
+		"outputs":[{"type":"table"}]}
+}
