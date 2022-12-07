@@ -177,4 +177,5 @@ if __name__ == '__main__':
     defaults = DefaultOperators(
         args.signatures_path, args.default_dir, 
         args.target_dir)
-    defaults.generate_default('left_join')
+    code = defaults.generate_default('left_join')
+    print(code)
