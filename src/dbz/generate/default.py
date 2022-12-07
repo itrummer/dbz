@@ -150,16 +150,16 @@ class DefaultOperators():
             p_type = parameter['type']
             file_name = f'p{p_idx}.csv'
             if p_type == 'table':
-                parts += [f'write_to_csv({p_name}, {file_name})']
+                parts += [f'write_to_csv({p_name}, "{file_name}")']
             elif p_type == 'column':
                 parts += [f'table = create_table([{p_name}])']
-                parts += [f'write_to_csv(table, {file_name})']
+                parts += [f'write_to_csv(table, "{file_name}")']
             elif p_type in [
                 'list:int', 'list:string', 'value:int', 'value:string']:
                 if 'value' in p_type:
                     parts += [f'{p_name} = [{p_name}]']
                 parts += [
-                    f'pd.Series({p_name}).to_csv({file_name}, ' +\
+                    f'pd.Series({p_name}).to_csv("{file_name}", ' +\
                     'header=False, index=None)']
             else:
                 raise NotImplementedError(f'No serialization for {p_type}')
