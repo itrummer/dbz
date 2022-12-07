@@ -71,7 +71,7 @@ class DefaultOperators():
             default_dir: directory containing default engine (a Python engine)
             operator_path: create default operator implementation here
         """
-        includes_dir = os.path.join('src', 'dbz', 'includes')
+        includes_dir = os.path.join('src', 'dbz', 'include')
         sql_path = os.path.join(default_dir, 'system', 'sql_engine.py')
         imports_path = os.path.join(includes_dir, 'run', 'imports.py')
         functions_path = os.path.join(includes_dir, 'run', 'functions.py')
