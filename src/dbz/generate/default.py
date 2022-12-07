@@ -55,7 +55,7 @@ class DefaultOperators():
             Code calling default operator implementation
         """
         parts = []
-        parts += ['os.system("']
+        parts += ['os.system("python ']
         parts += [self.operator_path]
         parts += [' ']
         parts += [self.signatures_path]
@@ -71,11 +71,12 @@ class DefaultOperators():
             default_dir: directory containing default engine (a Python engine)
             operator_path: create default operator implementation here
         """
-        sql_path = os.path.join(
-            default_dir, 'system', 'sql_engine.py')
-        wrapper_path = os.path.join(
-            'src', 'dbz', 'include', 'default', 'wrapper.py')
-        part_paths = [sql_path, wrapper_path]
+        includes_dir = os.path.join('src', 'dbz', 'includes')
+        sql_path = os.path.join(default_dir, 'system', 'sql_engine.py')
+        imports_path = os.path.join(includes_dir, 'run', 'imports.py')
+        functions_path = os.path.join(includes_dir, 'run', 'functions.py')
+        wrapper_path = os.path.join(includes_dir, 'default', 'wrapper.py')
+        part_paths = [imports_path, functions_path, sql_path, wrapper_path]
         
         parts = []
         for part_path in part_paths:
