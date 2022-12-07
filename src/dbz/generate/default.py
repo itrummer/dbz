@@ -123,7 +123,7 @@ class DefaultOperators():
             
             output = outputs[0]
             o_type = output['type']
-            parts += [f'result = load_from_csv("result.csv", header=False)']
+            parts += [f'result = load_from_csv("result.csv")']
             if o_type == 'table':
                 pass
             elif o_type == 'column':
