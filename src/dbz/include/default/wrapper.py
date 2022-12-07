@@ -56,9 +56,8 @@ def write_output(data, data_type, data_path):
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('task_id', type=str, help='Operator generation task')
     parser.add_argument('signatures', type=str, help='Path to signatures')
-    parser.add_argument('io_dir', type=str, help='Directory for input/output')
+    parser.add_argument('task_id', type=str, help='Operator generation task')
     args = parser.parse_args()
     
     with open(args.signatures) as file:
@@ -67,8 +66,7 @@ if __name__ == '__main__':
     
     inputs_data = []
     for p_idx, parameter in enumerate(signature['inputs']):
-        file_name = f'p{p_idx}.csv'
-        in_path = os.path.join(args.io_dir, file_name)
+        in_path = f'p{p_idx}.csv'
         p_type = parameter['type']
         input_data = read_input(in_path, p_type)
         inputs_data += [input_data]
@@ -80,5 +78,5 @@ if __name__ == '__main__':
     outputs = signature['outputs']
     if outputs:
         result_type = outputs[0]['type']
-        out_path = os.path.join(args.io_dir, 'result.csv')
+        out_path = 'result.csv'
         write_output(result, result_type, out_path)

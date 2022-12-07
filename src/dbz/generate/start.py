@@ -7,6 +7,7 @@ import argparse
 import collections
 import dbz.generate.compose
 import dbz.generate.debug
+import dbz.generate.default
 import dbz.generate.mine
 import dbz.generate.operator
 import dbz.generate.synthesize
@@ -16,29 +17,6 @@ import logging
 import openai
 import os.path
 import time
-
-
-def enable_defaults(default_dir, target_dir):
-    """ Enable default operator implementations.
-    
-    Args:
-        default_dir: base operators on engine in this directory
-        target_dir: create default operators in this directory
-    """
-    sql_path = os.path.join(default_dir, 'system', 'sql_engine.py')
-    wrapper_path = os.path.join('include', 'default', 'wrapper.py')
-    part_paths = [sql_path, wrapper_path]
-    
-    parts = []
-    for part_path in part_paths:
-        with open(part_path) as file:
-            part = file.read()
-            parts += [part]
-    
-    code = '\n'.join(part)
-    target_path = os.path.join(target_dir, 'default_operator.py')
-    with open(target_path, 'w') as file:
-        file.write(code)
         
 
 def load_referenced_code(code_dir, file_name):
@@ -120,8 +98,6 @@ if __name__ == '__main__':
     history_path = os.path.join(args.engine_dir, 'history.json')
     sys_code_dir = os.path.join(args.engine_dir, 'system')
     user_code_dir = os.path.join(args.engine_dir, 'user')
-
-    enable_defaults(args.default_dir, sys_code_dir)
     
     with open(synthesis_path) as file:
         synthesis = json.load(file)
@@ -158,6 +134,8 @@ if __name__ == '__main__':
     composer = dbz.generate.compose.Composer(
         synthesis, operators, tasks, pre_code)
     debugger = dbz.generate.debug.Debugger(composer)
+    defaults = dbz.generate.default.DefaultOperators(
+        signatures_path, args.default_dir, sys_code_dir)
     
     composition = {}
     for gen_task in tasks.gen_tasks:
@@ -203,8 +181,21 @@ if __name__ == '__main__':
                     break
         
         if not success:
+            logger.info(f'Trying to generate default operators: {redo_tasks}')
+            for redo_task in redo_tasks:
+                logger.info(f'Generating default operator for {redo_task} ...')
+                try:
+                    default_code = defaults.generate_default(redo_task)
+                    code_id = operators.add_op(redo_task, default_code)
+                    assert code_id is not None
+                    success = composer.update(redo_task, code_id)
+                    logger.info(f'Composer update successful: {success}.')
+                    if success:
+                        break
+                except:
+                    logger.info('Generation of default operator failed.')
             
-            logger.info('')
+        if not success:
             print('Giving up - please add operator code in "user" directory!')
             print(f'Operators ranked by likelihood of mistake: {redo_tasks}')
             
