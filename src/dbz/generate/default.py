@@ -3,6 +3,7 @@ Created on Dec 6, 2022
 
 @author: immanueltrummer
 '''
+import argparse
 import json
 import os.path
 
@@ -163,3 +164,17 @@ class DefaultOperators():
         
         parts = [f'\t{p}' for p in parts]
         return '\n'.join(parts)
+
+
+if __name__ == '__main__':
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('signatures_path', type=str, help='Path to signatures')
+    parser.add_argument('default_dir', type=str, help='Default engine directory')
+    parser.add_argument('target_dir', type=str, help='Target engine directory')
+    args = parser.parse_args()
+    
+    defaults = DefaultOperators(
+        args.signatures_path, args.default_dir, 
+        args.target_dir)
+    defaults.generate_default('left_join')
