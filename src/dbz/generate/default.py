@@ -70,8 +70,10 @@ class DefaultOperators():
             default_dir: directory containing default engine (a Python engine)
             operator_path: create default operator implementation here
         """
-        sql_path = os.path.join(default_dir, 'system', 'sql_engine.py')
-        wrapper_path = os.path.join('include', 'default', 'wrapper.py')
+        sql_path = os.path.join(
+            default_dir, 'system', 'sql_engine.py')
+        wrapper_path = os.path.join(
+            'src', 'dbz', 'include', 'default', 'wrapper.py')
         part_paths = [sql_path, wrapper_path]
         
         parts = []
