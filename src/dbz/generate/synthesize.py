@@ -4,6 +4,7 @@ Created on Mar 6, 2022
 @author: immanueltrummer
 '''
 import dbz.analyze.component
+import dbz.generate.tracer
 import logging
 import openai
 import re
@@ -27,6 +28,7 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
         self.def_substitutions = substitutions
         self.prompt_prefix = prompt_prefix
         self.prompt_suffix = prompt_suffix
+        self.tracer = dbz.generate.tracer.Tracer()
 
     @staticmethod    
     def load_prompt(file_name, substitutions):
@@ -91,12 +93,13 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             prompt with generated code piece
         """
         start_s = time.time()
-        prompt, prompt_end = self.task_prompt(
-            task, composition, use_context)
-        stop = ['\n\n\n', '\ndef ', '\nif']
+        prompt, prompt_end = self.task_prompt(task, composition, use_context)
+        stop = ['\nif']
         if 'stop' in task:
             stop = task['stop']
         completion = self._complete(prompt, temperature, stop)
+        all_functions = prompt_end + completion
+        pruned_code = self._prune(prompt_end, all_functions)
         
         total_s = time.time() - start_s
         task_id = task['task_id']
@@ -107,10 +110,11 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             "prompt":prompt, 
             "prompt_end":prompt_end, 
             "completion":completion,
+            "pruned_code":pruned_code,
             "start_s":start_s,
             "total_s":total_s}]
 
-        return prompt_end + completion + ('\n'*2)
+        return pruned_code + ('\n'*2)
     
     def task_prompt(self, task, composition, use_context=True):
         """ Generate prompt used for specific generation task and context.
@@ -192,3 +196,17 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
                 return op
         
         return ''
+    
+    def _prune(self, target_code, generated_code):
+        """ Prune generated code to keep only relevant content.
+        
+        Args:
+            target_code: only keep code pieces referenced here
+            generated_code: prune this code using target code
+        
+        Returns:
+            pruned version of generated code
+        """
+        parts = generated_code.split('\n\n\n')
+        parts = self.tracer.relevant_transitive(target_code, parts)
+        return '\n\n\n'.join(parts)

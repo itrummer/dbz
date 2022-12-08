@@ -13,8 +13,8 @@ class CodeMiner(dbz.analyze.component.AnalyzedComponent):
     """ Mines code using GPT-3 Codex-based code synthesizer. """
     
     def __init__(
-            self, operators, user_code_dir, 
-            synthesizer, code_cache, nr_levels=4):
+            self, operators, user_code_dir, synthesizer, 
+            code_cache, nr_levels=4, must_contain=''):
         """ Initializes for given synthesizer.
         
         Args:
@@ -24,6 +24,7 @@ class CodeMiner(dbz.analyze.component.AnalyzedComponent):
             code_cache: maps prompts to lists of generated code
             fct2tid: maps function names to task IDs
             nr_levels: how many temperature levels to consider
+            must_contain: generated code must contain this string
         """
         super().__init__()
         self.logger = logging.getLogger('all')
@@ -31,6 +32,7 @@ class CodeMiner(dbz.analyze.component.AnalyzedComponent):
         self.user_code_dir = user_code_dir
         self.synthesizer = synthesizer
         self.code_cache = code_cache
+        self.must_contain = must_contain
         
         self.nr_levels = nr_levels
         temperature_delta = 1.0 / nr_levels
@@ -119,6 +121,8 @@ class CodeMiner(dbz.analyze.component.AnalyzedComponent):
                     composition, use_context)
                 
                 if self.operators.is_known(code):
+                    code = None
+                elif self.must_contain not in code:
                     code = None
                 else:
                     total_s = time.time() - start_s

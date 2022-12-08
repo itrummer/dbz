@@ -111,6 +111,7 @@ if __name__ == '__main__':
     custom_code = load_referenced_code(
         customization_dir, custom['custom_code_path'])
     pre_code = prompt_prefix + '\n\n' + custom_code
+    must_contain = custom['must_contain']
     
     logging.basicConfig(level=int(args.log_level))
     logger = logging.getLogger('all')
@@ -130,7 +131,8 @@ if __name__ == '__main__':
     synthesizer = dbz.generate.synthesize.Synthesizer(
         operators, substitutions, prompt_prefix, prompt_suffix)
     miner = dbz.generate.mine.CodeMiner(
-        operators, user_code_dir, synthesizer, code_cache)
+        operators, user_code_dir, synthesizer, 
+        code_cache, must_contain=must_contain)
     composer = dbz.generate.compose.Composer(
         synthesis, operators, tasks, pre_code)
     debugger = dbz.generate.debug.Debugger(composer)
