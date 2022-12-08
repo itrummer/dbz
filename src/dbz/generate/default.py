@@ -48,6 +48,7 @@ class DefaultOperators(dbz.analyze.component.AnalyzedComponent):
         """
         start_s = time.time()
         parts = []
+        parts += ['# This is a default operator implementation']
         parts += ['import pandas as pd']
         parts += ['import os']
         signature = self.signatures[task_id]

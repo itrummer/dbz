@@ -128,12 +128,8 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             parts += [self.prompt_prefix]
         
         if use_context:
-            context = [t[0] for t in task['similar_tasks']][:1]
-            for c in context:
-                ops = self.operators.get_ops(c)
-                op_idx = composition[c]
-                op = ops[op_idx]
-                parts += [op]
+            sample_code = self._context(task, composition)
+            parts += [sample_code]
         
         file = task['template']
         substitutions = {
@@ -176,3 +172,23 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             except Exception as e:
                 logging.warning(f'Exception: {e}')
                 delay_s *= 2
+        
+    def _context(self, task, composition):
+        """ Find code sample to facilitate code generation. 
+        
+        Args:
+            task: find context to facilitate this task
+            composition: maps tasks to code IDs
+        
+        Returns:
+            most similar task code that is not default implementation (or '')
+        """
+        context = [t[0] for t in task['similar_tasks']]
+        for c in context:
+            ops = self.operators.get_ops(c)
+            op_idx = composition[c]
+            op = ops[op_idx]
+            if '# This is a default operator implementation' not in op:
+                return op
+        
+        return ''
