@@ -182,7 +182,8 @@ class DefaultOperators(dbz.analyze.component.AnalyzedComponent):
         fct2code = {}
         for part in parts:
             functions = tracer.definitions(part)
-            context = tracer.relevant_transitive(part, parts)
+            relevant_parts = tracer.relevant_transitive(part, parts)
+            context = '\n\n\n'.join(relevant_parts)
             for function in functions:
                 fct2code[function] = context + '\n\n\n' + part
         
