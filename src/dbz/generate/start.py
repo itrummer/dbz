@@ -135,7 +135,7 @@ if __name__ == '__main__':
         synthesis, operators, tasks, pre_code)
     debugger = dbz.generate.debug.Debugger(composer)
     defaults = dbz.generate.default.DefaultOperators(
-        signatures_path, args.default_dir, sys_code_dir)
+        signatures_path, args.default_dir, args.engine_dir)
     
     composition = {}
     for gen_task in tasks.gen_tasks:
