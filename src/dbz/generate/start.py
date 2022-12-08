@@ -212,7 +212,8 @@ if __name__ == '__main__':
         **composer.call_history(), 
         **miner.call_history(),
         **synthesizer.call_history(), 
-        **debugger.call_history()
+        **debugger.call_history(),
+        **defaults.call_history()
         }
     write_history(history, history_path)
     print('Process complete.')

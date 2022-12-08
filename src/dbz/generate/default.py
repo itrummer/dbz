@@ -4,11 +4,13 @@ Created on Dec 6, 2022
 @author: immanueltrummer
 '''
 import argparse
+import dbz.analyze.component
 import json
 import os.path
+import time
 
 
-class DefaultOperators():
+class DefaultOperators(dbz.analyze.component.AnalyzedComponent):
     """ Methods for generating default operator implementations. """
     
     def __init__(self, signatures_path, default_dir, target_dir):
@@ -19,12 +21,21 @@ class DefaultOperators():
             default_dir: base operators on engine in this directory
             target_dir: create default operators in this directory
         """
+        super().__init__()
         self.signatures_path = signatures_path
         with open(signatures_path) as file:
             self.signatures = json.load(file)
         self.operator_path = os.path.join(
             target_dir, 'system', 'default_operator.py')
         self._enable_defaults(default_dir, self.operator_path)
+    
+    def call_history(self):
+        """ Returns the call history of this component.
+        
+        Returns:
+            dictionary mapping component keys to lists of calls
+        """
+        return {'default':self.history}
     
     def generate_default(self, task_id):
         """ Generate code of default operator implementation.
@@ -35,6 +46,7 @@ class DefaultOperators():
         Returns:
             code invoking default operator
         """
+        start_s = time.time()
         parts = []
         parts += ['import pandas as pd']
         parts += ['import os']
@@ -43,6 +55,11 @@ class DefaultOperators():
         parts += [self._write_inputs(signature)]
         parts += [self._default_call(task_id)]
         parts += [self._return_outputs(signature)]
+        total_s = time.time() - start_s
+        self.history += [{
+            'start_s':start_s, 
+            'total_s':total_s, 
+            'task_id':task_id}]
         return '\n'.join(parts)
 
     def _default_call(self, task_id):
