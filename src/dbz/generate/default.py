@@ -5,6 +5,7 @@ Created on Dec 6, 2022
 '''
 import argparse
 import dbz.analyze.component
+import dbz.generate.tracer
 import json
 import os.path
 import time
@@ -13,13 +14,16 @@ import time
 class DefaultOperators(dbz.analyze.component.AnalyzedComponent):
     """ Methods for generating default operator implementations. """
     
-    def __init__(self, signatures_path, default_dir, target_dir):
+    def __init__(
+            self, signatures_path, default_dir, 
+            target_dir, external=False):
         """ Initialize default operator implementations.
         
         Args:
             signatures_path: path to operator signatures
             default_dir: base operators on engine in this directory
             target_dir: create default operators in this directory
+            external: whether to invoke default operators as external code
         """
         super().__init__()
         self.signatures_path = signatures_path
@@ -27,7 +31,12 @@ class DefaultOperators(dbz.analyze.component.AnalyzedComponent):
             self.signatures = json.load(file)
         self.operator_path = os.path.join(
             target_dir, 'system', 'default_operator.py')
-        self._enable_defaults(default_dir, self.operator_path)
+        
+        self.external = external
+        if external:
+            self._enable_external(default_dir, self.operator_path)
+        else:
+            self.fct2code = self._read_engine(default_dir)
     
     def call_history(self):
         """ Returns the call history of this component.
@@ -47,21 +56,18 @@ class DefaultOperators(dbz.analyze.component.AnalyzedComponent):
             code invoking default operator
         """
         start_s = time.time()
-        parts = []
-        parts += ['# This is a default operator implementation']
-        parts += ['import pandas as pd']
-        parts += ['import os']
-        signature = self.signatures[task_id]
-        parts += [self._header(signature)]
-        parts += [self._write_inputs(signature)]
-        parts += [self._default_call(task_id)]
-        parts += [self._return_outputs(signature)]
+        if self.external:
+            code = self._generate_external(task_id)
+        else:
+            code = self._generate_internal(task_id)
+        
         total_s = time.time() - start_s
         self.history += [{
             'start_s':start_s, 
             'total_s':total_s, 
             'task_id':task_id}]
-        return '\n'.join(parts)
+        
+        return code
 
     def _default_call(self, task_id):
         """ Generates code to call default operator implementation.
@@ -82,8 +88,8 @@ class DefaultOperators(dbz.analyze.component.AnalyzedComponent):
         parts += ['")']
         return '\t' + ''.join(parts)
 
-    def _enable_defaults(self, default_dir, operator_path):
-        """ Create default operator implementation.
+    def _enable_external(self, default_dir, operator_path):
+        """ Create external default operator implementation.
         
         Args:
             default_dir: directory containing default engine (a Python engine)
@@ -106,6 +112,40 @@ class DefaultOperators(dbz.analyze.component.AnalyzedComponent):
         with open(operator_path, 'w') as file:
             file.write(code)
     
+    def _generate_external(self, task_id):
+        """ Generate code of external default operator implementation.
+        
+        Args:
+            task_id: ID of operator generation task
+        
+        Returns:
+            code invoking default operator
+        """
+        parts = []
+        parts += ['# This is a default operator implementation']
+        parts += ['import pandas as pd']
+        parts += ['import os']
+        signature = self.signatures[task_id]
+        parts += [self._header(signature)]
+        parts += [self._write_inputs(signature)]
+        parts += [self._default_call(task_id)]
+        parts += [self._return_outputs(signature)]
+        return '\n'.join(parts)
+
+    def _generate_internal(self, task_id):
+        """ Generate code of internal default operator implementation.
+        
+        Args:
+            task_id: ID of operator generation task
+        
+        Returns:
+            code implementing default operator
+        """
+        signature = self.signatures[task_id]
+        function = signature['function_name']
+        code = self.fct2code[function]
+        return code
+    
     def _header(self, signature):
         """ Generates header of function implementing default operator. 
         
@@ -123,6 +163,30 @@ class DefaultOperators(dbz.analyze.component.AnalyzedComponent):
         parts += ', '.join(parameters)
         parts += ['):']
         return ''.join(parts)
+    
+    def _read_engine(self, default_dir):
+        """ Read code for execution engine and divide by function. 
+        
+        Args:
+            default_dir: directory of default engine
+        
+        Returns:
+            dictionary mapping function names to code defining them
+        """
+        code_path = os.path.join(default_dir, 'system', 'sql_engine.py')
+        with open(code_path) as file:
+            code = file.read()
+        
+        tracer = dbz.generate.tracer.Tracer()
+        parts = code.split('\n\n\n')
+        fct2code = {}
+        for part in parts:
+            functions = tracer.definitions(part)
+            context = tracer.relevant_transitive(part, parts)
+            for function in functions:
+                fct2code[function] = context + '\n\n\n' + part
+        
+        return fct2code
     
     def _return_outputs(self, signature):
         """ Read and return outputs of standard operator implementation.

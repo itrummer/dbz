@@ -107,6 +107,22 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         """
         return self.works_until == self.nr_tasks - 1
     
+    def multi_update(self, updates):
+        """ Change implementation of multiple operators at once. 
+        
+        Args:
+            updates: dictionary mapping task IDs to operator code IDs
+        
+        Returns:
+            success: if changes increase number of passed tests
+        """
+        for task_id, code_id in updates.items():
+            self.composition[task_id] = code_id
+        
+        first_task_id = self.task_order[0]
+        first_code_id = self.composition[first_task_id]
+        return self.update(first_task_id, first_code_id)
+    
     def update(self, updated_task_id, new_code_id):
         """ Try new code candidate to improve current composition. 
         

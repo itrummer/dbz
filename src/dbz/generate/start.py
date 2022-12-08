@@ -165,7 +165,7 @@ if __name__ == '__main__':
         comp = composer.composition
         redo_tasks_weighted = debugger.to_redo()
         redo_tasks = [t for t, _ in redo_tasks_weighted]
-        redo_iters = [(t_id, i) for t_id in redo_tasks for i in range(5)]
+        redo_iters = [(t_id, i) for t_id in redo_tasks for i in range(2)]
         
         for task_id, i in redo_iters:
             if timeout(start_s, args.timeout_s):
@@ -184,18 +184,20 @@ if __name__ == '__main__':
         
         if not success:
             logger.info(f'Trying to generate default operators: {redo_tasks}')
+            updates = {}
             for redo_task in redo_tasks:
                 logger.info(f'Generating default operator for {redo_task} ...')
                 try:
                     default_code = defaults.generate_default(redo_task)
                     code_id = operators.add_op(redo_task, default_code)
                     assert code_id is not None
-                    success = composer.update(redo_task, code_id)
-                    logger.info(f'Composer update successful: {success}.')
-                    if success:
-                        break
+                    updates[redo_task] = code_id
+                    logger.info(f'Added default operator for {redo_task}.')
                 except:
                     logger.info('Generation of default operator failed.')
+            
+            success = composer.multi_update(updates)
+            logger.info(f'Composer multi-update successful: {success}.')
             
         if not success:
             print('Giving up - please add operator code in "user" directory!')
