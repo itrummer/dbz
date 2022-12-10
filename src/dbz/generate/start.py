@@ -34,17 +34,18 @@ class Generator():
             timeout_s: timeout for generation in seconds (or -1)
             default_dir: directory with default operator implementations
         """
-        self.timeout_s = timeout_s        
+        self.start_s = time.time()
+        self.timeout_s = timeout_s
         signatures_path = os.path.join(config_dir, 'signatures.json')
         synthesis_path = os.path.join(config_dir, 'synthesis.json')
         customization_dir = os.path.join(engine_dir, 'customization')
         customization_path = os.path.join(
-            customization_dir, 
-            'customization.json')
+            customization_dir, 'customization.json')
         
         self.code_cache_path = os.path.join(engine_dir, 'code_cache.json')
         self.history_path = os.path.join(engine_dir, 'history.json')
         self.sys_code_dir = os.path.join(engine_dir, 'system')
+        self.sql_engine_path = os.path.join(self.sys_code_dir, 'sql_engine.py')
         user_code_dir = os.path.join(engine_dir, 'user')
         
         with open(synthesis_path) as file:
@@ -85,19 +86,24 @@ class Generator():
         self.defaults = dbz.generate.default.DefaultOperators(
             signatures_path, default_dir, engine_dir)
     
-    def start(self):
-        self.start_s = time.time()
+    def generate(self):
+        """ Generate SQL execution engine. """
         self._init_operators()
         self._iterate()
-        self._finalize()
+        self._write_history()
     
     def _debug(self):
-        """ """
+        """ Try debugging by replacing operator implementations.
+        
+        Returns:
+            True if debugging was successful
+        """
         comp = self.composer.composition
         redo_ids_weighted = self.debugger.to_redo()
         redo_ids = [t for t, _ in redo_ids_weighted]
         
         for redo_id in redo_ids:
+            # Try fixing problem by synthesizing new code
             for i in range(2):
                 if self._timeout():
                     return False
@@ -105,7 +111,7 @@ class Generator():
                 self.logger.info(f'Redoing {redo_id} from {redo_ids} ({i})')
                 task = self.tasks.id2task[redo_id]
                 code_id = self.miner.mine(task, comp)
-                self.logger.info(f'Mined code ID: {code_id}')
+                self.logger.info(f'Mined code ID: {code_id}.')
             
                 if code_id is not None:
                     success = self.composer.update(redo_id, code_id)
@@ -113,43 +119,21 @@ class Generator():
                     if success:
                         return True
             
-            try:
-                default_code = self.defaults.generate_default(redo_id)
-                code_id = self.operators.add_op(redo_id, default_code)
-                if code_id is not None:
-                    success = self.composer.update(redo_id, code_id)
-                    self.logger.info(f'Default update successful: {success}.')
-                    if success:
-                        return True
-            except:
-                self.logger.info(f'Failed generating default for {redo_id}.')
+            # Try fixing problem by using default operator implementations
+            success = self._use_default_implementations([redo_id])            
             
-            self.logger.info(f'Added default operator for {redo_id}.')
-            
-            
+        # Last chance: use default implementations for all involved operators
         self.logger.info(f'Trying all default operators: {redo_ids}')
-        updates = {}
-        for redo_id in redo_ids:
-            self.logger.info(f'Generating default operator for {redo_id} ...')
-            try:
-                default_code = self.defaults.generate_default(redo_id)
-                code_id = self.operators.add_op(redo_id, default_code)
-                assert code_id is not None
-                updates[redo_id] = code_id
-                self.logger.info(f'Added default operator for {redo_id}.')
-            except:
-                self.logger.info('Generation of default operator failed.')
-        
-        success = self.composer.multi_update(updates)
-        self.logger.info(f'Composer multi-update successful: {success}.')
+        success = self._use_default_implementations(redo_ids)
         
         if not success:
             print('Giving up - please add operator code in "user" directory!')
             print(f'Operators ranked by likelihood of mistake: {redo_ids}')
-
+        
+        return success
     
     def _init_operators(self):
-        """ Create first versions of operator implementations. """
+        """ Create first implementation for each operator. """
         composition = {}
         for gen_task in self.tasks.gen_tasks:
             self.miner.mine(gen_task, composition)
@@ -164,37 +148,19 @@ class Generator():
         """ Iteratively debug operator implementations. """
         round_ctr = 0
         success = True
-        while success and not self.composer.finished():
+        while success and not self.composer.finished() and not self._timeout():
             round_ctr += 1
             self.logger.info(f'Starting Debugging Round {round_ctr} ...')
     
             with open(self.code_cache_path, 'w') as file:
                 json.dump(self.miner.code_cache, file)
-            
-            if self._timeout():
-                break
-            
+
             success = self._debug()
-                
+
             sql_engine = self.composer.all_code()
-            sql_engine_path = os.path.join(self.sys_code_dir, 'sql_engine.py')
-            with open(sql_engine_path, 'w') as file:
+            with open(self.sql_engine_path, 'w') as file:
                 file.write(sql_engine)
-        
-    def _finalize(self):
-        total_s = time.time() - self.start_s
-        g_call = {"start_s":self.start_s, "total_s":total_s}
-        history = {
-            "genesis":[g_call],
-            **self.tasks.call_history(),
-            **self.composer.call_history(), 
-            **self.miner.call_history(),
-            **self.synthesizer.call_history(), 
-            **self.debugger.call_history(),
-            **self.defaults.call_history()
-            }
-        self._write_history(history, self.history_path)
-    
+
     def _load_referenced_code(self, code_dir, file_name):
         """ Load code referenced via given key. 
         
@@ -225,22 +191,59 @@ class Generator():
         else:
             return False
 
-    def _write_history(self, history, history_path):
-        """ Append history to file at given path.
+    def _use_default_implementations(self, task_ids):
+        """ Replace one or several operators with default implementations.
         
         Args:
-            history: append this history
-            history_path: append to this file
-        """
-        prior_history = collections.defaultdict(lambda:[])
-        if os.path.exists(history_path):
-            with open (history_path) as file:
-                prior_history = json.load(file)
+            task_ids: replace implementations for those operators
         
+        Returns:
+            True iff the update was successful
+        """
+        self.logger.info(f'Using default implementations for: {task_ids}')
+        updates = {}
+        for task_id in task_ids:
+            self.logger.info(f'Generating default operator for {task_id} ...')
+            try:
+                default_code = self.defaults.generate_default(task_id)
+                code_id = self.operators.add_op(task_id, default_code)
+                if code_id is None:
+                    code_id = self.operators.get_code_id(default_code)
+                self.logger.info(f'Generated default operator for {task_id}.')
+                updates[task_id] = code_id
+            except:
+                self.logger.info('Generation of default operator failed.')
+        
+        if len(updates) == 1:
+            task_id, code_id = list(updates.items())[0]
+            success = self.composer.update(task_id, code_id)
+        else:
+            success = self.composer.multi_update(updates)
+        self.logger.info(f'Composer update successful: {success}.')
+        return success
+
+    def _write_history(self):
+        """ Append history of calls to various sub-functions to file. """
+        total_s = time.time() - self.start_s
+        g_call = {"start_s":self.start_s, "total_s":total_s}
+        history = {
+            "genesis":[g_call],
+            **self.tasks.call_history(),
+            **self.composer.call_history(), 
+            **self.miner.call_history(),
+            **self.synthesizer.call_history(), 
+            **self.debugger.call_history(),
+            **self.defaults.call_history()
+            }
+        
+        prior_history = collections.defaultdict(lambda:[])
+        if os.path.exists(self.history_path):
+            with open (self.history_path) as file:
+                prior_history = json.load(file)
         for component, calls in history.items():
             history[component] = prior_history[component] + calls
         
-        with open(history_path, 'w') as file:
+        with open(self.history_path, 'w') as file:
             json.dump(history, file)
 
 
