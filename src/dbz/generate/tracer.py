@@ -62,7 +62,12 @@ class Tracer():
             relevant = self.relevant(target_code, parts)
             new_target = '\n'.join(relevant)
             if not (new_target == target_code):
-                target_code= new_target
+                target_code = new_target
                 changed = True
         
         return relevant
+
+
+if __name__ == '__main__':
+    tracer = Tracer()
+    

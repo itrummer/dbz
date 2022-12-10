@@ -133,7 +133,8 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
         
         if use_context:
             sample_code = self._context(task, composition)
-            parts += [sample_code]
+            if sample_code is not None:
+                parts += [sample_code]
         
         file = task['template']
         substitutions = {
@@ -143,7 +144,7 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             file, substitutions) + self.prompt_suffix
         parts += [prompt_end]
         
-        return '\n\n'.join(parts), prompt_end
+        return '\n\n\n'.join(parts), prompt_end
     
     def _complete(self, prompt, temperature, stop):
         """ Use OpenAI's GPT-3 Codex model for completion.
@@ -185,7 +186,7 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             composition: maps tasks to code IDs
         
         Returns:
-            most similar task code that is not default implementation (or '')
+            most similar task code that is not default implementation (or None)
         """
         context = [t[0] for t in task['similar_tasks']]
         for c in context:
@@ -195,7 +196,7 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             if '# This is a default operator implementation' not in op:
                 return op
         
-        return ''
+        return None
     
     def _prune(self, target_code, generated_code):
         """ Prune generated code to keep only relevant content.
