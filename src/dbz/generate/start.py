@@ -119,7 +119,10 @@ class Generator():
                         return True
             
             # Try fixing problem by using default operator implementations
-            success = self._use_default_implementations([redo_id])            
+            success = self._use_default_implementations([redo_id])
+            self.logger.info(f'Default for {redo_id} - success: {success}.')
+            if success:
+                return True
             
         # Last chance: use default implementations for all involved operators
         self.logger.info(f'Trying all default operators: {redo_ids}')
