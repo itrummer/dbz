@@ -211,4 +211,4 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
         parts = generated_code.split('\n\n\n')
         parts = self.tracer.relevant_transitive(target_code, parts)
         code = '\n\n\n'.join(parts)
-        return code.rstrip('\n') + '\n'
+        return code.rstrip('\n')
