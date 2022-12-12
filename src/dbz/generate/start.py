@@ -264,6 +264,6 @@ if __name__ == '__main__':
         args.config_dir, args.engine_dir, 
         args.log_level, args.timeout_s, 
         args.default_dir)
-    generator.start()
+    generator.generate()
 
     print('Process complete.')
