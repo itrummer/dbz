@@ -114,7 +114,7 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             "start_s":start_s,
             "total_s":total_s}]
 
-        return pruned_code + ('\n'*2)
+        return pruned_code
     
     def task_prompt(self, task, composition, use_context=True):
         """ Generate prompt used for specific generation task and context.
