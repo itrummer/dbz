@@ -161,21 +161,21 @@ class Generator():
                 file.write(sql_engine)
 
     def _load_referenced_code(self, code_dir, file_name):
-        """ Load code referenced via given key. 
+        """ Load code referenced via given key, removes last newline.
         
         Args:
             code_dir: path of code directory
             file_name: name of code file (or empty)
         
         Returns:
-            empty string for empty path, file content otherwise
+            empty string for empty path or file content without last newline
         """
         if not file_name:
             return ''
         else:
             code_path = os.path.join(code_dir, file_name)
             with open(code_path) as file:
-                return file.read()
+                return file.read()[:-1]
     
     def _timeout(self):
         """ Check for timeout. 
