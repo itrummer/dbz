@@ -30,7 +30,7 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             config: JSON file configuring synthesis
             operators: manages operator implementations
             tasks: manages generation tasks and checks
-            pre_code: code prefix
+            pre_code: code prefix used for execution
         """
         super().__init__()
         self.logger = logging.getLogger('all')

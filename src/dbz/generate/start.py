@@ -59,7 +59,6 @@ class Generator():
             customization_dir, custom['prompt_suffix_path'])
         custom_code = self._load_referenced_code(
             customization_dir, custom['custom_code_path'])
-        pre_code = prompt_prefix + '\n\n' + custom_code
         must_contain = custom['must_contain']
         
         logging.basicConfig(level=int(log_level))
@@ -81,7 +80,7 @@ class Generator():
             self.operators, user_code_dir, self.synthesizer, 
             code_cache, must_contain=must_contain)
         self.composer = dbz.generate.compose.Composer(
-            synthesis, self.operators, self.tasks, pre_code)
+            synthesis, self.operators, self.tasks, custom_code)
         self.debugger = dbz.generate.debug.Debugger(self.composer)
         self.defaults = dbz.generate.default.DefaultOperators(
             signatures_path, default_dir, engine_dir)
