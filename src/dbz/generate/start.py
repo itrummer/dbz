@@ -211,7 +211,8 @@ class Generator():
                 code_id = self.operators.add_op(task_id, default_code)
                 if code_id is None:
                     code_id = self.operators.get_code_id(default_code)
-                self.logger.info(f'Generated default operator for {task_id}.')
+                self.logger.info(
+                    f'Generated default for {task_id}, code ID: {code_id}.')
                 updates[task_id] = code_id
             except:
                 self.logger.info('Generation of default operator failed.')
