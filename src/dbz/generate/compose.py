@@ -44,7 +44,7 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             for t in tasks.gen_tasks}
         self.logger.info(f'Function names to task IDs: {self.fct2tid}')
         self.idx2checks = self._schedule_checks()
-        self.checks = [c for c in self.idx2checks[t] for t in self.task_order]
+        self.checks = [c for t in self.task_order for c in self.idx2checks[t]]
         self.nr_checks = len(self.checks)
         self.composition = {tid:0 for tid in self.task_order}
         self.max_passed = 0
