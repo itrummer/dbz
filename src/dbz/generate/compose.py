@@ -127,7 +127,7 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             self._record_call(updates, start_s, False)
             return False
         
-        new_checks = self.checks[self.max_passed:]
+        new_checks = self.checks[self.max_passed+1:]
         nr_new_checks = len(new_checks)
         for check_idx, check in enumerate(new_checks, 1):
             label = check['label']
