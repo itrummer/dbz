@@ -127,11 +127,9 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             self._record_call(updates, start_s, False)
             return False
         
-        new_checks = self.checks[self.max_passed+1:]
-        nr_new_checks = len(new_checks)
-        for check_idx, check in enumerate(new_checks, 1):
+        for check_idx, check in enumerate(self.checks, 1):
             label = check['label']
-            progress = f'({check_idx}/{nr_new_checks})'
+            progress = f'({check_idx}/{self.nr_checks})'
             self.logger.info(f'New check {progress}: {label}.')
             if self._check(candidate, check):
                 self.passed_checks += [check]
@@ -334,7 +332,7 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         Returns:
             Tuple with list of passed checks and (first) failed check
         """
-        old_checks = self.checks[:self.max_passed+1]
+        old_checks = self.passed_checks + self.failed_checks
         old_checks.sort(key=lambda c:self._selectivity(c))
         nr_checks = len(old_checks)
         
