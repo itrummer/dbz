@@ -37,16 +37,17 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         self.ops = operators
         self.tasks = tasks
         self.pre_code = pre_code
-        self.task_order = [
-            t['task_id'] for t in tasks.gen_tasks]
+        self.task_order = [t['task_id'] for t in tasks.gen_tasks]
         self.nr_tasks = len(self.task_order)
         self.fct2tid = {
             t['function_name']:t['task_id'] 
             for t in tasks.gen_tasks}
         self.logger.info(f'Function names to task IDs: {self.fct2tid}')
         self.idx2checks = self._schedule_checks()
+        self.checks = [c for c in self.idx2checks[t] for t in self.task_order]
+        self.nr_checks = len(self.checks)
         self.composition = {tid:0 for tid in self.task_order}
-        self.works_until = -1
+        self.max_passed = 0
         self.passed_checks = []
         self.failed_checks = []
         self.nr_validations = 0
@@ -64,8 +65,7 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         self.paths = dbz.util.DbzPaths(data_dir)
         self.python = test_access['python']
         
-        self.validator = dbz.execute.check.Validator(
-            self.paths, self.sql_ref)
+        self.validator = dbz.execute.check.Validator(self.paths, self.sql_ref)
     
     def all_code(self):
         """ Retrieves code for all operators. 
@@ -105,76 +105,49 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         Returns:
             True if a working SQL engine was generated
         """
-        return self.works_until == self.nr_tasks - 1
+        return self.max_passed >= self.nr_checks
     
-    def multi_update(self, updates):
-        """ Change implementation of multiple operators at once. 
-        
-        Args:
-            updates: dictionary mapping task IDs to operator code IDs
-        
-        Returns:
-            success: if changes increase number of passed tests
-        """
-        for task_id, code_id in updates.items():
-            self.composition[task_id] = code_id
-        
-        first_task_id = self.task_order[0]
-        first_code_id = self.composition[first_task_id]
-        return self.update(first_task_id, first_code_id)
-    
-    def update(self, updated_task_id, new_code_id):
+    def update(self, updates):
         """ Try new code candidate to improve current composition. 
         
         Args:
-            updated_task_id: new implementation for this task
-            new_code_id: ID of new code for updated task
+            updates: maps task IDs to new code IDs
         
         Returns:
             True if the update resolved previous problems
         """
         start_s = time.time()
-        updated_idx = self.task_order.index(updated_task_id)
-        candidate_comp = self.composition.copy()
-        candidate_comp[updated_task_id] = new_code_id
-        
-        self.passed_checks, self.failed_checks = self._old_checks(
-            candidate_comp, updated_idx)
+        candidate = self.composition.copy()
+        candidate.update(updates)
+        self.passed_checks, self.failed_checks = self._old_checks(candidate)
 
         if self.failed_checks:
-            self._record_call(updated_idx, updated_task_id, start_s, False)
+            self._record_call(updates, start_s, False)
             return False
         
-        candidate_until = self.works_until
-        for task_idx in range(self.works_until+1, self.nr_tasks):
-            checks = self.idx2checks[task_idx]
-            all_passed = True
-            for check in checks:
-                label = check['label']
-                self.logger.info(
-                    f'Checking generation task ' +\
-                    f'{task_idx}/{self.nr_tasks} using {label}')
-                if self._check(candidate_comp, check):
-                    self.passed_checks += [check]
-                else:
-                    self.failed_checks += [check]
-                    all_passed = False
-                    break
-
-            if all_passed:
-                candidate_until = task_idx
+        new_checks = self.checks[self.max_passed:]
+        nr_new_checks = len(new_checks)
+        for check_idx, check in enumerate(new_checks, 1):
+            label = check['label']
+            progress = f'({check_idx}/{nr_new_checks})'
+            self.logger.info(f'New check {progress}: {label}.')
+            if self._check(candidate, check):
+                self.passed_checks += [check]
             else:
+                self.failed_checks += [check]
                 break
 
-        self.logger.info(f'Candidate works until {candidate_until}')
-        if candidate_until > self.works_until:
-            self.logger.info(f'Replacing prior operator')
-            self.works_until = candidate_until
-            self.composition = candidate_comp
-            self._record_call(updated_idx, updated_task_id, start_s, True)
+        nr_passed = len(self.passed_checks)
+        self.logger.info(f'Candidate passes {nr_passed} checks.')
+        if nr_passed > self.max_passed:
+            self.logger.info(f'Updating composition.')
+            self.max_passed = nr_passed
+            self.composition = candidate
+            self._record_call(updates, start_s, True)
             return True
         else:
-            self._record_call(updated_idx, updated_task_id, start_s, False)
+            self.logger.info(f'Do not update composition.')
+            self._record_call(updates, start_s, False)
             return False
     
     def _applicable_checks(self, tasks):
@@ -350,22 +323,18 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         
         return frozenset(sub_comp.items())
     
-    def _old_checks(self, candidate_comp, updated_idx):
+    def _old_checks(self, candidate):
         """ Re-perform checks for candidate composition passed by others.
         
         Args:
-            candidate_comp: check candidate composition
-            updated_idx: index of updated operator in generation order
+            candidate: check this candidate composition.
             
         Returns:
             Tuple with list of passed checks and (first) failed check
         """
-        old_checks = []
-        for idx in range(updated_idx, self.works_until+2):
-            old_checks += self.idx2checks[idx]
+        old_checks = self.checks[:self.max_passed+1]
         old_checks.sort(key=lambda c:self._selectivity(c))
         nr_checks = len(old_checks)
-        works_until_id = self.task_order[self.works_until]
         
         passed = []
         for idx, old_check in enumerate(old_checks, 1):
@@ -374,29 +343,26 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             self.logger.info(
                 f'Trying old check {idx}/{nr_checks}: ' +\
                 f'{label} (selectivity: {selectivity})')
-            self.logger.info(
-                f'Best composition works until task {works_until_id} ' +\
-                f'({self.works_until}/{self.nr_tasks})')
-            if self._check(candidate_comp, old_check):
+            progress = f'{self.max_passed}/{self.nr_checks}'
+            self.logger.info(f'Best composition passes {progress} checks.')
+            if self._check(candidate, old_check):
                 passed += [old_check]
             else:
                 return passed, [old_check]
         
         return passed, []
     
-    def _record_call(self, task_idx, task_id, start_s, success):
+    def _record_call(self, updates, start_s, success):
         """ Add entry describing update to call history.
         
         Args:
-            task_idx: index of updated task in task order
-            task_id: ID of updated task
+            updates: maps updated tasks to new code IDs
             start_s: start time of call
             success: whether update was successful
         """
         total_s = time.time() - start_s
         self.history += [{
-            "task_idx":task_idx,
-            "task_id":task_id,
+            "updates":updates,
             "start_s":start_s,
             "total_s":total_s,
             "success":success

@@ -113,7 +113,7 @@ class Generator():
                 self.logger.info(f'Mined code ID: {code_id}.')
             
                 if code_id is not None:
-                    success = self.composer.update(redo_id, code_id)
+                    success = self.composer.update({redo_id:code_id})
                     self.logger.info(f'Composer update successful: {success}.')
                     if success:
                         return True
@@ -144,7 +144,7 @@ class Generator():
         
         first_task = self.tasks.gen_tasks[0]
         first_task_id = first_task['task_id']
-        self.composer.update(first_task_id, 0)
+        self.composer.update({first_task_id:0})
         
     def _iterate(self):
         """ Iteratively debug operator implementations. """
@@ -217,11 +217,7 @@ class Generator():
             except:
                 self.logger.info('Generation of default operator failed.')
         
-        if len(updates) == 1:
-            task_id, code_id = list(updates.items())[0]
-            success = self.composer.update(task_id, code_id)
-        else:
-            success = self.composer.multi_update(updates)
+        success = self.composer.update(updates)
         self.logger.info(f'Composer update successful: {success}.')
         return success
 
