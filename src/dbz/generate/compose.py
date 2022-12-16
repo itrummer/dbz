@@ -321,6 +321,7 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             code_id = composition[req_id]
             sub_comp[req_id] = code_id
         
+        sub_comp = self._expand_composition(sub_comp, composition)
         return frozenset(sub_comp.items())
     
     def _old_checks(self, candidate):
