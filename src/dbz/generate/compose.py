@@ -413,7 +413,7 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             check: estimate probability to pass this check
         
         Returns:
-            a selectivity number between 0 and 1 (default: 0.5)
+            a selectivity number between 0 and 1 (default: 0.49999)
         """
         if 'cache' in check:
             comp2result = check['cache']
@@ -421,4 +421,4 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             nr_passed = sum(comp2result.values())
             return float(nr_passed) / nr_checked
         else:
-            return 0.5
+            return 0.49999
