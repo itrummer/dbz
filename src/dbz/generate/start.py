@@ -101,7 +101,7 @@ class Generator():
         redo_ids_weighted = self.debugger.to_redo()
         redo_ids = [t for t, _ in redo_ids_weighted]
         
-        for redo_id in redo_ids:
+        for redo_id in redo_ids[:3]:
             # Try fixing problem by synthesizing new code
             for i in range(2):
                 if self._timeout():
