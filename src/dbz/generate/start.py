@@ -113,20 +113,20 @@ class Generator():
                 self.logger.info(f'Mined code ID: {code_id}.')
             
                 if code_id is not None:
-                    success = self.composer.update({redo_id:code_id})
+                    success = self.composer.update({redo_id:code_id}, False)
                     self.logger.info(f'Composer update successful: {success}.')
                     if success:
                         return True
             
             # Try fixing problem by using default operator implementations
-            success = self._use_default_implementations([redo_id])
+            success = self._use_default_implementations([redo_id], False)
             self.logger.info(f'Default for {redo_id} - success: {success}.')
             if success:
                 return True
             
         # Last chance: use default implementations for all involved operators
         self.logger.info(f'Trying all default operators: {redo_ids}')
-        success = self._use_default_implementations(redo_ids)
+        success = self._use_default_implementations(redo_ids, True)
         
         if not success:
             print('Giving up - please add operator code in "user" directory!')
@@ -193,11 +193,12 @@ class Generator():
         else:
             return False
 
-    def _use_default_implementations(self, task_ids):
+    def _use_default_implementations(self, task_ids, force):
         """ Replace one or several operators with default implementations.
         
         Args:
             task_ids: replace implementations for those operators
+            force: whether to force update even without immediate improvements
         
         Returns:
             True iff the update was successful
@@ -217,7 +218,7 @@ class Generator():
             except:
                 self.logger.info('Generation of default operator failed.')
         
-        success = self.composer.update(updates)
+        success = self.composer.update(updates, force)
         self.logger.info(f'Composer update successful: {success}.')
         return success
 
