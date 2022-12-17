@@ -144,7 +144,7 @@ class Generator():
         
         first_task = self.tasks.gen_tasks[0]
         first_task_id = first_task['task_id']
-        self.composer.update({first_task_id:0})
+        self.composer.update({first_task_id:0}, False)
         
     def _iterate(self):
         """ Iteratively debug operator implementations. """
