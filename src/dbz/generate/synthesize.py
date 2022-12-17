@@ -188,13 +188,12 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
         Returns:
             most similar task code that is not default implementation (or None)
         """
-        context = [t[0] for t in task['similar_tasks']]
-        for c in context:
-            ops = self.operators.get_ops(c)
-            op_idx = composition[c]
-            op = ops[op_idx]
-            if '# This is a default operator implementation' not in op:
-                return op
+        related_tids = [t[0] for t in task['similar_tasks']]
+        for rid in related_tids:
+            codes = self.operators.get_ops(rid)
+            code_id = composition[rid]
+            if not self.operators.is_default(rid, code_id):
+                return codes[code_id]
         
         return None
     

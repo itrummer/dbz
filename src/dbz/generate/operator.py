@@ -13,6 +13,7 @@ class Operators():
         """ Initializes operator implementations. """
         self.tid2ops = defaultdict(lambda:[])
         self.normalized2id = {}
+        self.tid2did = {}
     
     def add_op(self, task_id, code):
         """ Adds operator implementation.
@@ -69,6 +70,18 @@ class Operators():
         """
         return self.tid2ops[task_id]
     
+    def is_default(self, task_id, code_id):
+        """ Checks if code is default implementation.
+        
+        Args:
+            task_id: check refers to this task
+            code_id: check this implementation
+        
+        Returns:
+            True iff given code is default for given task
+        """
+        return self.tid2did.get(task_id) == code_id
+    
     def is_known(self, code):
         """ Checks if operator code is known.
         
@@ -79,6 +92,15 @@ class Operators():
             True iff the code is new
         """
         return self._normalize(code) in self.normalized2id
+
+    def mark_default(self, task_id, code_id):
+        """ Mark operator code as default implementation.
+        
+        Args:
+            task_id: mark default implementation for this task
+            code_id: code ID of default operator implementation
+        """
+        self.tid2did[task_id] = code_id
 
     def _normalize(self, code):
         """ Normalize code by removing comments and empty lines.
