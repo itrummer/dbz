@@ -121,9 +121,9 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         start_s = time.time()
         candidate = self.composition.copy()
         candidate.update(updates)
-        self.passed_checks, self.failed_checks = self._old_checks(candidate)
+        passed_checks, failed_checks = self._old_checks(candidate)
 
-        if self.failed_checks:
+        if failed_checks:
             self._record_call(updates, start_s, False)
             return False
         
@@ -132,17 +132,19 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             progress = f'({check_idx}/{self.nr_checks})'
             self.logger.info(f'New check {progress}: {label}.')
             if self._check(candidate, check):
-                self.passed_checks += [check]
+                passed_checks += [check]
             else:
-                self.failed_checks += [check]
+                failed_checks += [check]
                 break
 
-        nr_passed = len(self.passed_checks)
+        nr_passed = len(passed_checks)
         self.logger.info(f'Candidate passes {nr_passed} checks.')
         if nr_passed > self.max_passed:
             self.logger.info(f'Updating composition.')
             self.max_passed = nr_passed
             self.composition = candidate
+            self.passed_checks = passed_checks
+            self.failed_checks = failed_checks
             self._record_call(updates, start_s, True)
             return True
         else:
