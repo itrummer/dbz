@@ -126,7 +126,7 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         if force:
             self.max_passed = -1
         elif not self._old_checks(candidate):
-            self._record_call(updates, start_s, False)
+            self._record_call(updates, force, start_s, False)
             return False
         
         passed_checks = []
