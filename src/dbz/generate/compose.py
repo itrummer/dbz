@@ -49,7 +49,7 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             for c in self.idx2checks[i]]
         self.nr_checks = len(self.checks)
         self.composition = {tid:0 for tid in self.task_order}
-        self.max_passed = 0
+        self.max_passed = -1
         self.passed_checks = []
         self.failed_checks = []
         self.nr_validations = 0
@@ -121,12 +121,12 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         start_s = time.time()
         candidate = self.composition.copy()
         candidate.update(updates)
-        passed_checks, failed_checks = self._old_checks(candidate)
-
-        if failed_checks:
+        if not self._old_checks(candidate):
             self._record_call(updates, start_s, False)
             return False
         
+        passed_checks = []
+        failed_checks = []
         for check_idx, check in enumerate(self.checks, 1):
             label = check['label']
             progress = f'({check_idx}/{self.nr_checks})'
@@ -333,13 +333,12 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             candidate: check this candidate composition.
             
         Returns:
-            Tuple with list of passed checks and (first) failed check
+            True iff candidate passes more checks than prior compositions.
         """
         old_checks = self.passed_checks + self.failed_checks
         old_checks.sort(key=lambda c:self._selectivity(c))
         nr_checks = len(old_checks)
         
-        passed = []
         for idx, old_check in enumerate(old_checks, 1):
             label = old_check['label']
             selectivity = self._selectivity(old_check)
@@ -348,12 +347,10 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
                 f'{label} (selectivity: {selectivity})')
             progress = f'{self.max_passed}/{self.nr_checks}'
             self.logger.info(f'Best composition passes {progress} checks.')
-            if self._check(candidate, old_check):
-                passed += [old_check]
-            else:
-                return passed, [old_check]
+            if not self._check(candidate, old_check):
+                return False
         
-        return passed, []
+        return True
     
     def _record_call(self, updates, start_s, success):
         """ Add entry describing update to call history.
