@@ -107,7 +107,7 @@ class Generator():
         
         for redo_id in redo_ids[:3]:
             # Does using default implementation fix the problem?
-            if self._use_default_implementations(redo_id, 'test'):
+            if self._use_default_implementations([redo_id], 'test'):
                 # Try synthesizing a new operator in that case
                 for i in range(2):
                     if self._timeout():
