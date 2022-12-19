@@ -131,9 +131,10 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             self._record_call(updates, mode, start_s, success)
             return success
         
-        elif mode == 'optional' and not self._old_checks(candidate):
-            self._record_call(updates, mode, start_s, False)
-            return False
+        elif mode == 'optional':
+            if not self._old_checks(candidate):
+                self._record_call(updates, mode, start_s, False)
+                return False
         
         else:
             raise ValueError(f'Unsupported update mode: {mode}')
