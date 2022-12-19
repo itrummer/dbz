@@ -100,38 +100,38 @@ class Generator():
         comp = self.composer.composition
         redo_ids_weighted = self.debugger.to_redo()
         redo_ids = [t for t, _ in redo_ids_weighted]
+        redo_ids = [t for t in redo_ids if self.operators.uses_default(comp, t)]
+        assert redo_ids, 'Failed check involves only default operators!'
         
         for redo_id in redo_ids[:3]:
-            # Try fixing problem by synthesizing new code
-            for i in range(2):
-                if self._timeout():
-                    return False
+            # Does using default implementation fix the problem?
+            if self._use_default_implementations(redo_id, 'test'):
+                # Try synthesizing a new operator in that case
+                for i in range(2):
+                    if self._timeout():
+                        return False
                 
-                self.logger.info(f'Redoing {redo_id} from {redo_ids} ({i})')
-                task = self.tasks.id2task[redo_id]
-                code_id = self.miner.mine(task, comp)
-                self.logger.info(f'Mined code ID: {code_id}.')
+                    self.logger.info(f'Redoing {redo_id} from {redo_ids} ({i})')
+                    task = self.tasks.id2task[redo_id]
+                    code_id = self.miner.mine(task, comp)
+                    self.logger.info(f'Mined code ID: {code_id}.')
+                
+                    if code_id is not None:
+                        success = self.composer.update({redo_id:code_id}, 'optional')
+                        self.logger.info(f'Composer update successful: {success}.')
+                        if success:
+                            return True
             
-                if code_id is not None:
-                    success = self.composer.update({redo_id:code_id}, False)
-                    self.logger.info(f'Composer update successful: {success}.')
-                    if success:
-                        return True
+                # Fix problem by using default operator implementations
+                success = self._use_default_implementations([redo_id], 'optional')
+                self.logger.info(f'Default for {redo_id} - success: {success}.')
+                if success:
+                    return True
             
-            # Try fixing problem by using default operator implementations
-            success = self._use_default_implementations([redo_id], False)
-            self.logger.info(f'Default for {redo_id} - success: {success}.')
-            if success:
-                return True
-            
-        # Last chance: use default implementations for all involved operators
-        self.logger.info(f'Trying all default operators: {redo_ids}')
-        success = self._use_default_implementations(redo_ids, True)
-        
-        if not success:
-            print('Giving up - please add operator code in "user" directory!')
-            print(f'Operators ranked by likelihood of mistake: {redo_ids}')
-        
+        # Last try: replace operator most likely to be faulty by default code
+        self.logger.info(f'Giving up: replacing {redo_ids[0]} ...')
+        success = self._use_default_implementations(redo_ids[:1], 'force')
+        assert success, 'Forced update should always succeed!'
         return success
     
     def _init_operators(self):
@@ -193,17 +193,17 @@ class Generator():
         else:
             return False
 
-    def _use_default_implementations(self, task_ids, force):
-        """ Replace one or several operators with default implementations.
+    def _use_default_implementations(self, task_ids, mode):
+        """ Replace operators with default implementations and try update.
         
         Args:
             task_ids: replace implementations for those operators
-            force: whether to force update even without immediate improvements
+            mode: composer update mode ("force", "optional", "test")
         
         Returns:
             True iff the update was successful
         """
-        self.logger.info(f'Using default implementations for: {task_ids}')
+        self.logger.info(f'Using default for: {task_ids} (mode: {mode}).')
         updates = {}
         for task_id in task_ids:
             self.logger.info(f'Generating default operator for {task_id} ...')
@@ -219,7 +219,7 @@ class Generator():
             except:
                 self.logger.info('Generation of default operator failed.')
         
-        success = self.composer.update(updates, force)
+        success = self.composer.update(updates, mode)
         self.logger.info(f'Composer update successful: {success}.')
         return success
 

@@ -102,6 +102,19 @@ class Operators():
         """
         self.tid2did[task_id] = code_id
 
+    def uses_default(self, composition, task_id):
+        """ Check if composition uses default implementation for operator.
+        
+        Args:
+            composition: maps task IDs to code IDs
+            task_id: check if composition uses default code for this task
+        
+        Returns:
+            True iff composition uses default implementation for given task
+        """
+        code_id = composition[task_id]
+        return self.is_default(task_id, code_id)
+
     def _normalize(self, code):
         """ Normalize code by removing comments and empty lines.
         

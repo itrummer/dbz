@@ -109,12 +109,12 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         """
         return self.max_passed >= self.nr_checks
     
-    def update(self, updates, force):
-        """ Try new code candidate to improve current composition. 
+    def update(self, updates, mode):
+        """ Try new code candidate to improve current composition.
         
         Args:
             updates: maps task IDs to new code IDs
-            force: only update in case of improvement unless True
+            mode: update mode ("force", "optional", "test")
         
         Returns:
             True if the update resolved previous problems
@@ -123,11 +123,20 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         candidate = self.composition.copy()
         candidate.update(updates)
         
-        if force:
+        if mode == 'force':
             self.max_passed = -1
-        elif not self._old_checks(candidate):
-            self._record_call(updates, force, start_s, False)
+        
+        elif mode == 'test':
+            success = self._old_checks(candidate)
+            self._record_call(updates, mode, start_s, success)
+            return success
+        
+        elif mode == 'optional' and not self._old_checks(candidate):
+            self._record_call(updates, mode, start_s, False)
             return False
+        
+        else:
+            raise ValueError(f'Unsupported update mode: {mode}')
         
         passed_checks = []
         failed_checks = []
@@ -144,16 +153,16 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         nr_passed = len(passed_checks)
         self.logger.info(f'Candidate passes {nr_passed} checks.')
         if nr_passed > self.max_passed:
-            self.logger.info(f'Updating composition (force: {force}).')
+            self.logger.info(f'Updating composition (mode: {mode}).')
             self.max_passed = nr_passed
             self.composition = candidate
             self.passed_checks = passed_checks
             self.failed_checks = failed_checks
-            self._record_call(updates, force, start_s, True)
+            self._record_call(updates, mode, start_s, True)
             return True
         else:
-            self.logger.info(f'Do not update composition (force: {force}).')
-            self._record_call(updates, force, start_s, False)
+            self.logger.info(f'Do not update composition (force: {mode}).')
+            self._record_call(updates, mode, start_s, False)
             return False
     
     def _applicable_checks(self, tasks):
@@ -356,19 +365,19 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         
         return True
     
-    def _record_call(self, updates, force, start_s, success):
+    def _record_call(self, updates, mode, start_s, success):
         """ Add entry describing update to call history.
         
         Args:
             updates: maps updated tasks to new code IDs
-            force: whether to force updates
+            mode: update mode ("force", "optional", "test")
             start_s: start time of call
             success: whether update was successful
         """
         total_s = time.time() - start_s
         self.history += [{
             "updates":updates,
-            "force":force,
+            "mode":mode,
             "start_s":start_s,
             "total_s":total_s,
             "success":success
