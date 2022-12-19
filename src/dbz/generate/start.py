@@ -100,7 +100,9 @@ class Generator():
         comp = self.composer.composition
         redo_ids_weighted = self.debugger.to_redo()
         redo_ids = [t for t, _ in redo_ids_weighted]
-        redo_ids = [t for t in redo_ids if self.operators.uses_default(comp, t)]
+        redo_ids = [
+            t for t in redo_ids 
+            if not self.operators.uses_default(comp, t)]
         assert redo_ids, 'Failed check involves only default operators!'
         
         for redo_id in redo_ids[:3]:
