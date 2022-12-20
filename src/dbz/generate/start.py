@@ -23,8 +23,8 @@ class Generator():
     """ Generates SQL processing engines via code synthesis. """
     
     def __init__(
-            self, config_dir, engine_dir, 
-            log_level, timeout_s, default_dir):
+            self, config_dir, engine_dir, log_level, 
+            timeout_s, default_dir, no_debug, no_sort):
         """ Initialize generation of SQL processing engines. 
         
         Args:
@@ -33,6 +33,8 @@ class Generator():
             log_level: level for logging during engine generation
             timeout_s: timeout for generation in seconds (or -1)
             default_dir: directory with default operator implementations
+            no_debug: whether to fix randomly selected operators (ablation)
+            no_sort: whether to order checks randomly (ablation)
         """
         self.start_s = time.time()
         self.timeout_s = timeout_s
@@ -80,8 +82,8 @@ class Generator():
             self.operators, user_code_dir, self.synthesizer, 
             code_cache, must_contain=must_contain)
         self.composer = dbz.generate.compose.Composer(
-            synthesis, self.operators, self.tasks, custom_code)
-        self.debugger = dbz.generate.debug.Debugger(self.composer)
+            synthesis, self.operators, self.tasks, custom_code, no_sort)
+        self.debugger = dbz.generate.debug.Debugger(self.composer, no_debug)
         self.defaults = dbz.generate.default.DefaultOperators(
             signatures_path, default_dir, engine_dir)
     
@@ -263,15 +265,15 @@ if __name__ == '__main__':
     parser.add_argument('--nosort', action='store_true', help='random checks')
     args = parser.parse_args()
     
-    print(args)
     print(f'Using timeout {args.timeout_s} seconds!')
-    
+    print(f'Ablating debugger (fix random operators): {args.nodebug}')
+    print(f'Ablating scheduler (checks in random order): {args.nosort}')
     
     openai.api_key = args.ai_key
     generator = Generator(
-        args.config_dir, args.engine_dir, 
-        args.log_level, args.timeout_s, 
-        args.default_dir)
+        args.config_dir, args.engine_dir, args.log_level, 
+        args.timeout_s, args.default_dir, args.nodebug, 
+        args.nosort)
     generator.generate()
 
     print('Process complete.')
