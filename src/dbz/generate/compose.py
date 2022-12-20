@@ -117,6 +117,18 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         """
         return self.max_passed >= self.nr_checks
     
+    def nr_defaults(self):
+        """ Counts number of default implementations in current composition.
+        
+        Returns:
+            the number of operators with default code
+        """
+        nr_defaults = 0
+        for task_id in self.composition.keys():
+            if self.ops.uses_default(self.composition, task_id):
+                nr_defaults += 1
+        return nr_defaults
+    
     def update(self, updates, mode):
         """ Try new code candidate to improve current composition.
         

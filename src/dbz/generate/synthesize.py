@@ -116,6 +116,17 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
 
         return pruned_code
     
+    def nr_characters(self):
+        """ The number of characters processed by the generative model.
+        
+        Returns:
+            the number of characters read or written by the model
+        """
+        total_chars = 0
+        for call in self.history:
+            total_chars += call['prompt'] + call['completion']
+        return total_chars
+    
     def task_prompt(self, task, composition, use_context=True):
         """ Generate prompt used for specific generation task and context.
         

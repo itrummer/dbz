@@ -37,6 +37,10 @@ class Generator():
             no_sort: whether to order checks randomly (ablation)
         """
         self.start_s = time.time()
+        self.settings = {
+            'config_dir':config_dir, 'engine_dir':engine_dir, 
+            'timeout_s':timeout_s, 'default_dir':default_dir, 
+            'no_debug':no_debug, 'no_sort':no_sort}
         self.timeout_s = timeout_s
         signatures_path = os.path.join(config_dir, 'signatures.json')
         synthesis_path = os.path.join(config_dir, 'synthesis.json')
@@ -86,6 +90,7 @@ class Generator():
         self.debugger = dbz.generate.debug.Debugger(self.composer, no_debug)
         self.defaults = dbz.generate.default.DefaultOperators(
             signatures_path, default_dir, engine_dir)
+        self.round_ctr = 0
     
     def generate(self):
         """ Generate SQL execution engine. """
@@ -152,11 +157,11 @@ class Generator():
         
     def _iterate(self):
         """ Iteratively debug operator implementations. """
-        round_ctr = 0
+        self.round_ctr = 0
         success = True
         while success and not self.composer.finished() and not self._timeout():
-            round_ctr += 1
-            self.logger.info(f'Starting Debugging Round {round_ctr} ...')
+            self.round_ctr += 1
+            self.logger.info(f'Starting Debugging Round {self.round_ctr} ...')
     
             with open(self.code_cache_path, 'w') as file:
                 json.dump(self.miner.code_cache, file)
@@ -229,8 +234,12 @@ class Generator():
 
     def _write_history(self):
         """ Append history of calls to various sub-functions to file. """
+        g_call = self.settings.copy()
         total_s = time.time() - self.start_s
-        g_call = {"start_s":self.start_s, "total_s":total_s}
+        g_call.update({"start_s":self.start_s, "total_s":total_s})
+        g_call.update({"nr_rounds":self.nr_rounds})
+        g_call.update({"nr_chars":self.synthesizer.nr_characters()})
+        g_call.update({"nr_defaults":self.composer.nr_defaults()})
         history = {
             "genesis":[g_call],
             **self.tasks.call_history(),
@@ -250,6 +259,9 @@ class Generator():
         
         with open(self.history_path, 'w') as file:
             json.dump(history, file)
+        
+        for key, value in g_call.items():
+            print(f'{key}\t:{value}')
 
 
 if __name__ == '__main__':
