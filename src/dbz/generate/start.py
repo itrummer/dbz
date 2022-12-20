@@ -259,9 +259,13 @@ if __name__ == '__main__':
     parser.add_argument('log_level', type=str, help='Set logging level')
     parser.add_argument('timeout_s', type=int, help='Timeout in seconds or -1')
     parser.add_argument('default_dir', type=str, help='Default engine path')
+    parser.add_argument('--nodebug', action='store_true', help='no debugger')
+    parser.add_argument('--nosort', action='store_true', help='random checks')
     args = parser.parse_args()
     
+    print(args)
     print(f'Using timeout {args.timeout_s} seconds!')
+    
     
     openai.api_key = args.ai_key
     generator = Generator(

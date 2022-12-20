@@ -9,6 +9,7 @@ import dbz.execute.check
 import dbz.execute.engine
 import logging
 import os.path
+import random
 import time
 
 
@@ -23,7 +24,7 @@ class FailureInfo():
 class Composer(dbz.analyze.component.AnalyzedComponent):
     """ Composes operator implementations into full SQL engine. """
     
-    def __init__(self, config, operators, tasks, pre_code):
+    def __init__(self, config, operators, tasks, pre_code, ablation=False):
         """ Initialize with operator manager. 
         
         Args:
@@ -31,6 +32,7 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             operators: manages operator implementations
             tasks: manages generation tasks and checks
             pre_code: code prefix used for execution
+            ablation: randomize test case order for ablation iff True
         """
         super().__init__()
         self.logger = logging.getLogger('all')
@@ -47,6 +49,12 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         self.checks = [
             c for i in range(self.nr_tasks) 
             for c in self.idx2checks[i]]
+        
+        if ablation:
+            self.logger.info('Shuffling checks for ablation ...')
+            random.shuffle(self.checks)
+        
+        self.logger.info(f'Checks: {self.checks}')
         self.nr_checks = len(self.checks)
         self.composition = {tid:0 for tid in self.task_order}
         self.max_passed = -1

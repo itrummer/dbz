@@ -6,20 +6,23 @@ Created on Sep 25, 2022
 from collections import Counter
 import dbz.analyze.component
 import logging
+import random
 import time
 
 
 class Debugger(dbz.analyze.component.AnalyzedComponent):
     """ Traces unsolved checks based to faulty operator implementations. """
     
-    def __init__(self, composer):
+    def __init__(self, composer, ablation=False):
         """ Initializes with given composer. 
         
         Args:
             composer: composes the SQL execution engine
+            ablation: random output for ablation studies iff True
         """
         super().__init__()
         self.composer = composer
+        self.ablation = ablation
         self.logger = logging.getLogger('all')
     
     def call_history(self):
@@ -60,6 +63,10 @@ class Debugger(dbz.analyze.component.AnalyzedComponent):
         tasks_weights = list(task2p_unsolved.items())
         tasks_weights.sort(key=lambda t_w:t_w[1], reverse=True)
         self.logger.info(f'Tasks and weights by priority: {tasks_weights}')
+        
+        if self.ablation:
+            random.shuffle(tasks_weights)
+            self.logger.info(f'Ablation -> random order: {tasks_weights}')
         
         total_s = time.time() - start_s
         self.history += [{
