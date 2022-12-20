@@ -124,7 +124,7 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
         """
         total_chars = 0
         for call in self.history:
-            total_chars += call['prompt'] + call['completion']
+            total_chars += len(call['prompt']) + len(call['completion'])
         return total_chars
     
     def task_prompt(self, task, composition, use_context=True):
