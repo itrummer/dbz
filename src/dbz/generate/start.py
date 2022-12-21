@@ -277,6 +277,7 @@ if __name__ == '__main__':
     parser.add_argument('--nosort', action='store_true', help='random checks')
     args = parser.parse_args()
     
+    print(f'All command line arguments: {args}')
     print(f'Using timeout {args.timeout_s} seconds!')
     print(f'Ablating debugger (fix random operators): {args.nodebug}')
     print(f'Ablating scheduler (checks in random order): {args.nosort}')
