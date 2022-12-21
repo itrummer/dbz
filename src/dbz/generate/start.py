@@ -258,10 +258,10 @@ class Generator():
             **self.composer.call_history(), 
             **self.miner.call_history(),
             **self.synthesizer.call_history(),
-            **self.defaults.call_history()
+            **self.debugger.call_history()
             }
         if self.have_defaults:
-            history.update(self.debugger.call_history())
+            history.update(self.defaults.call_history())
         
         prior_history = collections.defaultdict(lambda:[])
         if os.path.exists(self.history_path):
