@@ -32,7 +32,7 @@ class Generator():
             engine_dir: generate engine in this directory
             log_level: level for logging during engine generation
             timeout_s: timeout for generation in seconds (or -1)
-            default_dir: directory with default operator implementations
+            default_dir: directory with default engine or None
             no_debug: whether to fix randomly selected operators (ablation)
             no_sort: whether to order checks randomly (ablation)
         """
@@ -88,8 +88,11 @@ class Generator():
         self.composer = dbz.generate.compose.Composer(
             synthesis, self.operators, self.tasks, custom_code, no_sort)
         self.debugger = dbz.generate.debug.Debugger(self.composer, no_debug)
-        self.defaults = dbz.generate.default.DefaultOperators(
-            signatures_path, default_dir, engine_dir)
+        
+        self.have_defaults = True if default_dir is not None else False
+        if self.have_defaults:
+            self.defaults = dbz.generate.default.DefaultOperators(
+                signatures_path, default_dir, engine_dir)
         self.round_ctr = 0
     
     def generate(self):
@@ -112,36 +115,45 @@ class Generator():
             if not self.operators.uses_default(comp, t)]
         assert redo_ids, 'Failed check involves only default operators!'
         
-        for redo_id in redo_ids[:3]:
-            # Does using default implementation fix the problem?
-            if self._use_default_implementations([redo_id], 'test'):
-                # Try synthesizing a new operator in that case
-                for i in range(2):
-                    if self._timeout():
-                        return False
-                
-                    self.logger.info(f'Redoing {redo_id} from {redo_ids} ({i})')
-                    task = self.tasks.id2task[redo_id]
-                    code_id = self.miner.mine(task, comp)
-                    self.logger.info(f'Mined code ID: {code_id}.')
-                
-                    if code_id is not None:
-                        success = self.composer.update({redo_id:code_id}, 'optional')
-                        self.logger.info(f'Composer update successful: {success}.')
-                        if success:
-                            return True
+        for redo_id in redo_ids[:5]:
+            # Skip if default implementation does not fix the problem
+            if self.have_defaults and \
+                not self._use_default_implementations([redo_id], 'test'):
+                continue
             
-                # Fix problem by using default operator implementations
+            # Try synthesizing a new operator to fix the problem
+            for i in range(2):
+                if self._timeout():
+                    return False
+            
+                self.logger.info(f'Redoing {redo_id} from {redo_ids} ({i})')
+                task = self.tasks.id2task[redo_id]
+                code_id = self.miner.mine(task, comp)
+                self.logger.info(f'Mined code ID: {code_id}.')
+            
+                if code_id is not None:
+                    success = self.composer.update({redo_id:code_id}, 'optional')
+                    self.logger.info(f'Composer update successful: {success}.')
+                    if success:
+                        return True
+            
+            # Fix problem by using default operator implementations, if possible
+            if self.have_defaults:
                 success = self._use_default_implementations([redo_id], 'optional')
                 self.logger.info(f'Default for {redo_id} - success: {success}.')
                 if success:
                     return True
             
-        # Last try: replace operator most likely to be faulty by default code
-        self.logger.info(f'Giving up: replacing {redo_ids[0]} ...')
-        success = self._use_default_implementations(redo_ids[:1], 'force')
-        assert success, 'Forced update should always succeed!'
-        return success
+        # Last try: replace likely faulty operator by default or ask user
+        if self.have_defaults:
+            self.logger.info(f'Giving up: replacing {redo_ids[0]} ...')
+            success = self._use_default_implementations(redo_ids[:1], 'force')
+            assert success, 'Forced update should always succeed!'
+            return success
+        else:
+            print('Giving up - please add operator code in "user" sub-directory.')
+            print(f'Operators by likelihood of error: {redo_ids}.')
+            return False
     
     def _init_operators(self):
         """ Create first implementation for each operator. """
