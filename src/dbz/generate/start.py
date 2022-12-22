@@ -307,7 +307,7 @@ if __name__ == '__main__':
     generator = Generator(
         args.config_dir, args.engine_dir, args.log_level, 
         args.timeout_s, args.default_dir, args.nodebug, 
-        args.nosort)
+        args.nosort, args.usersim)
     generator.generate()
 
     print('Process complete.')
