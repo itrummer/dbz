@@ -24,7 +24,7 @@ class Generator():
     
     def __init__(
             self, config_dir, engine_dir, log_level, 
-            timeout_s, default_dir, no_debug, no_sort):
+            timeout_s, default_dir, no_debug, no_sort, user_sim):
         """ Initialize generation of SQL processing engines. 
         
         Args:
@@ -35,13 +35,17 @@ class Generator():
             default_dir: directory with default engine or None
             no_debug: whether to fix randomly selected operators (ablation)
             no_sort: whether to order checks randomly (ablation)
+            user_sim: whether to simulate user adding operators
         """
         self.start_s = time.time()
         self.settings = {
             'config_dir':config_dir, 'engine_dir':engine_dir, 
             'timeout_s':timeout_s, 'default_dir':default_dir, 
-            'no_debug':no_debug, 'no_sort':no_sort}
+            'no_debug':no_debug, 'no_sort':no_sort, 
+            'user_sim':user_sim}
+        
         self.timeout_s = timeout_s
+        self.user_sim = user_sim
         signatures_path = os.path.join(config_dir, 'signatures.json')
         synthesis_path = os.path.join(config_dir, 'synthesis.json')
         customization_dir = os.path.join(engine_dir, 'customization')
@@ -117,7 +121,7 @@ class Generator():
         
         for redo_id in redo_ids[:5]:
             # Skip if default implementation does not fix the problem
-            if self.have_defaults and \
+            if self.have_defaults and not self.user_sim and \
                 not self._use_default_implementations([redo_id], 'test'):
                 continue
             
@@ -138,7 +142,7 @@ class Generator():
                         return True
             
             # Fix problem by using default operator implementations, if possible
-            if self.have_defaults:
+            if self.have_defaults and not self.user_sim:
                 success = self._use_default_implementations([redo_id], 'optional')
                 self.logger.info(f'Default for {redo_id} - success: {success}.')
                 if success:
@@ -147,6 +151,8 @@ class Generator():
         # Last try: replace likely faulty operator by default or ask user
         if self.have_defaults:
             self.logger.info(f'Giving up: replacing {redo_ids[0]} ...')
+            if self.user_sim:
+                self.logger.info('(This simulates users writing operator code)')
             success = self._use_default_implementations(redo_ids[:1], 'force')
             assert success, 'Forced update should always succeed!'
             return success
@@ -286,14 +292,16 @@ if __name__ == '__main__':
     parser.add_argument('log_level', type=str, help='Set logging level')
     parser.add_argument('timeout_s', type=int, help='Timeout in seconds or -1')
     parser.add_argument('--default_dir', type=str, help='Default engine path')
-    parser.add_argument('--nodebug', action='store_true', help='no debugger')
-    parser.add_argument('--nosort', action='store_true', help='random checks')
+    parser.add_argument('--nodebug', action='store_true', help='No debugger')
+    parser.add_argument('--nosort', action='store_true', help='Random checks')
+    parser.add_argument('--usersim', action='store_true', help='Simulate user')
     args = parser.parse_args()
     
     print(f'All command line arguments: {args}')
     print(f'Using timeout {args.timeout_s} seconds!')
     print(f'Ablating debugger (fix random operators): {args.nodebug}')
     print(f'Ablating scheduler (checks in random order): {args.nosort}')
+    print(f'Simulating user who is adding operator code: {args.usersim}')
     
     openai.api_key = args.ai_key
     generator = Generator(
