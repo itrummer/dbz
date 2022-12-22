@@ -74,6 +74,32 @@ class CodeMiner(dbz.analyze.component.AnalyzedComponent):
         self.logger.info(f'Mined Code for Task {task_id}:\n{code}')
         return self.operators.add_op(task_id, code)
     
+    def _get_cached(self, task, composition, context_flags):
+        """ Get unused code from cache for given task.
+        
+        Args:
+            task: describes a code generation task
+            composition: maps task IDs to code IDs
+            context_flags: whether to use code samples
+        
+        Returns:
+            pair of unused code and associated prompt, or None pair
+        """
+        for use_context in context_flags:
+            prompt, _ = self.synthesizer.task_prompt(
+                task, composition, use_context)
+            self.logger.info(
+                f'Check cache - prompt:' +\
+                f'\n---\n{prompt}\n---\n')
+            cached = self.code_cache.get(prompt, [])
+            code = next((c for c in cached 
+                if not self.operators.is_known(c)), None)
+            if code is not None:
+                self.logger.info(f'Found cached code:\n{code}')
+                return code, prompt
+        
+        return None, None
+    
     def _get_user_code(self, task_id):
         """ Try to retrieve user-specified code for task.
         
@@ -103,13 +129,11 @@ class CodeMiner(dbz.analyze.component.AnalyzedComponent):
             Prompt used, newly synthesized code (or None)
         """
         start_s = time.time()
-        prompt, _ = self.synthesizer.task_prompt(task, composition)
-        self.logger.info(f'Mining with Prompt:\n---\n{prompt}\n---\n')
-        cached = self.code_cache.get(prompt, [])
-        code = next((c for c in cached if not self.operators.is_known(c)), None)
+        
+        context_flags = [False, True] if task['similar_tasks'] else [False]
+        code, prompt = self._get_cached(task, composition, context_flags)
         
         synthesis_options = []
-        context_flags = [False, True] if task['similar_tasks'] else [False]
         for temperature in self.temperatures:
             for use_context in context_flags:
                 synthesis_options += [(temperature, use_context)]
