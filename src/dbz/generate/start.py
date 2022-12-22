@@ -258,6 +258,7 @@ class Generator():
         g_call.update({"nr_rounds":self.round_ctr})
         g_call.update({"nr_chars":self.synthesizer.nr_characters()})
         g_call.update({"nr_defaults":self.composer.nr_defaults()})
+        g_call.update({"max_passed:":self.composer.max_passed})
         history = {
             "genesis":[g_call],
             **self.tasks.call_history(),
