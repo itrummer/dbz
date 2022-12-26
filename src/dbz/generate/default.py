@@ -183,9 +183,9 @@ class DefaultOperators(dbz.analyze.component.AnalyzedComponent):
         for part in parts:
             functions = tracer.definitions(part)
             relevant_parts = tracer.relevant_transitive(part, parts)
-            context = '\n\n\n'.join(relevant_parts)
+            relevant_code = '\n\n\n'.join(relevant_parts)
             for function in functions:
-                fct2code[function] = context + '\n\n\n' + part
+                fct2code[function] = relevant_code
         
         return fct2code
     
@@ -265,4 +265,4 @@ if __name__ == '__main__':
         args.signatures_path, args.default_dir, 
         args.target_dir)
     code = defaults.generate_default('left_join')
-    print(code)
+    print(f'Code: {code}')

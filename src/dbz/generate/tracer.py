@@ -41,9 +41,11 @@ class Tracer():
         relevant = []
         for part in parts:
             definitions = self.definitions(part)
-            if any(f'{d}(' in target_code for d in definitions):
+            if any(
+                re.search(f'\s+{d}\(', target_code) is not None 
+                for d in definitions):
                 relevant += [part]
-        
+
         return relevant
     
     def relevant_transitive(self, target_code, parts):
@@ -70,4 +72,7 @@ class Tracer():
 
 if __name__ == '__main__':
     tracer = Tracer()
-    
+    print(tracer.relevant(
+        'def not_equal():\n\treturn False\n', 
+        ['def equal():\n\treturn False\n',
+         'def not_equal():\n\treturn True']))
