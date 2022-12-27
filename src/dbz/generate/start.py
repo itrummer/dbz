@@ -126,7 +126,7 @@ class Generator():
                 continue
             
             # Try synthesizing a new operator to fix the problem
-            for i in range(3):
+            for i in range(5):
                 if self._timeout():
                     return False
             
