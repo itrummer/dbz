@@ -80,24 +80,28 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
         """
         return {"synthesizer":self.history}
     
-    def generate(self, task, temperature, composition, use_context=True):
+    def generate(
+            self, composition, failure_info, task,
+            temperature, use_context=True):
         """ Synthesize code piece as described in task.
         
         Args:
+            composition: selected operators in current composition
+            failure_info: information on bugs in composition or None
             task: dictionary describing generation task
             temperature: degree of randomness in generation
-            composition: selected operators in current composition
             use_context: whether to integrate context into prompt
         
         Returns:
             prompt with generated code piece
         """
         start_s = time.time()
-        prompt, prompt_end = self.task_prompt(task, composition, use_context)
+        prompt_msgs, prompt_end = self.chat_prompt(
+            composition, failure_info, task, use_context)
         stop = ['\nif']
         if 'stop' in task:
             stop = task['stop']
-        completion = self._complete(prompt, temperature, stop)
+        completion = self._complete(prompt_msgs, temperature, stop)
         all_functions = prompt_end + completion
         pruned_code = self._prune(prompt_end, all_functions)
         
@@ -107,7 +111,7 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             "task_id":task_id,
             "temperature":temperature,
             "use_context":use_context,
-            "prompt":prompt, 
+            "prompt_msgs":prompt_msgs, 
             "prompt_end":prompt_end, 
             "completion":completion,
             "pruned_code":pruned_code,
@@ -127,16 +131,17 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             total_chars += len(call['prompt']) + len(call['completion'])
         return total_chars
     
-    def task_prompt(self, task, composition, use_context=True):
-        """ Generate prompt used for specific generation task and context.
+    def chat_prompt(self, composition, failure_info, task, use_context=True):
+        """ Generate prompt for chat models describing generation task.
         
         Args:
-            task: dictionary describing operator generation task
             composition: maps task IDs to IDs of selected code pieces
+            failure_info: information about bugs in composition or None
+            task: dictionary describing operator generation task
             use_context: integrate context code snippets into prompt
         
         Returns:
-            pair containing full prompt and last prompt piece
+            pair containing list of prompt messages and last prompt piece
         """
         parts = []
         if self.prompt_prefix:
@@ -155,31 +160,50 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             file, substitutions) + self.prompt_suffix
         parts += [prompt_end]
         
-        return '\n\n\n'.join(parts), prompt_end
+        initial_prompt = '\n\n\n'.join(parts)
+        initial_msg = {'role':'user', 'content':initial_prompt}
+        prompt_msgs = [initial_msg]
+        
+        if failure_info is not None:
+            task_id = task['task_id']
+            ops = self.operators.get_ops(task_id)
+            code_id = composition[task_id]
+            prior_op = ops[code_id]
+            code_msg = {'role':'assistant', 'content':prior_op}
+            prompt_msgs += [code_msg]
+            
+            error_lines = [
+                'This code does not work. The following messages are possibly related:']
+            error_lines += failure_info.error_lines
+            error_content = '\n'.join(error_lines)
+            error_msg = {'role':'user', 'content':error_content}
+            prompt_msgs += [error_msg]
+        
+        return prompt_msgs, prompt_end
     
-    def _complete(self, prompt, temperature, stop):
-        """ Use OpenAI's GPT-3 Codex model for completion.
+    def _complete(self, prompt_msgs, temperature, stop):
+        """ Use OpenAI's GPT models for completion.
         
         Args:
-            prompt: complete this prompt
+            prompt_msgs: list of prompt messages
             temperature: degree of randomness
             stop: stop generation at this string
         
         Returns:
             completed code
         """
-        logging.debug(f'--- PROMPT ---\n{prompt}')
+        logging.debug(f'--- PROMPT ---\n{prompt_msgs}')
         delay_s = 3
         for i in range(5):
-            logging.info(f'Querying Codex - retry nr. {i} ...')
+            logging.info(f'Querying GPT - retry nr. {i} ...')
             try:
                 time.sleep(delay_s)
-                response = openai.Completion.create(
-                    prompt=prompt, stop=stop,
+                response = openai.ChatCompletion.create(
+                    messages=prompt_msgs, stop=stop,
                     temperature=temperature,
-                    engine='code-davinci-002',
+                    engine='gpt-3.5-turbo',
                     max_tokens=800)
-                completion = response['choices'][0]['text']
+                completion = response['choices'][0]['message']['content']
                 logging.debug(f'--- COMPLETION ---\n{completion}')
                 return completion
             except openai.error.InvalidRequestError as e:

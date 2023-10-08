@@ -90,6 +90,8 @@ class Validator(dbz.analyze.component.AnalyzedComponent):
         self.paths = paths
         self.sql_ref = sql_ref
         self.logger = logging.getLogger('all')
+        self.error_lines = []
+        """ Error strings generated during last check. """
     
     def call_history(self):
         """ Returns call history for all sub-components. 
@@ -175,7 +177,9 @@ class Validator(dbz.analyze.component.AnalyzedComponent):
         """
         code = check['code']
         code = engine.add_context(code)
-        return engine.run(code)
+        success = engine.run(code)
+        self.error_lines = engine.error_lines.copy()
+        return success
     
     def _rounding(self, check_task):
         """ Create instructions for rounding before comparing results.
@@ -269,6 +273,7 @@ class Validator(dbz.analyze.component.AnalyzedComponent):
             print(f'Execution successful: {success}')
             if not success:
                 print('Validation Failed!')
+                self.error_lines = engine.error_lines.copy()
                 return False
             
             print('Start of test result:')
@@ -300,6 +305,10 @@ class Validator(dbz.analyze.component.AnalyzedComponent):
             nr_ref_cols = ref_df.shape[1]
             if not (nr_check_cols == nr_ref_cols):
                 print(f'Different nr. columns: {nr_check_cols}, {nr_ref_cols}')
+                self.error_lines = [
+                    'Code generates results with wrong number of columns.',
+                    f'Correct number of columns: {nr_ref_cols}',
+                    f'Generated number of columns: {nr_check_cols}']
                 return False
             
             sort_cols = self._check_order_columns(check, nr_ref_cols)
@@ -319,6 +328,9 @@ class Validator(dbz.analyze.component.AnalyzedComponent):
 
             if nr_diffs:
                 print(f'Result comparison failed!')
+                self.error_lines = [
+                    'Code generates incorrect results!'
+                    f'Differences to reference result: {diffs}']
                 return False
             else:
                 print(f'Validation successful!')

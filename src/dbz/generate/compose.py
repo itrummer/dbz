@@ -17,8 +17,13 @@ import time
 class FailureInfo():
     """ Contains helpful information for debugging. """
     passed_checks: list
+    """ Contains passed checks. """
     failed_checks: list
+    """ Contains failed checks (typically one). """
     task2nr_ops: dict
+    """ Maps tasks to number of generated implementations. """
+    error_lines: list
+    """ Lines of error messages related to failed checks. """
 
 
 class Composer(dbz.analyze.component.AnalyzedComponent):
@@ -60,6 +65,7 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         self.max_passed = -1
         self.passed_checks = []
         self.failed_checks = []
+        self.error_lines = []
         self.nr_validations = 0
         
         sql_ref_info = config['sql_ref']
@@ -107,7 +113,8 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
         return FailureInfo(
             self.passed_checks, 
             self.failed_checks, 
-            task2nr_ops)
+            task2nr_ops,
+            self.error_lines)
     
     def finished(self):
         """ Checks whether a complete engine was generated. 
@@ -179,6 +186,7 @@ class Composer(dbz.analyze.component.AnalyzedComponent):
             self.composition = candidate
             self.passed_checks = passed_checks
             self.failed_checks = failed_checks
+            self.error_lines = self.validator.error_lines.copy()
             self._record_call(updates, mode, start_s, True)
             return True
         else:

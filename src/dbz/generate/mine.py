@@ -49,12 +49,13 @@ class CodeMiner(dbz.analyze.component.AnalyzedComponent):
         """
         return {"miner":self.history}
     
-    def mine(self, task, composition):
+    def mine(self, composition, failure_info, task):
         """ Mine code as specified in given generation task.
         
         Args:
-            task: describes code generation task
             composition: maps tasks to operator IDs
+            failure_info: information about bugs in composition or None
+            task: describes code generation task
         
         Returns:
             ID of newly generated code in operator library or None
@@ -64,7 +65,8 @@ class CodeMiner(dbz.analyze.component.AnalyzedComponent):
         
         if code is None:
             
-            prompt, code = self._synthesize_code(task, composition)
+            prompt, code = self._synthesize_code(
+                composition, failure_info, task)
             if code is None:
                 return None
             
@@ -118,12 +120,13 @@ class CodeMiner(dbz.analyze.component.AnalyzedComponent):
         except:
             return None
     
-    def _synthesize_code(self, task, composition):
+    def _synthesize_code(self, composition, failure_info, task):
         """ Try to mine code via code synthesis. 
         
         Args:
-            task: description of generation task
             composition: maps tasks to operator IDs
+            failure_info: info about bugs in composition
+            task: description of generation task
         
         Returns:
             Prompt used, newly synthesized code (or None)
@@ -141,8 +144,8 @@ class CodeMiner(dbz.analyze.component.AnalyzedComponent):
         if code is None:
             for temperature, use_context in synthesis_options:
                 code = self.synthesizer.generate(
-                    task, temperature, 
-                    composition, use_context)
+                    composition, failure_info, task,
+                    temperature, use_context)
                 
                 if self.operators.is_known(code):
                     code = None

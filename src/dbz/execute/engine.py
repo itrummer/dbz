@@ -81,6 +81,8 @@ class DbzEngine(Engine):
         self.paths = paths
         self.library = library
         self.python_path = python_path
+        self.error_lines = []
+        """ Contains error string produced in last run. """
         
         self.rewriter = dbz.execute.query.Rewriter(paths.schema)
         self.planner = dbz.execute.plan.Planner(
@@ -141,7 +143,9 @@ class DbzEngine(Engine):
             self.python_path, self.paths.code],
             capture_output=True)
         if completed.returncode > 0:
-            print(f'Error: {completed.stderr}')
+            error_text = completed.stderr
+            print(f'Error: {error_text}')
+            self.error_lines = [error_text]
             return False
         else:
             return True

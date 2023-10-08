@@ -112,6 +112,7 @@ class Generator():
             True if debugging was successful
         """
         comp = self.composer.composition
+        failure_info = self.composer.failure_info()
         redo_ids_weighted = self.debugger.to_redo()
         redo_ids = [t for t, _ in redo_ids_weighted]
         redo_ids = [
@@ -132,7 +133,7 @@ class Generator():
             
                 self.logger.info(f'Redoing {redo_id} from {redo_ids} ({i})')
                 task = self.tasks.id2task[redo_id]
-                code_id = self.miner.mine(task, comp)
+                code_id = self.miner.mine(comp, failure_info, task)
                 self.logger.info(f'Mined code ID: {code_id}.')
             
                 if code_id is not None:
@@ -165,7 +166,7 @@ class Generator():
         """ Create first implementation for each operator. """
         composition = {}
         for gen_task in self.tasks.gen_tasks:
-            self.miner.mine(gen_task, composition)
+            self.miner.mine(composition, None, gen_task)
             task_id = gen_task['task_id']
             composition[task_id] = 0
         
