@@ -76,20 +76,22 @@ class CodeMiner(dbz.analyze.component.AnalyzedComponent):
         self.logger.info(f'Mined Code for Task {task_id}:\n{code}')
         return self.operators.add_op(task_id, code)
     
-    def _get_cached(self, task, composition, context_flags):
+    def _get_cached(self, composition, failure_info, task, context_flags):
         """ Get unused code from cache for given task.
         
         Args:
-            task: describes a code generation task
             composition: maps task IDs to code IDs
+            failure_info: information on current bugs
+            task: describes a code generation task
             context_flags: whether to use code samples
         
         Returns:
             pair of unused code and associated prompt, or None pair
         """
         for use_context in context_flags:
-            prompt, _ = self.synthesizer.task_prompt(
-                task, composition, use_context)
+            prompt_msgs, _ = self.synthesizer.chat_prompt(
+                composition, failure_info, task, use_context)
+            prompt = '\n'.join(m['content'] for m in prompt_msgs)
             self.logger.info(
                 f'Check cache - prompt:' +\
                 f'\n---\n{prompt}\n---\n')
@@ -122,19 +124,20 @@ class CodeMiner(dbz.analyze.component.AnalyzedComponent):
     
     def _synthesize_code(self, composition, failure_info, task):
         """ Try to mine code via code synthesis. 
-        
+
         Args:
             composition: maps tasks to operator IDs
             failure_info: info about bugs in composition
             task: description of generation task
-        
+
         Returns:
             Prompt used, newly synthesized code (or None)
         """
         start_s = time.time()
         
         context_flags = [False, True] if task['similar_tasks'] else [False]
-        code, prompt = self._get_cached(task, composition, context_flags)
+        code, prompt = self._get_cached(
+            composition, failure_info, task, context_flags)
         
         synthesis_options = []
         for temperature in self.temperatures:
