@@ -257,7 +257,7 @@ class Generator():
         total_s = time.time() - self.start_s
         g_call.update({"start_s":self.start_s, "total_s":total_s})
         g_call.update({"nr_rounds":self.round_ctr})
-        g_call.update({"nr_chars":self.synthesizer.nr_characters()})
+        g_call.update({"nr_tokens":self.synthesizer.nr_tokens()})
         g_call.update({"nr_defaults":self.composer.nr_defaults()})
         g_call.update({"max_passed:":self.composer.max_passed})
         history = {

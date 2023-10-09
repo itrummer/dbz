@@ -101,7 +101,9 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
         stop = ['\nif']
         if 'stop' in task:
             stop = task['stop']
-        completion = self._complete(prompt_msgs, temperature, stop)
+        response = self._complete(prompt_msgs, temperature, stop)
+        completion = response['choices'][0]['message']['content']
+        logging.debug(f'--- COMPLETION ---\n{completion}')
         
         # if failure_info is None:
             # all_functions = prompt_end + '\n' + completion
@@ -123,21 +125,23 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             "prompt_end":prompt_end, 
             "completion":completion,
             "pruned_code":pruned_code,
+            "completion_tokens":response['usage']['completion_tokens'],
+            "prompt_tokens":response['usage']['prompt_tokens'],
             "start_s":start_s,
             "total_s":total_s}]
 
         return pruned_code
     
-    def nr_characters(self):
-        """ The number of characters processed by the generative model.
+    def nr_tokens(self):
+        """ The number of tokens processed by the generative model.
         
         Returns:
-            the number of characters read or written by the model
+            the number of tokens read or written by the model
         """
-        total_chars = 0
+        total_tokens = 0
         for call in self.history:
-            total_chars += len(call['prompt']) + len(call['completion'])
-        return total_chars
+            total_tokens += call['completion_tokens'] + call['prompt_tokens']
+        return total_tokens
     
     def chat_prompt(self, composition, failure_info, task, use_context=True):
         """ Generate prompt for chat models describing generation task.
@@ -202,7 +206,7 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             stop: stop generation at this string
         
         Returns:
-            completed code
+            model response
         """
         logging.debug(f'--- PROMPT ---\n{prompt_msgs}')
         delay_s = 3
@@ -213,9 +217,7 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
                 response = openai.ChatCompletion.create(
                     messages=prompt_msgs, stop=stop, temperature=temperature,
                     model='gpt-3.5-turbo', max_tokens=800)
-                completion = response['choices'][0]['message']['content']
-                logging.debug(f'--- COMPLETION ---\n{completion}')
-                return completion
+                return response
             except openai.error.InvalidRequestError as e:
                 logging.warning(f'Invalid OpenAI request: {e}')
                 return None
