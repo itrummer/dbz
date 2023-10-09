@@ -200,7 +200,7 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
                 time.sleep(delay_s)
                 response = openai.ChatCompletion.create(
                     messages=prompt_msgs, stop=stop, temperature=temperature,
-                    engine='gpt-3.5-turbo', max_tokens=800)
+                    model='gpt-3.5-turbo', max_tokens=800)
                 completion = response['choices'][0]['message']['content']
                 logging.debug(f'--- COMPLETION ---\n{completion}')
                 return completion
