@@ -102,7 +102,7 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
         if 'stop' in task:
             stop = task['stop']
         completion = self._complete(prompt_msgs, temperature, stop)
-        all_functions = prompt_end + completion
+        all_functions = prompt_end + '\n' + completion
         pruned_code = self._prune(prompt_end, all_functions)
         
         total_s = time.time() - start_s
