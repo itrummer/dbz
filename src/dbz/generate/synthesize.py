@@ -102,8 +102,16 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
         if 'stop' in task:
             stop = task['stop']
         completion = self._complete(prompt_msgs, temperature, stop)
-        all_functions = prompt_end + '\n' + completion
-        pruned_code = self._prune(prompt_end, all_functions)
+        
+        if failure_info is None:
+            all_functions = prompt_end + '\n' + completion
+            pruned_code = self._prune(prompt_end, all_functions)
+        else:
+            snippets = re.findall('<CodeStart>(.*)<CodeEnd>', completion)
+            if snippets:
+                pruned_code = snippets[0]
+            else:
+                pruned_code = completion
         
         total_s = time.time() - start_s
         task_id = task['task_id']
@@ -175,6 +183,8 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             error_lines = [
                 'This code does not work. The following messages are possibly related:']
             error_lines += failure_info.error_lines
+            error_lines += ['Please write a corrected version of the entire function.']
+            error_lines += ['Mark the code start with <CodeStart> and the end with <CodeEnd>.']
             error_content = '\n'.join(error_lines)
             error_msg = {'role':'user', 'content':error_content}
             prompt_msgs += [error_msg]
