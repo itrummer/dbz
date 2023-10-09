@@ -143,7 +143,7 @@ class DbzEngine(Engine):
             self.python_path, self.paths.code],
             capture_output=True)
         if completed.returncode > 0:
-            error_text = completed.stderr
+            error_text = str(completed.stderr)
             print(f'Error: {error_text}')
             self.error_lines = [error_text]
             return False
