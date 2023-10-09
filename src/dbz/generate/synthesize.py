@@ -107,7 +107,7 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             # all_functions = prompt_end + '\n' + completion
             # pruned_code = self._prune(prompt_end, all_functions)
         # else:
-        snippets = re.findall(r'<CodeStart>(.*)<CodeEnd>', completion)
+        snippets = re.findall('(?s)<CodeStart>(.*)<CodeEnd>', completion)
         if snippets:
             pruned_code = snippets[0]
         else:
