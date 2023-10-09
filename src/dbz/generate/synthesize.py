@@ -103,15 +103,15 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             stop = task['stop']
         completion = self._complete(prompt_msgs, temperature, stop)
         
-        if failure_info is None:
-            all_functions = prompt_end + '\n' + completion
-            pruned_code = self._prune(prompt_end, all_functions)
+        # if failure_info is None:
+            # all_functions = prompt_end + '\n' + completion
+            # pruned_code = self._prune(prompt_end, all_functions)
+        # else:
+        snippets = re.findall(r'<CodeStart>(.*)<CodeEnd>', completion)
+        if snippets:
+            pruned_code = snippets[0]
         else:
-            snippets = re.findall('<CodeStart>(.*)<CodeEnd>', completion)
-            if snippets:
-                pruned_code = snippets[0]
-            else:
-                pruned_code = completion
+            pruned_code = completion
         
         total_s = time.time() - start_s
         task_id = task['task_id']
@@ -152,6 +152,8 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             pair containing list of prompt messages and last prompt piece
         """
         parts = []
+        parts += ['Write a completed version of the last function in the following code (including header).']
+        parts += ['Mark the code start with <CodeStart> and the end with <CodeEnd>.']
         if self.prompt_prefix:
             parts += [self.prompt_prefix]
         
