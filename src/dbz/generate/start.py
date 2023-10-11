@@ -170,6 +170,8 @@ class Generator():
             task_id = gen_task['task_id']
             composition[task_id] = 0
         
+        self._write_engine()
+        
         first_task = self.tasks.gen_tasks[0]
         first_task_id = first_task['task_id']
         self.composer.update({first_task_id:0}, 'optional')
@@ -187,9 +189,7 @@ class Generator():
 
             success = self._debug()
 
-            sql_engine = self.composer.all_code()
-            with open(self.sql_engine_path, 'w') as file:
-                file.write(sql_engine)
+            self._write_engine()
 
     def _load_referenced_code(self, code_dir, file_name):
         """ Load code referenced via given key, removes last newline.
@@ -250,6 +250,12 @@ class Generator():
         success = self.composer.update(updates, mode)
         self.logger.info(f'Composer update successful: {success}.')
         return success
+
+    def _write_engine(self):
+        """ Write out current operator implementations. """
+        sql_engine = self.composer.all_code()
+        with open(self.sql_engine_path, 'w') as file:
+            file.write(sql_engine)
 
     def _write_history(self):
         """ Append history of calls to various sub-functions to file. """
