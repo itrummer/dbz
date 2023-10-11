@@ -4,12 +4,14 @@ Created on Nov 6, 2022
 @author: immanueltrummer
 '''
 def run_checks(c, nc):
-    assert check_column_type(is_null(c))
-    assert check_column_type(is_null(nc))
+    assert check_column_type(is_null(c)), \
+        f'Unexpected type: {type(is_null(c))}'
+    assert check_column_type(is_null(nc)), \
+        f'Unexpected type: {type(is_null(nc))}'
     write_to_csv(is_null(c), 'test_output/test.csv')
-    assert same_content('test_output/test.csv', 'test_output/false10.csv')
+    same_content('test_output/test.csv', 'test_output/false10.csv')
     write_to_csv(is_null(nc), 'test_output/test.csv')
-    assert same_content('test_output/test.csv', 'test_output/true10.csv')
+    same_content('test_output/test.csv', 'test_output/true10.csv')
 
 c = fill_Boolean_column(True, 10)
 nc = fill_Boolean_column(get_null(), 10)

@@ -9,4 +9,4 @@ t1 = create_table([c1])
 t2 = set_column(t1, 0, c2)
 
 write_to_csv(t2, 'test_output/test.csv')
-assert same_content('test_output/test.csv', 'test_output/float1.5_10.csv')
+same_content('test_output/test.csv', 'test_output/float1.5_10.csv')

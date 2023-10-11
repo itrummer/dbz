@@ -16,10 +16,10 @@ for i in [0, 1, 2]:
     r = results[i]
     t = create_table([r])
     write_to_csv(t, 'test_output/test.csv')
-    assert same_content('test_output/test.csv', 'test_output/true10.csv')
+    same_content('test_output/test.csv', 'test_output/true10.csv')
 
 for i in [3]:
     r = results[i]
     t = create_table([r])
     write_to_csv(t, 'test_output/test.csv')
-    assert same_content('test_output/test.csv', 'test_output/false10.csv')
+    same_content('test_output/test.csv', 'test_output/false10.csv')

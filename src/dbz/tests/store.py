@@ -11,4 +11,4 @@ with open('dummy.csv') as file:
     test = file.read()
 with open('test_output/store.csv') as file:
     ref = file.read()
-assert test == ref
+assert test == ref, f'Expected {ref}, found {test}'

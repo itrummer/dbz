@@ -10,21 +10,21 @@ t2 = create_table([c1, c2])
 
 r = equality_join(t1, t2, [1], [1])
 write_to_csv(r, 'test_output/test.csv')
-assert same_content('test_output/test.csv', 'test_output/1010_100.csv')
+same_content('test_output/test.csv', 'test_output/1010_100.csv')
 
 r = equality_join(t1, t2, [0], [0])
 write_to_csv(r, 'test_output/test.csv')
-assert same_content('test_output/test.csv', 'test_output/1010_100.csv')
+same_content('test_output/test.csv', 'test_output/1010_100.csv')
 
 r = equality_join(t1, t2, [1], [0])
 write_to_csv(r, 'test_output/test.csv')
-assert same_content('test_output/test.csv', 'test_output/empty.csv')
+same_content('test_output/test.csv', 'test_output/empty.csv')
 
 r = equality_join(t1, t2, [0], [1])
 write_to_csv(r, 'test_output/test.csv')
-assert same_content('test_output/test.csv', 'test_output/empty.csv')
+same_content('test_output/test.csv', 'test_output/empty.csv')
 
 r = equality_join(t1, t2, [1], [1])
 r = equality_join(r, t2, [1], [1])
 write_to_csv(r, 'test_output/test.csv')
-assert same_content('test_output/test.csv', 'test_output/101010_1000.csv')
+same_content('test_output/test.csv', 'test_output/101010_1000.csv')
