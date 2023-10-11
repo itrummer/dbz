@@ -3,7 +3,7 @@ def fill_int_column(constant, nr_rows):
     
     1. If constant is not <Null>, round it to integer value.
     2. Create <Column> filled with int values.
-    3. Ensure that column type is <IntegerField>.
+    3. Ensure output is <Column> with values of type <IntegerField>.
     
     Args:
         constant: int or float value or <Null>.
