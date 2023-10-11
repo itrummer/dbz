@@ -15,6 +15,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('benchmark', type=str, help='Path to benchmark file')
     parser.add_argument('engine', type=str, help='Path to operators')
+    parser.add_argument(
+        '--continueonfail', action='store_true', 
+        help='Continue if validation fails')
     args = parser.parse_args()
     
     with open(args.benchmark) as file:
@@ -47,7 +50,10 @@ if __name__ == '__main__':
         check = {'type':'sql', 'query':query, "label":label}
         valid = validator.validate(engine_to_benchmark, check)
         if not valid:
-            raise Exception('Validation not successful!')
+            if args.continueonfail:
+                print('Validation not successful!')
+            else:
+                raise Exception('Validation not successful!')
 
     results = {
         "benchmark":benchmark, 
