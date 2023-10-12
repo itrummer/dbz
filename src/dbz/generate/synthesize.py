@@ -102,7 +102,7 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
         if 'stop' in task:
             stop = task['stop']
         response = self._complete(prompt_msgs, temperature, stop)
-        completion = None if response is None else \
+        completion = '' if response is None else \
             response['choices'][0]['message']['content']
         logging.debug(f'--- COMPLETION ---\n{completion}')
         
