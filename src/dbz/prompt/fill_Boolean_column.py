@@ -1,13 +1,10 @@
 def fill_Boolean_column(constant, nr_rows):
-    """ Returns <Column>, filled with <BooleanField> values.
-    
-    1. Create <Column> filled with Boolean values.
-    2. Ensure output is <Column> with values of type <BooleanField>.
+    """ Returns <Column>, filled with constant.
     
     Args:
-        constant: Boolean value or <Null>.
+        constant: <BooleanField> or <Null>.
         nr_rows: number of rows in result column.
     
     Returns:
-        <Column> with <BooleanField> values.
+        <Column> with constant value (<BooleanField> or <Null>).
     """

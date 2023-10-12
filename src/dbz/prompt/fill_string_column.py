@@ -1,13 +1,10 @@
 def fill_string_column(constant, nr_rows):
-    """ Returns <Column>, filled with <StringField> values.
-    
-    1. Create <Column> filled with string values.
-    2. Ensure output is <Column> with values of type <StringField>.
+    """ Returns <Column>, filled with constant.
     
     Args:
-        constant: string value or <Null>.
+        constant: <StringField> or <Null>.
         nr_rows: number of rows in result column.
     
     Returns:
-        <Column> with <StringField> values.
+        <Column> with constant value (<StringField> or <Null>).
     """
