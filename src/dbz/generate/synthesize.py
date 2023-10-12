@@ -118,6 +118,10 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
         
         total_s = time.time() - start_s
         task_id = task['task_id']
+        completion_tokens = 0 if response is None else \
+            response['usage']['completion_tokens']
+        prompt_tokens = 0 if response is None else \
+            response['usage']['prompt_tokens']
         self.history += [{
             "task_id":task_id,
             "temperature":temperature,
@@ -126,8 +130,8 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             "prompt_end":prompt_end, 
             "completion":completion,
             "pruned_code":pruned_code,
-            "completion_tokens":response['usage']['completion_tokens'],
-            "prompt_tokens":response['usage']['prompt_tokens'],
+            "completion_tokens":completion_tokens,
+            "prompt_tokens":prompt_tokens,
             "start_s":start_s,
             "total_s":total_s}]
 
