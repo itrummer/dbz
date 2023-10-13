@@ -153,7 +153,8 @@ class CodeMiner(dbz.analyze.component.AnalyzedComponent):
                 if self.operators.is_known(code):
                     code = None
                 elif self.must_contain not in code:
-                    code = None
+                    #code = None
+                    pass
                 else:
                     total_s = time.time() - start_s
                     t_info = f'temperature: {temperature}'
