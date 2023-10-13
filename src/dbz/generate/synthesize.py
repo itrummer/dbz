@@ -161,10 +161,8 @@ class Synthesizer(dbz.analyze.component.AnalyzedComponent):
             pair containing list of prompt messages and last prompt piece
         """
         parts = []
-        parts += [
-            'Write a completed version of the last function in the following code (including header). '
-            'Mark the code start with <CodeStart> and the end with <CodeEnd>.'
-            ]
+        parts += ['Write a completed version of the last function in the following code (including header, i.e., start from "def").']
+        parts += ['Mark the code start with <CodeStart> and the end with <CodeEnd>.']
         if self.prompt_prefix:
             parts += [self.prompt_prefix]
         
