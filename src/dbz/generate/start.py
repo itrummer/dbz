@@ -120,14 +120,14 @@ class Generator():
             if not self.operators.uses_default(comp, t)]
         assert redo_ids, 'Failed check involves only default operators!'
         
-        for redo_id in redo_ids[:3]:
+        for redo_id in redo_ids[:1]:
             # Skip if default implementation does not fix the problem
             if self.have_defaults and not self.user_sim and \
                 not self._use_default_implementations([redo_id], 'test'):
                 continue
             
             # Try synthesizing a new operator to fix the problem
-            for i in range(3):
+            for i in range(1):
                 if self._timeout():
                     return False
             
